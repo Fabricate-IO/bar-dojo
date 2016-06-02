@@ -1,0 +1,28 @@
+{
+  "name": "bar-ninja",
+  "version": "0.0.1",
+  "description": "A handy web app for managing a bar",
+  "main": "index.js",
+  "scripts": {
+    "test": "lab"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toddmedema/bar-ninja.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/toddmedema/bar-ninja/issues"
+  },
+  "homepage": "https://github.com/toddmedema/bar-ninja#readme",
+  "dependencies": {
+    "async": "^2.0.0-rc.5",
+    "joi": "^8.4.0",
+    "mongodb": "^2.1.21"
+  },
+  "devDependencies": {
+    "code": "^3.0.0",
+    "lab": "^10.7.1"
+  }
+}
