@@ -1,36 +1,78 @@
 'use strict';
 
+const Async = require('async');
+const Hapi = require('hapi');
+
 const Db = require('./db');
+const Routes = require('./routes');
 
 const Config = {
   mongoUrl: 'mongodb://localhost:27017/BarNinja',
+  server: {
+    host: 'localhost',
+    port: 8000,
+  }
 };
 
 
-// general structure
-  // static assets
-    // css
-    // img
-    // js
-  // templates
-  // web server
-    // UI
-    // API
-  // db objects
-    // general mongo driver - auto-generates Mongo[modelName] from models folder?
-      // db models
-        // special case for stock types, recipes: initial state
+exports.init = function (callback) {
 
-// general flow
-  // server.js run
-  // initializes DB connections and objects
-  // starts web server
+  const server = new Hapi.Server();
+  server.connection(Config.server);
 
-Db.init(Config, (err) => {
+  Async.series([
+    (cb) => { Db.init(Config, cb); },
+    (cb) => { server.register(require('inert'), cb); },
+  ], (err) => {
+
+    if (err) {
+      return callback(err);
+    }
+
+    server.route(require('./routes'));
+
+    return server.start(callback);
+  });
+};
+
+
+exports.init((err) => {
 
   if (err) {
-    return console.log('err');
+    throw err;
   }
 
-  console.log('DB initialized');
+  console.log('Bar Dojo ready to go');
 });
+
+
+/*
+
+exports.init = function (callback) {
+
+  const server = new Hapi.Server();
+  server.connection(Config.server);
+
+  Async.series([
+    (cb) => { Db.init(Config, cb); },
+  ], (err) => {
+
+    if (err) {
+      return callback(err);
+    }
+
+    server.register(require('inert'), (err) => {
+
+      if (err) {
+        return callback(err);
+      }
+
+  console.log(require('./routes'))
+
+      server.route(require('./routes'));
+
+      return server.start(callback);
+    });
+  });
+};
+*/
