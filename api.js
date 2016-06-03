@@ -4,13 +4,20 @@
 module.exports = [
   {
     method: 'GET',
-    path: '/api/comments',
+    path: '/api/StockType',
     handler: (request, reply) => {
-      console.log('received')
-      return reply([
-        {"id": "1", "author": "Pete Hunt", "text": "This is one comment"},
-        {"id": "2", "author": "Jordan Walke", "text": "This is *another* comment"}
-      ]);
+      request.server.app.db.StockType.read({}, (err, result) => {
+        return reply(err || result);
+      });
+    },
+  },
+  {
+    method: 'POST',
+    path: '/api/StockType',
+    handler: (request, reply) => {
+      request.server.app.db.StockType.createOne(request.payload, (err, result) => {
+        return reply(err || result);
+      });
     },
   },
 ];

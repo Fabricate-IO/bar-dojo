@@ -32,7 +32,7 @@ exports.init = function (Config, callback) {
       (cb) => { Async.each(modelNames, _initializeIndexes, cb); },
       (cb) => { Async.each(modelNames, _assignModelCrudFunctions, cb); },
     ], (err) => {
-      return callback(err, Mongo);
+      return callback(err, exports);
     });
   });
 };

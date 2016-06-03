@@ -1,5 +1,5 @@
 // StockType: general class of ingredients (ie vodka, salt, beer)
-// Implemenetation note: because its name is also its id, deleting (aka archiving) then re-adding a StockType
+// Implemenetation note: because its name is the unqiue key, deleting (aka archiving) then re-adding a StockType
   // with the same name will result in a "key already exists" error
 
 'use strict';
@@ -10,7 +10,7 @@ const db = require('../db');
 
 
 exports.schema = {
-  id: Joi.string(),
+  name: Joi.string(),
   unitType: Joi.string().valid(['oz', 'bottle', 'unit']).default('unit'),
 
   created: Joi.date().timestamp(),
@@ -21,7 +21,7 @@ exports.schema = {
 exports.indexes = [
   {
     keys: {
-      id: 1
+      name: 1,
     },
     options: {
       unique: true,
@@ -32,17 +32,17 @@ exports.indexes = [
 
 exports.initialState = [
   // hard alcohol
-  { id: 'dark rum', unitType: 'oz' },
-  { id: 'gin', unitType: 'oz' },
-  { id: 'tequila', unitType: 'oz' },
-  { id: 'vodka', unitType: 'oz' },
-  { id: 'white rum', unitType: 'oz' },
+  { name: 'dark rum', unitType: 'oz' },
+  { name: 'gin', unitType: 'oz' },
+  { name: 'tequila', unitType: 'oz' },
+  { name: 'vodka', unitType: 'oz' },
+  { name: 'white rum', unitType: 'oz' },
   // liquors
-  { id: 'triple sec', unitType: 'oz' },
+  { name: 'triple sec', unitType: 'oz' },
   // other alcohols
-  { id: 'beer', unitType: 'bottle' },
+  { name: 'beer', unitType: 'bottle' },
   // mixers
-  { id: 'cola', unitType: 'bottle' },
+  { name: 'cola', unitType: 'bottle' },
   // misc
-  { id: 'ice cube' },
+  { name: 'ice cube' },
 ];

@@ -20,18 +20,24 @@ exports.init = function (callback) {
   const server = new Hapi.Server();
   server.connection(Config.server);
 
-  Async.series([
-    (cb) => { Db.init(Config, cb); },
-    (cb) => { server.register(require('inert'), cb); },
-  ], (err) => {
+  Db.init(Config, (err, db) => {
 
     if (err) {
       return callback(err);
     }
 
-    server.route(require('./routes'));
+    server.app.db = db;
 
-    return server.start(callback);
+    server.register(require('inert'), (err) => {
+
+      if (err) {
+        return callback(err);
+      }
+
+      server.route(require('./routes'));
+
+      return server.start(callback);
+    });
   });
 };
 

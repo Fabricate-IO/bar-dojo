@@ -4,18 +4,27 @@
 module.exports = [
   {
     method: 'GET',
-    path: '/static/{filename*}',
+    path: '/',
+    handler: (request, reply) => {
+      return reply.file('./app/app.html');
+    },
+  },
+  {
+    method: 'GET',
+    path: '/app/{filename*}',
     handler: {
       directory: {
-        path: 'static',
+        path: 'app',
       },
     },
   },
   {
     method: 'GET',
-    path: '/',
-    handler: (request, reply) => {
-      return reply.file('./template/index.html');
+    path: '/static/{filename*}',
+    handler: {
+      directory: {
+        path: 'static',
+      },
     },
   },
 ];

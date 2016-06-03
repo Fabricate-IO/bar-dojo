@@ -57,7 +57,7 @@ describe('CRUD', () => {
 
   it('createOne', (done) => {
 
-    Db.StockType.createOne({ id: 'test' }, (err) => {
+    Db.StockType.createOne({ name: 'test' }, (err) => {
 
       expect(err).to.be.null();
       done();
@@ -66,17 +66,17 @@ describe('CRUD', () => {
 
   it('readOne', (done) => {
 
-    Db.StockType.readOne({ id: 'test' }, (err, result) => {
+    Db.StockType.readOne({ name: 'test' }, (err, result) => {
 
       expect(err).to.be.null();
-      expect(result.id).to.equal('test');
+      expect(result.name).to.equal('test');
       done();
     });
   });
 
   it('updateOne', (done) => {
 
-    Db.StockType.updateOne({ id: 'test' }, { id: 'test4' }, (err, result) => {
+    Db.StockType.updateOne({ name: 'test' }, { name: 'test4' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -89,14 +89,14 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ id: 'test4' }], result);
+      _checkArrayEquality([{ name: 'test4' }], result);
       done();
     });
   });
 
   it('update', (done) => {
 
-    Db.StockType.update({}, { id: 'test' }, (err, result) => {
+    Db.StockType.update({}, { name: 'test' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -109,14 +109,14 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ id: 'test' }], result);
+      _checkArrayEquality([{ name: 'test' }], result);
       done();
     });
   });
 
   it('create', (done) => {
 
-    Db.StockType.create([{ id: 'test2' }, { id: 'test3' }], (err) => {
+    Db.StockType.create([{ name: 'test2' }, { name: 'test3' }], (err) => {
 
       expect(err).to.be.null();
       done();
@@ -129,14 +129,14 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
-      _checkArrayEquality([{ id: 'test' }, { id: 'test2' }, { id: 'test3' }], result);
+      _checkArrayEquality([{ name: 'test' }, { name: 'test2' }, { name: 'test3' }], result);
       done();
     });
   });
 
   it('delete', (done) => {
 
-    Db.StockType.delete({ id: 'test3' }, (err) => {
+    Db.StockType.delete({ name: 'test3' }, (err) => {
 
       expect(err).to.be.null();
       done();
@@ -149,14 +149,14 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      _checkArrayEquality([{ id: 'test' }, { id: 'test2' }], result);
+      _checkArrayEquality([{ name: 'test' }, { name: 'test2' }], result);
       done();
     });
   });
 
   it('deleteOne', (done) => {
 
-    Db.StockType.deleteOne({ id: 'test2' }, (err) => {
+    Db.StockType.deleteOne({ name: 'test2' }, (err) => {
 
       expect(err).to.be.null();
       done();
@@ -169,7 +169,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ id: 'test' }], result);
+      _checkArrayEquality([{ name: 'test' }], result);
       done();
     });
   });
@@ -180,7 +180,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      _checkArrayEquality([{ id: 'test2' }, { id: 'test3' }], result);
+      _checkArrayEquality([{ name: 'test2' }, { name: 'test3' }], result);
       done();
     });
   });
@@ -206,18 +206,18 @@ describe('CRUD - egde cases', () => {
   after(Db.exit);
 
 
-  it('createOne - fails validation, errors', (done) => {
+  it('createOne - fails valnameation, errors', (done) => {
 
-    Db.StockType.createOne({ id: 123 }, (err) => {
+    Db.StockType.createOne({ name: 123 }, (err) => {
 
       expect(err).to.not.be.null();
       done();
     });
   });
 
-  it('create - fails validation, errors', (done) => {
+  it('create - fails valnameation, errors', (done) => {
 
-    Db.StockType.create([{ id: 1 }, { id: 2 }], (err) => {
+    Db.StockType.create([{ name: 1 }, { name: 2 }], (err) => {
 
       expect(err).to.not.be.null();
       done();
@@ -236,7 +236,7 @@ describe('CRUD - egde cases', () => {
 
   it('updateOne - does not exist, should not error', (done) => {
 
-    Db.StockType.updateOne({ id: 'test' }, { id: 'test4' }, (err, result) => {
+    Db.StockType.updateOne({ name: 'test' }, { name: 'test4' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -245,7 +245,7 @@ describe('CRUD - egde cases', () => {
 
   it('update - does not exist, should not error', (done) => {
 
-    Db.StockType.update({}, { id: 'test' }, (err, result) => {
+    Db.StockType.update({}, { name: 'test' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -254,16 +254,16 @@ describe('CRUD - egde cases', () => {
 
   it('createOne - prep', (done) => {
 
-    Db.StockType.createOne({ id: 'test' }, (err) => {
+    Db.StockType.createOne({ name: 'test' }, (err) => {
 
       expect(err).to.be.null();
       done();
     });
   });
 
-  it('createOne - duplicate id, errors', (done) => {
+  it('createOne - duplicate name, errors', (done) => {
 
-    Db.StockType.createOne({ id: 'test' }, (err) => {
+    Db.StockType.createOne({ name: 'test' }, (err) => {
 
       expect(err).to.not.be.null();
       done();
@@ -274,7 +274,7 @@ describe('CRUD - egde cases', () => {
 
 /* ===== Helpers ===== */
 
-// checks for equality, skipping mongo properties like _id
+// checks for equality, skipping mongo properties like _name
 function _checkArrayEquality (a, b) {
 
   expect(a.length).to.equal(b.length);
@@ -284,12 +284,12 @@ function _checkArrayEquality (a, b) {
 }
 
 
-// checks for equality, skipping mongo properties like _id
+// checks for equality, skipping mongo properties like _name
 function _checkEquality (a, b) {
 
   Object.keys(a).forEach((property) => {
   // for (let property in a) {
-    if (property !== '_id') {
+    if (property !== '_name') {
       expect(a[property]).to.equal(b[property], { prototype: false });
     }
   });
