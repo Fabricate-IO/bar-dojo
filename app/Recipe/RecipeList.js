@@ -1,9 +1,13 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
-import RaisedButton from 'material-ui/RaisedButton';
+import {List, ListItem} from 'material-ui/List';
+import Subheader from 'material-ui/Subheader';
+import IconButton from 'material-ui/IconButton';
+import IconDelete from 'material-ui/svg-icons/action/delete';
+import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
 
 
-var Recipe = React.createClass({
+const Recipe = React.createClass({
   handleDelete: function () {
     this.props.onDelete(this.props.recipe.id);
   },
@@ -12,14 +16,15 @@ var Recipe = React.createClass({
   },
   render: function () {
     return (
-      <li className="recipe">
-        <h2>
-          {this.props.recipe.name}
-        </h2>
-        <RaisedButton className="edit" onClick={this.handleEdit}>EDIT</RaisedButton>
-        <RaisedButton className="delete" onClick={this.handleDelete}>X</RaisedButton>
-        {this.props.children}
-      </li>
+      <ListItem
+        primaryText={this.props.recipe.name}
+        rightIconButton={
+          <div>
+            <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
+            <IconButton onClick={this.handleDelete}><IconDelete /></IconButton>
+          </div>
+        }
+      />
     );
   },
 });
@@ -60,9 +65,11 @@ module.exports = React.createClass({
       return <Recipe key={recipe.id} recipe={recipe} onDelete={this.onDelete}></Recipe>;
     });
     return (
-      <ul>
+      <List>
+        <Subheader>Available drinks</Subheader>
         {recipes}
-      </ul>
+        <Subheader>Out of stock</Subheader>
+      </List>
     );
   },
 });

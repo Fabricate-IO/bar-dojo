@@ -1,21 +1,21 @@
-'use strict';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 
-var RecipeLayout = require('./Recipe/RecipeLayout');
-var RecipeList = require('./Recipe/RecipeList');
-var RecipeAdd = require('./Recipe/RecipeAdd');
-var RecipeEdit = require('./Recipe/RecipeEdit');
+const RecipeLayout = require('./Recipe/RecipeLayout');
+const RecipeList = require('./Recipe/RecipeList');
+const RecipeAdd = require('./Recipe/RecipeAdd');
+const RecipeEdit = require('./Recipe/RecipeEdit');
 
 injectTapEventPlugin();
+const theme = getMuiTheme(darkBaseTheme);
 
 
-var PatronLayout = React.createClass({
+const PatronLayout = React.createClass({
   render: function () {
     return (
       <div>TODO</div>
@@ -24,10 +24,10 @@ var PatronLayout = React.createClass({
 });
 
 
-var AppLayout = React.createClass({
+const AppLayout = React.createClass({
   render: function () {
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme()}>
+      <MuiThemeProvider muiTheme={theme}>
         <div id="page">
           <ul className="navbar">
             <li><Link to="/">Drinks</Link></li>

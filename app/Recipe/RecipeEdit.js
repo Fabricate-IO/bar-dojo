@@ -61,7 +61,7 @@ module.exports = React.createClass({
           value={this.state.object.name}
           onChange={this.handleInputChange}
         />
-        <input type="submit" value="Edit" />
+        <input type="submit" value="Save" />
       </form>
     );
   }
