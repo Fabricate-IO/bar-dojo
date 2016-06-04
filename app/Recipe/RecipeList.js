@@ -2,6 +2,7 @@ import React from 'react';
 import { hashHistory } from 'react-router';
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
+import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import IconDelete from 'material-ui/svg-icons/action/delete';
 import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
@@ -68,6 +69,7 @@ module.exports = React.createClass({
       <List>
         <Subheader>Available drinks</Subheader>
         {recipes}
+        <Divider />
         <Subheader>Out of stock</Subheader>
       </List>
     );

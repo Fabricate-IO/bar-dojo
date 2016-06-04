@@ -71,7 +71,7 @@ function createOne (modelName, object, callback) {
           return callback(err);
         }
 
-        object.id = (result == null) ? 0 : result.id + 1;
+        object.id = (result == null) ? 0 : Number(result.id) + 1;
         return Mongo.collection(modelName).insert(object, callback);
       });
     }

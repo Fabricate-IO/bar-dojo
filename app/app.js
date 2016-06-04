@@ -4,7 +4,8 @@ import { Router, Route, IndexRoute, IndexRedirect, Link, hashHistory } from 'rea
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
+// import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
+import style from './styles';
 
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
@@ -15,17 +16,10 @@ import IconAdd from 'material-ui/svg-icons/content/add';
 import IconSearch from 'material-ui/svg-icons/action/search';
 
 const RecipeList = require('./Recipe/RecipeList');
-const RecipeAdd = require('./Recipe/RecipeAdd');
-const RecipeEdit = require('./Recipe/RecipeEdit');
+const RecipeForm = require('./Recipe/RecipeForm');
 
 injectTapEventPlugin();
-const theme = getMuiTheme(darkBaseTheme);
-
-const styles = {
-  navlink: {
-    'text-decoration': 'none',
-  },
-};
+const theme = getMuiTheme();
 
 
 const PatronLayout = React.createClass({
@@ -53,11 +47,16 @@ const AppLayout = React.createClass({
   handleToggle: function () { this.setState({open: !this.state.open}); },
   handleClose: function () { this.setState({open: false}); },
   render: function () {
+    const pageName = ((path) => {
+      if (path.indexOf('drinks') !== -1) { return 'Drinks'; }
+      if (path.indexOf('patrons') !== -1) { return 'Patrons'; }
+      return 'TODO: set page name';
+    })(this.props.location.pathname);
     return (
       <MuiThemeProvider muiTheme={theme}>
         <div id="page">
           <AppBar
-            title={this.props.location.pathname}
+            title={pageName}
             iconElementRight={
               <div>
                 <TextField
@@ -70,6 +69,7 @@ const AppLayout = React.createClass({
               </div>
             }
             onLeftIconButtonTouchTap={this.handleToggle}
+
           />
           <Drawer
             docked={false}
@@ -77,14 +77,14 @@ const AppLayout = React.createClass({
             open={this.state.open}
             onRequestChange={(open) => this.setState({open})}
           >
-            <h2>BarNinja</h2>
-            <Link to="/drinks" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Drinks</MenuItem></Link>
-            <Link to="/patrons" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Patrons</MenuItem></Link>
-            <Link to="/inventory" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Inventory</MenuItem></Link>
-            <Link to="/shopping" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Shopping List</MenuItem></Link>
-            <Link to="/history" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>History</MenuItem></Link>
+            <h2>Bar Dojo</h2>
+            <Link to="/drinks" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Drinks</MenuItem></Link>
+            <Link to="/patrons" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Patrons</MenuItem></Link>
+            <Link to="/inventory" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Inventory</MenuItem></Link>
+            <Link to="/shopping" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Shopping List</MenuItem></Link>
+            <Link to="/history" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>History</MenuItem></Link>
           </Drawer>
-          <div>
+          <div style={style.contentBox}>
             {this.props.children}
           </div>
         </div>
@@ -102,8 +102,8 @@ ReactDOM.render(
       </Route>
       <Route path="/drinks">
         <IndexRoute component={RecipeList} />
-        <Route path="add" component={RecipeAdd} />
-        <Route path="edit/:id" component={RecipeEdit} />
+        <Route path="add" component={RecipeForm} />
+        <Route path="edit/:id" component={RecipeForm} />
       </Route>
       <Route path="/patrons" component={PatronLayout} />
     </Route>

@@ -1,88 +1,130 @@
 'use strict';
 
+const Boom = require('boom');
 const Joi = require('joi');
 
-const Recipe = require('./model/Recipe');
+const models = {
+  Recipe: require('./model/Recipe'),
+  StockType: require('./model/StockType'),
+};
 
-/* API endpoints for each object:
-DELETE /?query
-DELETE /id
-GET /?query
-GET /id
-PATCH /id <payload>
-POST / <payload>
-PUT / <payload>
-*/
 
 module.exports = [
+
+/* ===== Recipe ===== */
   {
     method: 'DELETE',
-    path: '/api/Recipe/{id}',
-    config: {
-      validate: {
-        params: Recipe.schema,
-      },
-    },
+    path: '/api/{modelName}/{id}',
     handler: (request, reply) => {
-      request.server.app.db.Recipe.deleteOne(request.params.id, (err, result) => {
-        return reply(err || result);
+
+      const modelName = request.params.modelName;
+      delete request.params.modelName;
+
+      Joi.validate(request.params, models[modelName].schema, (err, params) => {
+
+        if (err) {
+          return reply(Boom.badRequest(err));
+        }
+
+        request.server.app.db[modelName].deleteOne(request.params.id, (err, result) => {
+          return reply(err || result);
+        });
       });
     },
   },
   {
     method: 'GET',
-    path: '/api/Recipe/{id}',
-    config: {
-      validate: {
-        params: Recipe.schema,
-      },
-    },
+    path: '/api/{modelName}/{id}',
     handler: (request, reply) => {
-      request.server.app.db.Recipe.readOne(request.params.id, (err, result) => {
-        return reply(err || result);
+
+      const modelName = request.params.modelName;
+      delete request.params.modelName;
+
+      Joi.validate(request.params, models[modelName].schema, (err, params) => {
+
+        if (err) {
+          return reply(Boom.badRequest(err));
+        }
+
+        request.server.app.db[modelName].readOne(params.id, (err, result) => {
+          return reply(err || result);
+        });
       });
     },
   },
   {
     method: 'GET',
-    path: '/api/Recipe',
-    config: {
-      validate: {
-        query: Recipe.schema,
-      },
-    },
+    path: '/api/{modelName}',
     handler: (request, reply) => {
-      request.server.app.db.Recipe.read(request.query, (err, result) => {
-        return reply(err || result);
+
+      const modelName = request.params.modelName;
+      delete request.params.modelName;
+
+      Joi.validate(request.query, models[modelName].schema, (err, query) => {
+
+        if (err) {
+          return reply(Boom.badRequest(err));
+        }
+
+        request.server.app.db[modelName].read(query, (err, result) => {
+          return reply(err || result);
+        });
       });
     },
   },
   {
     method: 'PUT',
-    path: '/api/Recipe/{id}',
-    config: {
-      validate: {
-        params: Recipe.schema,
-        payload: Recipe.schema,
-      },
-    },
+    path: '/api/{modelName}/{id}',
     handler: (request, reply) => {
-      request.server.app.db.Recipe.updateOne(request.params.id, request.payload, (err, result) => {
-        return reply(err || result);
+
+      const modelName = request.params.modelName;
+      delete request.params.modelName;
+
+      Joi.validate(request.params, models[modelName].schema, (err, params) => {
+
+        if (err) {
+          return reply(Boom.badRequest(err));
+        }
+
+        Joi.validate(request.payload, models[modelName].schema, (err, payload) => {
+
+          if (err) {
+            return reply(Boom.badRequest(err));
+          }
+
+          if (params.id != null && payload.id != null && params.id !== payload.id) {
+            return reply(Boom.badRequest("IDs in param and payload do not match"));
+          }
+
+          request.server.app.db[modelName].updateOne(params.id, payload, (err, result) => {
+            return reply(err || result);
+          });
+        });
       });
     },
   },
   {
     method: 'POST',
-    path: '/api/Recipe',
+    path: '/api/{modelName}',
     config: {
       validate: {
-        payload: Recipe.schema,
+        payload: models.Recipe.schema,
       },
     },
     handler: (request, reply) => {
-      request.server.app.db.Recipe.createOne(request.payload, (err, result) => {
-        return reply(err || result);
+
+      const modelName = request.params.modelName;
+      delete request.params.modelName;
+
+      Joi.validate(request.payload, models[modelName].schema, (err, payload) => {
+
+        if (err) {
+          return reply(Boom.badRequest(err));
+        }
+
+        request.server.app.db[modelName].createOne(payload, (err, result) => {
+          return reply(err || result);
+        });
       });
     },
   },

@@ -11,7 +11,7 @@ exports.schema = {
   id: Joi.number(),
   name: Joi.string(),
   tags: Joi.array().items(Joi.string()), // tag name
-  instructions: Joi.array().items(Joi.string()), // optional
+  instructions: Joi.string(), // optional
   ingredients: Joi.array().items(Joi.object().keys({
     stockTypeId: Joi.string(),
     quantity: Joi.number(),
@@ -60,7 +60,7 @@ exports.initialState = [
   {
     name: 'Long Island Ice Tea',
     // TODO tags
-    instructions: ['Add ingredients', 'Shake vigorously', 'Enjoy'],
+    instructions: 'Add ingredients. Shake vigorously. Enjoy',
     ingredients: [
       {
         stockTypeId: 'ice cube',
@@ -95,7 +95,7 @@ exports.initialState = [
   {
     name: 'Mudslide',
     // TODO tags
-    instructions: ['Add ingredients to blender', 'Blend until smooth', 'Enjoy'],
+    instructions: 'Add ingredients to blender. Blend until smooth. Enjoy',
     ingredients: [
       {
         stockTypeId: 'ice cube',

@@ -19,6 +19,7 @@
   "homepage": "https://github.com/toddmedema/bar-ninja#readme",
   "dependencies": {
     "async": "^2.0.0-rc.5",
+    "boom": "^3.2.1",
     "hapi": "^13.4.1",
     "inert": "^4.0.0",
     "joi": "^8.4.0",
