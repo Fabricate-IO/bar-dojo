@@ -1,6 +1,6 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
-import {List, ListItem} from 'material-ui/List';
+import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import IconButton from 'material-ui/IconButton';
 import IconDelete from 'material-ui/svg-icons/action/delete';
@@ -12,7 +12,7 @@ const Recipe = React.createClass({
     this.props.onDelete(this.props.recipe.id);
   },
   handleEdit: function () {
-    hashHistory.push('/edit/' + this.props.recipe.id);
+    hashHistory.push('/drinks/edit/' + this.props.recipe.id);
   },
   render: function () {
     return (

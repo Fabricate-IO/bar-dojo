@@ -97,7 +97,7 @@ function updateMany (modelName, query, delta, callback) {
 }
 function updateOne (modelName, id, delta, callback) {
   readOne(modelName, id, (err, result) => {
-    return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, callback);
+    return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, { upsert: true }, callback);
   })
   // return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, callback);
 }
@@ -144,10 +144,10 @@ function _setModelInitialState (modelName, callback) {
 
     if (!exists) {
 
-      // console.log(modelName + ' does not exist, initializing');
+      // TODO log to server: console.log(modelName + ' does not exist, initializing');
 
       if (Models[modelName].initialState == null) {
-        // console.log('No initial state defined for ' + modelName + ', skipping initialization');
+        // TODO log to server: console.log('No initial state defined for ' + modelName + ', skipping initialization');
         return callback();
       }
 

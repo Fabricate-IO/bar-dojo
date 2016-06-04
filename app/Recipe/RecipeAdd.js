@@ -25,7 +25,7 @@ module.exports = React.createClass({
       data: recipe,
       success: function (data) {
         // already updated state, we're good to go
-        hashHistory.push('/');
+        hashHistory.push('/drinks');
       }.bind(this),
       error: function (xhr, status, err) {
         this.setState({ object: state });
@@ -38,6 +38,9 @@ module.exports = React.createClass({
     object[e.target.name] = e.target.value;
     this.setState({ object: object });
   },
+  handleCancel: function () {
+    hashHistory.push('/drinks');
+  },
   render: function () {
     return (
       <form onSubmit={this.handlePost}>
@@ -48,6 +51,7 @@ module.exports = React.createClass({
           value={this.state.object.name}
           onChange={this.handleInputChange}
         />
+        <RaisedButton label="Cancel" onClick={this.handleCancel} />
         <RaisedButton label="Add" type="submit" />
       </form>
     );

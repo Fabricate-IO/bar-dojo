@@ -80,18 +80,14 @@ describe('CRUD', () => {
     Db.StockType.updateOne(0, { name: 'test4' }, (err, result) => {
 
       expect(err).to.be.null();
-      done();
-    });
-  });
 
-  it('read - confirm update', (done) => {
+      Db.StockType.read({}, (err, result) => {
 
-    Db.StockType.read({}, (err, result) => {
-
-      expect(err).to.be.null();
-      expect(result.length).to.equal(1);
-      _checkArrayEquality(result, [{ id: 0, name: 'test4' }]);
-      done();
+        expect(err).to.be.null();
+        expect(result.length).to.equal(1);
+        _checkArrayEquality(result, [{ id: 0, name: 'test4' }]);
+        done();
+      });
     });
   });
 
@@ -100,18 +96,14 @@ describe('CRUD', () => {
     Db.StockType.update({}, { name: 'test' }, (err, result) => {
 
       expect(err).to.be.null();
-      done();
-    });
-  });
 
-  it('read - confirm update', (done) => {
+      Db.StockType.read({}, (err, result) => {
 
-    Db.StockType.read({}, (err, result) => {
-
-      expect(err).to.be.null();
-      expect(result.length).to.equal(1);
-      _checkArrayEquality(result, [{ id: 0, name: 'test' }]);
-      done();
+        expect(err).to.be.null();
+        expect(result.length).to.equal(1);
+        _checkArrayEquality(result, [{ id: 0, name: 'test' }]);
+        done();
+      });
     });
   });
 
@@ -135,23 +127,30 @@ describe('CRUD', () => {
     });
   });
 
+  it('read - sorted', (done) => {
+
+    Db.StockType.read({}, (err, result) => {
+
+      expect(err).to.be.null();
+      expect(result.length).to.equal(3);
+      _checkArrayEquality(result, [{ id: 2, name: 'test3' }, { id: 1, name: 'test2' }, { id: 0, name: 'test' }]);
+      done();
+    });
+  });
+
   it('delete', (done) => {
 
     Db.StockType.delete({ name: 'test3' }, (err) => {
 
       expect(err).to.be.null();
-      done();
-    });
-  });
 
-  it('read - confirm delete', (done) => {
+      Db.StockType.read({}, (err, result) => {
 
-    Db.StockType.read({}, (err, result) => {
-
-      expect(err).to.be.null();
-      expect(result.length).to.equal(2);
-      _checkArrayEquality(result, [{ id: 1, name: 'test2' }, { id: 0, name: 'test' }]);
-      done();
+        expect(err).to.be.null();
+        expect(result.length).to.equal(2);
+        _checkArrayEquality(result, [{ id: 1, name: 'test2' }, { id: 0, name: 'test' }]);
+        done();
+      });
     });
   });
 
@@ -160,18 +159,14 @@ describe('CRUD', () => {
     Db.StockType.deleteOne(1, (err) => {
 
       expect(err).to.be.null();
-      done();
-    });
-  });
 
-  it('read - confirm delete', (done) => {
+      Db.StockType.read({}, (err, result) => {
 
-    Db.StockType.read({}, (err, result) => {
-
-      expect(err).to.be.null();
-      expect(result.length).to.equal(1);
-      _checkArrayEquality(result, [{ name: 'test' }]);
-      done();
+        expect(err).to.be.null();
+        expect(result.length).to.equal(1);
+        _checkArrayEquality(result, [{ name: 'test' }]);
+        done();
+      });
     });
   });
 
@@ -183,6 +178,36 @@ describe('CRUD', () => {
       expect(result.length).to.equal(2);
       _checkArrayEquality(result, [{ id: 2, name: 'test3' }, { id: 1, name: 'test2' }]);
       done();
+    });
+  });
+
+  it('updateOne - upsert if it does not exist', (done) => {
+
+    Db.StockType.updateOne(5, { name: 'test5' }, (err, result) => {
+
+      expect(err).to.be.null();
+
+      Db.StockType.readOne(5, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.name).to.equal('test5');
+        done();
+      });
+    });
+  });
+
+  it('createOne - id specified', (done) => {
+
+    Db.StockType.createOne({ id: 6, name: 'test6' }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.StockType.readOne(6, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.name).to.equal('test6');
+        done();
+      });
     });
   });
 });
@@ -216,58 +241,32 @@ describe('CRUD - egde cases', () => {
     });
   });
 
-  it('create - fails name validation, errors', (done) => {
+  it('create - fails name validation, errors and does not create an object', (done) => {
 
     Db.StockType.create([{ name: 1 }, { name: 2 }], (err) => {
 
       expect(err).to.not.be.null();
-      done();
+
+      Db.StockType.read({}, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.length).to.equal(0);
+        done();
+      });
     });
   });
 
-  it('read - confirm no objects created', (done) => {
-
-    Db.StockType.read({}, (err, result) => {
-
-      expect(err).to.be.null();
-      expect(result.length).to.equal(0);
-      done();
-    });
-  });
-
-  it('updateOne - does not exist, should not error', (done) => {
-
-    Db.StockType.updateOne(10, { name: 'test4' }, (err, result) => {
-
-      expect(err).to.be.null();
-      done();
-    });
-  });
-
-  it('update - does not exist, should not error', (done) => {
-
-    Db.StockType.update({}, { name: 'test' }, (err, result) => {
-
-      expect(err).to.be.null();
-      done();
-    });
-  });
-
-  it('createOne - prep', (done) => {
+  it('createOne - errors on duplicate name', (done) => {
 
     Db.StockType.createOne({ name: 'test' }, (err) => {
 
       expect(err).to.be.null();
-      done();
-    });
-  });
 
-  it('createOne - duplicate name, errors', (done) => {
+      Db.StockType.createOne({ name: 'test' }, (err) => {
 
-    Db.StockType.createOne({ name: 'test' }, (err) => {
-
-      expect(err).to.not.be.null();
-      done();
+        expect(err).to.not.be.null();
+        done();
+      });
     });
   });
 });

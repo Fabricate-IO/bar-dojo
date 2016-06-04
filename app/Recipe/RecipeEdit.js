@@ -38,7 +38,7 @@ module.exports = React.createClass({
       data: recipe,
       success: function (data) {
         // already updated state, we're good to go
-        hashHistory.push('/');
+        hashHistory.push('/drinks');
       }.bind(this),
       error: function (xhr, status, err) {
         this.setState({ object: object });
