@@ -3,4 +3,6 @@ machine:
     version: 6.2.1
 test:
   override:
-    - lab -r junit
+    - lab -r junit -o $CIRCLE_TEST_REPORTS
+  post:
+    - bash <(curl -s https://codecov.io/bash)
