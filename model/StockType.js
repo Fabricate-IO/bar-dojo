@@ -10,7 +10,7 @@ const db = require('../db');
 
 
 exports.schema = {
-  name: Joi.string(),
+  name: Joi.string().required(),
   unitType: Joi.string().valid(['oz', 'bottle', 'unit']).default('unit'),
 
   created: Joi.date().timestamp(),
@@ -38,11 +38,15 @@ exports.initialState = [
   { name: 'vodka', unitType: 'oz' },
   { name: 'white rum', unitType: 'oz' },
   // liquors
+  { name: 'irish cream', unitType: 'oz' },
+  { name: 'kahlua', unitType: 'oz' },
   { name: 'triple sec', unitType: 'oz' },
   // other alcohols
   { name: 'beer', unitType: 'bottle' },
-  // mixers
-  { name: 'cola', unitType: 'bottle' },
+  { name: 'ginger beer', unitType: 'bottle' },
+  // mixers and juices
+  { name: 'cola', unitType: 'oz' },
+  { name: 'milk', unitType: 'oz' },
   // misc
   { name: 'ice cube' },
 ];

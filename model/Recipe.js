@@ -9,9 +9,9 @@ const db = require('../db');
 
 
 exports.schema = {
-  name: Joi.string(),
-  tags: Joi.array().items(Joi.string()), // tag object id
-  instructions: Joi.array().items(Joi.string()),
+  name: Joi.string().required(),
+  tags: Joi.array().items(Joi.string()), // tag name
+  instructions: Joi.array().items(Joi.string()), // optional
   ingredients: Joi.array().items(Joi.object().keys({
     stockTypeId: Joi.string(),
     quantity: Joi.number(),
@@ -35,6 +35,20 @@ exports.indexes = [
 
 
 exports.initialState = [
+  {
+    name: 'Dark and Stormy',
+    // TODO tags
+    ingredients: [
+      {
+        stockTypeId: 'dark rum',
+        quantity: 2,
+      },
+      {
+        stockTypeId: 'ginger beer',
+        quantity: 0.2,
+      },
+    ],
+  },
   {
     name: 'Long Island Ice Tea',
     // TODO tags
@@ -66,7 +80,48 @@ exports.initialState = [
       },
       {
         stockTypeId: 'cola',
-        quantity: 0.5,
+        quantity: 4,
+      },
+    ],
+  },
+  {
+    name: 'Mudslide',
+    // TODO tags
+    instructions: ['Add ingredients to blender', 'Blend until smooth', 'Enjoy'],
+    ingredients: [
+      {
+        stockTypeId: 'ice cube',
+        quantity: 4,
+      },
+      {
+        stockTypeId: 'irish cream',
+        quantity: 1,
+      },
+      {
+        stockTypeId: 'kahlua',
+        quantity: 1,
+      },
+      {
+        stockTypeId: 'milk',
+        quantity: 1,
+      },
+      {
+        stockTypeId: 'vodka',
+        quantity: 1,
+      },
+    ],
+  },
+  {
+    name: 'Rum and Coke',
+    // TODO tags
+    ingredients: [
+      {
+        stockTypeId: 'dark rum',
+        quantity: 1.5,
+      },
+      {
+        stockTypeId: 'cola',
+        quantity: 5,
       },
     ],
   },

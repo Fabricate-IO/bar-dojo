@@ -19,10 +19,15 @@
   "homepage": "https://github.com/toddmedema/bar-ninja#readme",
   "dependencies": {
     "async": "^2.0.0-rc.5",
+    "browserify": "^13.0.1",
+    "gulp": "^3.9.1",
     "hapi": "^13.4.1",
     "inert": "^4.0.0",
     "joi": "^8.4.0",
-    "mongodb": "^2.1.21"
+    "mongodb": "^2.1.21",
+    "reactify": "^1.1.1",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
   },
   "devDependencies": {
     "code": "^3.0.0",
