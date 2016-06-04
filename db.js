@@ -138,10 +138,10 @@ function _setModelInitialState (modelName, callback) {
 
     if (!exists) {
 
-      console.log(modelName + ' does not exist, initializing');
+      // console.log(modelName + ' does not exist, initializing');
 
       if (Models[modelName].initialState == null) {
-        console.log('No initial state defined for ' + modelName + ', skipping initialization');
+        // console.log('No initial state defined for ' + modelName + ', skipping initialization');
         return callback();
       }
 
