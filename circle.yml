@@ -4,6 +4,6 @@ machine:
 test:
   override:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-    - lab -r junit -o $CIRCLE_TEST_REPORTS/junit/tests.xml
+    - lab -c -r junit -o $CIRCLE_TEST_REPORTS/junit/tests.xml
   post:
     - bash <(curl -s https://codecov.io/bash)
