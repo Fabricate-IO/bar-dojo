@@ -66,7 +66,7 @@ describe('CRUD', () => {
 
   it('readOne', (done) => {
 
-    Db.StockType.readOne({ name: 'test' }, (err, result) => {
+    Db.StockType.readOne(0, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.name).to.equal('test');
@@ -76,7 +76,7 @@ describe('CRUD', () => {
 
   it('updateOne', (done) => {
 
-    Db.StockType.updateOne({ name: 'test' }, { name: 'test4' }, (err, result) => {
+    Db.StockType.updateOne(0, { name: 'test4' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -89,7 +89,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ name: 'test4' }], result);
+      _checkArrayEquality([{ id: 0, name: 'test4' }], result);
       done();
     });
   });
@@ -109,7 +109,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ name: 'test' }], result);
+      _checkArrayEquality([{ id: 0, name: 'test' }], result);
       done();
     });
   });
@@ -156,7 +156,7 @@ describe('CRUD', () => {
 
   it('deleteOne', (done) => {
 
-    Db.StockType.deleteOne({ name: 'test2' }, (err) => {
+    Db.StockType.deleteOne(1, (err) => {
 
       expect(err).to.be.null();
       done();
@@ -180,7 +180,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      _checkArrayEquality([{ name: 'test2' }, { name: 'test3' }], result);
+      _checkArrayEquality([{ id: 1, name: 'test2' }, { id: 2, name: 'test3' }], result);
       done();
     });
   });

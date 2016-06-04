@@ -49,45 +49,59 @@ exports.exit = function (callback) {
 
 
 function createMany (modelName, objects, callback) {
-  Async.forEach(objects, (object, cb) => { createOne(modelName, object, cb); }, callback);
+  Async.eachSeries(objects, (object, cb) => { createOne(modelName, object, cb); }, callback);
 }
 function createOne (modelName, object, callback) {
+
   Joi.validate(object, Models[modelName].schema, (err, object) => {
 
     if (err) {
       return callback(err);
     }
-    return Mongo.collection(modelName).insert(object, callback);
+
+    if (object.id == null) {
+
+      Mongo.collection(modelName).findOne({}, { sort: [[ 'id', 'desc' ]] }, (err, result) => {
+
+        if (err) {
+          return callback(err);
+        }
+
+        object.id = (result == null) ? 0 : result.id + 1;
+        return Mongo.collection(modelName).insert(object, callback);
+      });
+    }
+    else {
+      return Mongo.collection(modelName).insert(object, callback);
+    }
   });
 }
 
 // skips archived items unless otherwise specified
 function readMany (modelName, query, callback) {
-  if (query.archived == null) {
-    query.archived = { $ne: true };
-  }
+  query.archived = query.archived || { $ne: true };
   return Mongo.collection(modelName).find(query).toArray(callback);
 }
-function readOne (modelName, query, callback) {
-  if (query.archived == null) {
-    query.archived = { $ne: true };
-  }
-  return Mongo.collection(modelName).findOne(query, callback);
+function readOne (modelName, id, callback) {
+  return Mongo.collection(modelName).findOne({ id: id }, callback);
 }
 
 function updateMany (modelName, query, delta, callback) {
   return Mongo.collection(modelName).update(query, { $set: delta }, callback);
 }
-function updateOne (modelName, query, delta, callback) {
-  return Mongo.collection(modelName).updateOne(query, { $set: delta }, callback);
+function updateOne (modelName, id, delta, callback) {
+  readOne(modelName, id, (err, result) => {
+    return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, callback);
+  })
+  // return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, callback);
 }
 
 // doesn't actually delete, just flags as archived
 function deleteMany (modelName, query, callback) {
   return updateMany(modelName, query, { archived: true }, callback);
 }
-function deleteOne (modelName, query, callback) {
-  return updateOne(modelName, query, { archived: true }, callback);
+function deleteOne (modelName, id, callback) {
+  return updateOne(modelName, id, { archived: true }, callback);
 }
 
 
@@ -147,11 +161,11 @@ function _assignModelCrudFunctions (modelName, callback) {
     create: (objects, callback) => { createMany(modelName, objects, callback); },
     createOne: (objects, callback) => { createOne(modelName, objects, callback); },
     read: (query, callback) => { readMany(modelName, query, callback); },
-    readOne: (query, callback) => { readOne(modelName, query, callback); },
+    readOne: (id, callback) => { readOne(modelName, id, callback); },
     update: (query, delta, callback) => { updateMany(modelName, query, delta, callback); },
-    updateOne: (query, delta, callback) => { updateOne(modelName, query, delta, callback); },
+    updateOne: (id, delta, callback) => { updateOne(modelName, id, delta, callback); },
     delete: (query, callback) => { deleteMany(modelName, query, callback); },
-    deleteOne: (query, callback) => { deleteOne(modelName, query, callback); },
+    deleteOne: (id, callback) => { deleteOne(modelName, id, callback); },
 
     // the actual delete function - USE WITH CAUTION
     nuke: (query, callback) => {

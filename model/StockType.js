@@ -10,7 +10,8 @@ const db = require('../db');
 
 
 exports.schema = {
-  name: Joi.string().required(),
+  id: Joi.number(),
+  name: Joi.string(),
   unitType: Joi.string().valid(['oz', 'bottle', 'unit']).default('unit'),
 
   created: Joi.date().timestamp(),
@@ -19,6 +20,14 @@ exports.schema = {
 
 
 exports.indexes = [
+  {
+    keys: {
+      id: 1
+    },
+    options: {
+      unique: true,
+    },
+  },
   {
     keys: {
       name: 1,

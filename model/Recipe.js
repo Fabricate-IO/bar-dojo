@@ -3,13 +3,13 @@
 'use strict';
 
 const Joi = require('joi');
-Joi.objectId = require('joi-objectid')(Joi);
 
 const db = require('../db');
 
 
 exports.schema = {
-  name: Joi.string().required(),
+  id: Joi.number(),
+  name: Joi.string(),
   tags: Joi.array().items(Joi.string()), // tag name
   instructions: Joi.array().items(Joi.string()), // optional
   ingredients: Joi.array().items(Joi.object().keys({
@@ -23,6 +23,14 @@ exports.schema = {
 
 
 exports.indexes = [
+  {
+    keys: {
+      id: 1
+    },
+    options: {
+      unique: true,
+    },
+  },
   {
     keys: {
       name: 1
