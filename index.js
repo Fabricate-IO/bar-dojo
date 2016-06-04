@@ -50,35 +50,3 @@ exports.init((err) => {
 
   console.log('Bar Dojo ready to go');
 });
-
-
-/*
-
-exports.init = function (callback) {
-
-  const server = new Hapi.Server();
-  server.connection(Config.server);
-
-  Async.series([
-    (cb) => { Db.init(Config, cb); },
-  ], (err) => {
-
-    if (err) {
-      return callback(err);
-    }
-
-    server.register(require('inert'), (err) => {
-
-      if (err) {
-        return callback(err);
-      }
-
-  console.log(require('./routes'))
-
-      server.route(require('./routes'));
-
-      return server.start(callback);
-    });
-  });
-};
-*/

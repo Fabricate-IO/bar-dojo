@@ -1,4 +1,6 @@
-var hashHistory = ReactRouter.hashHistory;
+import React from 'react';
+import { hashHistory } from 'react-router';
+
 
 module.exports = React.createClass({
   getInitialState: function () {

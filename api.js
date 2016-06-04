@@ -68,7 +68,6 @@ module.exports = [
     },
     handler: (request, reply) => {
       request.server.app.db.Recipe.updateOne(request.params.id, request.payload, (err, result) => {
-console.log(err)
         return reply(err || result);
       });
     },

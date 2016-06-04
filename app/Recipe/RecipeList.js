@@ -1,4 +1,7 @@
-var hashHistory = ReactRouter.hashHistory;
+import React from 'react';
+import { hashHistory } from 'react-router';
+import RaisedButton from 'material-ui/RaisedButton';
+
 
 var Recipe = React.createClass({
   handleDelete: function () {
@@ -13,8 +16,8 @@ var Recipe = React.createClass({
         <h2>
           {this.props.recipe.name}
         </h2>
-        <button className="edit" onClick={this.handleEdit}>EDIT</button>
-        <button className="delete" onClick={this.handleDelete}>X</button>
+        <RaisedButton className="edit" onClick={this.handleEdit}>EDIT</RaisedButton>
+        <RaisedButton className="delete" onClick={this.handleDelete}>X</RaisedButton>
         {this.props.children}
       </li>
     );

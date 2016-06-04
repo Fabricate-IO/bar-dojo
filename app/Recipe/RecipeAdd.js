@@ -1,19 +1,23 @@
-var hashHistory = ReactRouter.hashHistory;
+import React from 'react';
+import { hashHistory } from 'react-router';
+import RaisedButton from 'material-ui/RaisedButton';
 
 module.exports = React.createClass({
   getInitialState: function () {
-    return {};
+    return {
+      object: {},
+    };
   },
   handlePost: function (e) {
     e.preventDefault();
-    var state = this.state;
+    var object = this.state.object;
     var recipe = {
-      name: this.state.name.trim(),
+      name: object.name.trim(),
     };
     if (!recipe.name) {
       return;
     }
-    this.setState({ name: '' });
+    this.setState({ object: {} });
     $.ajax({
       url: '/api/Recipe',
       dataType: 'json',
@@ -24,7 +28,7 @@ module.exports = React.createClass({
         hashHistory.push('/');
       }.bind(this),
       error: function (xhr, status, err) {
-        this.setState(state);
+        this.setState({ object: state });
         console.error(this.props.url, status, err.toString());
       }.bind(this),
     });
@@ -44,7 +48,7 @@ module.exports = React.createClass({
           value={this.state.object.name}
           onChange={this.handleInputChange}
         />
-        <input type="submit" value="Add" />
+        <RaisedButton label="Add" type="submit" />
       </form>
     );
   }

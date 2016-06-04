@@ -1,6 +1,6 @@
-var ReactRouter = window.ReactRouter;
-var Route = ReactRouter.Route;
-var Link = ReactRouter.Link;
+import React from 'react';
+import { Link, hashHistory } from 'react-router';
+
 
 /*
 Recipe.schema = {
@@ -27,13 +27,6 @@ module.exports = React.createClass({
   render: function () {
 // TODO have Drinks menu have submenu for drink types
 // TODO set up a router between category display and different drink menus (perhaps setting the selected category as a query val?)
-// also a route for the add form
-    // return (
-    //   <Route component={RecipeLayout}>
-    //     <Route path="/" component={RecipeList} />
-    //     <Route path="/add" component={RecipeAdd} />
-    //   </Route>
-    // );
     return (
       <div>
         <h1>Recipes</h1>
@@ -44,10 +37,3 @@ module.exports = React.createClass({
     );
   }
 });
-
-// <CommentForm onPost={this.handlePost} />
-
-// <div>
-//         <h1>Recipes</h1>
-//         <RecipeList data={this.state.data} />
-//       </div>
