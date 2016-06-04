@@ -81,10 +81,12 @@ function createOne (modelName, object, callback) {
   });
 }
 
-// skips archived items unless otherwise specified
+// skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
 function readMany (modelName, query, callback) {
   query.archived = query.archived || { $ne: true };
-  return Mongo.collection(modelName).find(query).toArray(callback);
+  var sort = query.sort || { id: -1 };
+  delete query.sort;
+  return Mongo.collection(modelName).find(query).sort(sort).toArray(callback);
 }
 function readOne (modelName, id, callback) {
   return Mongo.collection(modelName).findOne({ id: id }, callback);

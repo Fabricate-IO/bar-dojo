@@ -130,7 +130,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
-      _checkArrayEquality(result, [{ id: 0, name: 'test' }, { id: 1, name: 'test2' }, { id: 2, name: 'test3' }]);
+      _checkArrayEquality(result, [{ id: 2, name: 'test3' }, { id: 1, name: 'test2' }, { id: 0, name: 'test' }]);
       done();
     });
   });
@@ -150,7 +150,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      _checkArrayEquality(result, [{ id: 0, name: 'test' }, { id: 1, name: 'test2' }]);
+      _checkArrayEquality(result, [{ id: 1, name: 'test2' }, { id: 0, name: 'test' }]);
       done();
     });
   });
@@ -181,7 +181,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      _checkArrayEquality(result, [{ id: 1, name: 'test2' }, { id: 2, name: 'test3' }]);
+      _checkArrayEquality(result, [{ id: 2, name: 'test3' }, { id: 1, name: 'test2' }]);
       done();
     });
   });

@@ -16,4 +16,4 @@ test:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - lab -c -r junit -o $CIRCLE_TEST_REPORTS/junit/tests.xml
   post:
-    - bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash) -f $CIRCLE_TEST_REPORTS/junit/tests.xml
