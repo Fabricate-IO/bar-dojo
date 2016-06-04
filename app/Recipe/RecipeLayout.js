@@ -38,7 +38,7 @@ module.exports = React.createClass({
       <div>
         <h1>Recipes</h1>
         <Link to="/">List</Link>
-        <Link to="add">Add</Link>
+        <Link to="/add">Add</Link>
         {this.props.children}
       </div>
     );

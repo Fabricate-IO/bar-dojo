@@ -2,29 +2,44 @@ var hashHistory = ReactRouter.hashHistory;
 
 module.exports = React.createClass({
   getInitialState: function () {
-    return {};
+    return {
+      object: {},
+    };
   },
-  handlePost: function (e) {
+  componentDidMount: function () {
+    $.ajax({
+      url: '/api/Recipe/' + this.props.params.id,
+      type: 'GET',
+      success: function (data) {
+        this.setState({ object: data });
+      }.bind(this),
+      error: function (xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this),
+    });
+  },
+  handlePut: function (e) {
     e.preventDefault();
-    var state = this.state;
+    var object = this.state.object;
     var recipe = {
-      name: this.state.name.trim(),
+      id: this.props.params.id,
+      name: object.name.trim(),
     };
     if (!recipe.name) {
       return;
     }
-    this.setState({ name: '' });
+    this.setState({ object: {} });
     $.ajax({
-      url: '/api/Recipe',
+      url: '/api/Recipe/' + recipe.id,
       dataType: 'json',
-      type: 'POST',
+      type: 'PUT',
       data: recipe,
       success: function (data) {
         // already updated state, we're good to go
         hashHistory.push('/');
       }.bind(this),
       error: function (xhr, status, err) {
-        this.setState(state);
+        this.setState({ object: object });
         console.error(this.props.url, status, err.toString());
       }.bind(this),
     });
@@ -36,7 +51,7 @@ module.exports = React.createClass({
   },
   render: function () {
     return (
-      <form onSubmit={this.handlePost}>
+      <form onSubmit={this.handlePut}>
         <input
           type="text"
           name="name"
@@ -44,7 +59,7 @@ module.exports = React.createClass({
           value={this.state.object.name}
           onChange={this.handleInputChange}
         />
-        <input type="submit" value="Add" />
+        <input type="submit" value="Edit" />
       </form>
     );
   }

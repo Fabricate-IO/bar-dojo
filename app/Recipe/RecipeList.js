@@ -1,6 +1,11 @@
+var hashHistory = ReactRouter.hashHistory;
+
 var Recipe = React.createClass({
   handleDelete: function () {
     this.props.onDelete(this.props.recipe.id);
+  },
+  handleEdit: function () {
+    hashHistory.push('/edit/' + this.props.recipe.id);
   },
   render: function () {
     return (
@@ -8,6 +13,7 @@ var Recipe = React.createClass({
         <h2>
           {this.props.recipe.name}
         </h2>
+        <button className="edit" onClick={this.handleEdit}>EDIT</button>
         <button className="delete" onClick={this.handleDelete}>X</button>
         {this.props.children}
       </li>
@@ -24,6 +30,7 @@ module.exports = React.createClass({
   componentDidMount: function () {
     $.ajax({
       url: '/api/Recipe',
+      type: 'GET',
       success: function (data) {
         this.setState({data: data});
       }.bind(this),

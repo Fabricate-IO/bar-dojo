@@ -1,7 +1,3 @@
-// var Router = ReactRouter;
-// var Route = Router.Route, DefaultRoute = Router.DefaultRoute,
-//   Link=Router.Link, RouteHandler = Router.RouteHandler, browserHistory = Router.browserHistory;
-
 var ReactRouter = window.ReactRouter;
 var Router = ReactRouter.Router;
 var IndexRoute = ReactRouter.IndexRoute;
@@ -12,6 +8,9 @@ var hashHistory = ReactRouter.hashHistory;
 var RecipeLayout = require('./Recipe/RecipeLayout');
 var RecipeList = require('./Recipe/RecipeList');
 var RecipeAdd = require('./Recipe/RecipeAdd');
+var RecipeEdit = require('./Recipe/RecipeEdit');
+
+injectTapEventPlugin();
 
 
 var PatronLayout = React.createClass({
@@ -48,7 +47,8 @@ ReactDOM.render(
     <Route component={AppLayout}>
       <Route path="/" component={RecipeLayout}>
         <IndexRoute component={RecipeList} />
-        <Route path="add" component={RecipeAdd} />
+        <Route path="/add" component={RecipeAdd} />
+        <Route path="/edit/:id" component={RecipeEdit} />
       </Route>
       <Route path="/patrons" component={PatronLayout} />
     </Route>

@@ -18,19 +18,57 @@ module.exports = [
   {
     method: 'DELETE',
     path: '/api/Recipe/{id}',
+    config: {
+      validate: {
+        params: Recipe.schema,
+      },
+    },
     handler: (request, reply) => {
-      Joi.validate(request.params, Recipe.schema, (err, params) => {
-        request.server.app.db.Recipe.deleteOne(params.id, (err, result) => {
-          return reply(err || result);
-        });
+      request.server.app.db.Recipe.deleteOne(request.params.id, (err, result) => {
+        return reply(err || result);
+      });
+    },
+  },
+  {
+    method: 'GET',
+    path: '/api/Recipe/{id}',
+    config: {
+      validate: {
+        params: Recipe.schema,
+      },
+    },
+    handler: (request, reply) => {
+      request.server.app.db.Recipe.readOne(request.params.id, (err, result) => {
+        return reply(err || result);
       });
     },
   },
   {
     method: 'GET',
     path: '/api/Recipe',
+    config: {
+      validate: {
+        query: Recipe.schema,
+      },
+    },
     handler: (request, reply) => {
-      request.server.app.db.Recipe.read({}, (err, result) => {
+      request.server.app.db.Recipe.read(request.query, (err, result) => {
+        return reply(err || result);
+      });
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/api/Recipe/{id}',
+    config: {
+      validate: {
+        params: Recipe.schema,
+        payload: Recipe.schema,
+      },
+    },
+    handler: (request, reply) => {
+      request.server.app.db.Recipe.updateOne(request.params.id, request.payload, (err, result) => {
+console.log(err)
         return reply(err || result);
       });
     },
@@ -38,11 +76,14 @@ module.exports = [
   {
     method: 'POST',
     path: '/api/Recipe',
+    config: {
+      validate: {
+        payload: Recipe.schema,
+      },
+    },
     handler: (request, reply) => {
-      Joi.validate(request.payload, Recipe.schema, (err, payload) => {
-        request.server.app.db.Recipe.createOne(payload, (err, result) => {
-          return reply(err || result);
-        });
+      request.server.app.db.Recipe.createOne(request.payload, (err, result) => {
+        return reply(err || result);
       });
     },
   },
