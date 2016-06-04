@@ -7,6 +7,7 @@ const lab = exports.lab = Lab.script();
 
 const Config = {
   mongoUrl: 'mongodb://localhost:27017/test',
+  nuke: true,
 };
 
 const describe = lab.describe;
@@ -89,7 +90,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ id: 0, name: 'test4' }], result);
+      _checkArrayEquality(result, [{ id: 0, name: 'test4' }]);
       done();
     });
   });
@@ -109,7 +110,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ id: 0, name: 'test' }], result);
+      _checkArrayEquality(result, [{ id: 0, name: 'test' }]);
       done();
     });
   });
@@ -129,7 +130,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
-      _checkArrayEquality([{ name: 'test' }, { name: 'test2' }, { name: 'test3' }], result);
+      _checkArrayEquality(result, [{ id: 0, name: 'test' }, { id: 1, name: 'test2' }, { id: 2, name: 'test3' }]);
       done();
     });
   });
@@ -149,7 +150,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      _checkArrayEquality([{ name: 'test' }, { name: 'test2' }], result);
+      _checkArrayEquality(result, [{ id: 0, name: 'test' }, { id: 1, name: 'test2' }]);
       done();
     });
   });
@@ -169,7 +170,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      _checkArrayEquality([{ name: 'test' }], result);
+      _checkArrayEquality(result, [{ name: 'test' }]);
       done();
     });
   });
@@ -180,7 +181,7 @@ describe('CRUD', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      _checkArrayEquality([{ id: 1, name: 'test2' }, { id: 2, name: 'test3' }], result);
+      _checkArrayEquality(result, [{ id: 1, name: 'test2' }, { id: 2, name: 'test3' }]);
       done();
     });
   });
@@ -206,7 +207,7 @@ describe('CRUD - egde cases', () => {
   after(Db.exit);
 
 
-  it('createOne - fails valnameation, errors', (done) => {
+  it('createOne - fails name validation, errors', (done) => {
 
     Db.StockType.createOne({ name: 123 }, (err) => {
 
@@ -215,7 +216,7 @@ describe('CRUD - egde cases', () => {
     });
   });
 
-  it('create - fails valnameation, errors', (done) => {
+  it('create - fails name validation, errors', (done) => {
 
     Db.StockType.create([{ name: 1 }, { name: 2 }], (err) => {
 
@@ -236,7 +237,7 @@ describe('CRUD - egde cases', () => {
 
   it('updateOne - does not exist, should not error', (done) => {
 
-    Db.StockType.updateOne({ name: 'test' }, { name: 'test4' }, (err, result) => {
+    Db.StockType.updateOne(10, { name: 'test4' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -274,9 +275,8 @@ describe('CRUD - egde cases', () => {
 
 /* ===== Helpers ===== */
 
-// checks for equality, skipping mongo properties like _name
+// checks that a contains b
 function _checkArrayEquality (a, b) {
-
   expect(a.length).to.equal(b.length);
   for (let i = 0; i < a.length; i++) {
     _checkEquality(a[i], b[i]);
@@ -284,13 +284,9 @@ function _checkArrayEquality (a, b) {
 }
 
 
-// checks for equality, skipping mongo properties like _name
+// checks for equality (that a contains b)
 function _checkEquality (a, b) {
-
-  Object.keys(a).forEach((property) => {
-  // for (let property in a) {
-    if (property !== '_name') {
-      expect(a[property]).to.equal(b[property], { prototype: false });
-    }
+  Object.keys(b).forEach((property) => {
+    expect(a[property]).to.equal(b[property], { prototype: false });
   });
 }

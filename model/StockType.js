@@ -12,7 +12,7 @@ const db = require('../db');
 exports.schema = {
   id: Joi.number(),
   name: Joi.string(),
-  unitType: Joi.string().valid(['oz', 'bottle', 'unit']).default('unit'),
+  unitType: Joi.string().valid(['oz', 'bottle', 'cup', 'wedge']),
 
   created: Joi.date().timestamp(),
   archived: Joi.boolean().default(false),

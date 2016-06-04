@@ -20,6 +20,10 @@ exports.init = function (Config, callback) {
 
     Mongo = db;
 
+    if (Config.nuke === true) {
+      Mongo.dropDatabase();
+    }
+
     // fetch and initialize all models
     const modelNames = [ // in requirement order
       'StockType',
