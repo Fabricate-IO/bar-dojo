@@ -27,6 +27,7 @@ exports.init = function (Config, callback) {
     // fetch and initialize all models
     const modelNames = [ // in requirement order
       'StockType',
+      'Stock',
       'Recipe',
     ];
 
@@ -84,8 +85,13 @@ function createOne (modelName, object, callback) {
 // skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
 function readMany (modelName, query, callback) {
   query.archived = query.archived || { $ne: true };
-  var sort = query.sort || { id: -1 };
-  delete query.sort;
+  let sort = { id: -1 };
+  if (query.orderBy != null) {
+    sort = {};
+    sort[query.orderBy] = (query.order === 'desc') ? -1 : 1; // default to asc
+  }
+  delete query.orderBy;
+  delete query.order;
   return Mongo.collection(modelName).find(query).sort(sort).toArray(callback);
 }
 function readOne (modelName, id, callback) {
@@ -96,10 +102,7 @@ function updateMany (modelName, query, delta, callback) {
   return Mongo.collection(modelName).update(query, { $set: delta }, callback);
 }
 function updateOne (modelName, id, delta, callback) {
-  readOne(modelName, id, (err, result) => {
-    return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, { upsert: true }, callback);
-  })
-  // return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, callback);
+  return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, { upsert: true }, callback);
 }
 
 // doesn't actually delete, just flags as archived

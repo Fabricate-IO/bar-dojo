@@ -10,24 +10,7 @@ import IconDelete from 'material-ui/svg-icons/action/delete';
 import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
 
 
-const RecipeExpanded = React.createClass({
-  render: function () {
-    const ingredients = (this.props.recipe.ingredients || []).map((ingredient) => {
-      const text = ingredient.quantity + 'x ' + ingredient.stockTypeId;
-      return <ListItem key={ingredient.stockTypeId} primaryText={text} />
-    });
-    return (
-      <div>
-        <List>
-          {ingredients}
-        </List>
-      </div>
-    );
-  },
-});
-
-
-const Recipe = React.createClass({
+const Stock = React.createClass({
   getInitialState: function () {
     return {
       expanded: false,
@@ -38,18 +21,19 @@ const Recipe = React.createClass({
   },
   handleDelete: function (e) {
     e.preventDefault();
-    if (window.confirm("Are you sure you want to delete " + this.props.recipe.name + '?')) {
-      this.props.onDelete(this.props.recipe.id);
+    if (window.confirm("Are you sure you want to delete " + this.props.stock.name + '?')) {
+      this.props.onDelete(this.props.stock.id);
     }
   },
   handleEdit: function () {
-    hashHistory.push('/drinks/edit/' + this.props.recipe.id);
+    hashHistory.push('/inventory/edit/' + this.props.stock.id);
   },
   render: function () {
     let expanded = '';
-    if (this.state.expanded) {
-      expanded = <RecipeExpanded recipe={this.props.recipe} />
-    }
+// TODO
+    // if (this.state.expanded) {
+    //   expanded = <RecipeExpanded recipe={this.props.recipe} />
+    // }
     return (
       <ListItem
         onClick={this.handleClick}
@@ -61,7 +45,7 @@ const Recipe = React.createClass({
         }
       >
         <div>
-          {this.props.recipe.name}
+          {this.props.stock.name}
         </div>
         {expanded}
       </ListItem>
@@ -76,33 +60,33 @@ module.exports = React.createClass({
     };
   },
   componentDidMount: function () {
-    NetworkRequest('GET', '/api/Recipe?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/Stock?orderBy=name', (err, result) => {
+
       if (err) {
-        return console.error('Recipe API', status, err.toString());
+        return console.error('Stock API', status, err.toString());
       }
+
       this.setState({ data: result });
     });
   },
   onDelete: function (id) {
     const data = this.state.data;
-    const newData = data.filter((recipe) => { return recipe.id !== id; });
+    const newData = data.filter((stock) => { return stock.id !== id; });
     this.setState({ data: newData });
-    NetworkRequest('DELETE', '/api/Recipe/' + id, (err, result) => {
+    NetworkRequest('DELETE', '/api/Stock/' + id, (err, result) => {
       if (err) {
         this.setState({ data: data });
-        return console.error('Recipe API', status, err.toString());
+        return console.error('Stock API', status, err.toString());
       }
     });
   },
   render: function () {
-    const recipes = this.state.data.map((recipe) => {
-      return <Recipe key={recipe.id} recipe={recipe} onDelete={this.onDelete}></Recipe>;
+    const stock = this.state.data.map((stock) => {
+      return <Stock key={stock.id} stock={stock} onDelete={this.onDelete}></Stock>;
     });
     return (
       <List>
-        {recipes}
-        <Divider />
-        <Subheader>Out of stock</Subheader>
+        {stock}
       </List>
     );
   },

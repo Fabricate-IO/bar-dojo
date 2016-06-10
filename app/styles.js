@@ -18,4 +18,7 @@ module.exports = {
   contentBox: {
     padding: '12px 24px',
   },
+  textInput: {
+    verticalAlign: 'bottom',
+  },
 };

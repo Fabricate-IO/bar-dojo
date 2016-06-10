@@ -17,6 +17,8 @@ import IconSearch from 'material-ui/svg-icons/action/search';
 
 const RecipeList = require('./Recipe/RecipeList');
 const RecipeForm = require('./Recipe/RecipeForm');
+const StockList = require('./Stock/StockList');
+const StockForm = require('./Stock/StockForm');
 
 injectTapEventPlugin();
 const theme = getMuiTheme();
@@ -33,25 +35,47 @@ const PatronLayout = React.createClass({
 
 const AppLayout = React.createClass({
   getInitialState: function () {
-    return {};
+    return {
+      searchbarVisible: (document.body.getBoundingClientRect().width >= 425),
+    };
   },
   handleSearchInput: function (e) {
     this.setState({ search: e.target.value });
   },
   handleSearch: function () {
+    if (this.state.searchbarVisible === false) {
+      return this.setState({ searchbarVisible: true });
+    }
+    else if (document.body.getBoundingClientRect().width < 425) {
+      // TODO also search here
+      return this.setState({ searchbarVisible: false });
+    }
     alert(this.state.search);
   },
   handleAdd: function () {
-    hashHistory.push('/drinks/add');
+    ((path) => {
+      if (path.indexOf('drinks') !== -1) { return hashHistory.push('/drinks/add'); }
+      if (path.indexOf('patrons') !== -1) { return hashHistory.push('/patrons/add'); }
+      if (path.indexOf('inventory') !== -1) { return hashHistory.push('/inventory/add'); }
+      console.log('TODO: add button not set up for this page yet');
+    })(this.props.location.pathname);
   },
   handleToggle: function () { this.setState({open: !this.state.open}); },
   handleClose: function () { this.setState({open: false}); },
   render: function () {
+
     const pageName = ((path) => {
       if (path.indexOf('drinks') !== -1) { return 'Drinks'; }
       if (path.indexOf('patrons') !== -1) { return 'Patrons'; }
+      if (path.indexOf('inventory') !== -1) { return 'Inventory'; }
       return 'TODO: set page name';
     })(this.props.location.pathname);
+
+    const searchbarStyle = {};
+    if (this.state.searchbarVisible === false) {
+      searchbarStyle.display = 'none';
+    }
+
     return (
       <MuiThemeProvider muiTheme={theme}>
         <div id="page">
@@ -63,13 +87,13 @@ const AppLayout = React.createClass({
                   hintText="Search..."
                   value={this.state.search}
                   onChange={this.handleSearchInput}
+                  style={searchbarStyle}
                 />
                 <IconButton onClick={this.handleSearch}><IconSearch /></IconButton>
                 <IconButton onClick={this.handleAdd}><IconAdd /></IconButton>
               </div>
             }
             onLeftIconButtonTouchTap={this.handleToggle}
-
           />
           <Drawer
             docked={false}
@@ -106,6 +130,11 @@ ReactDOM.render(
         <Route path="edit/:id" component={RecipeForm} />
       </Route>
       <Route path="/patrons" component={PatronLayout} />
+      <Route path="/inventory">
+        <IndexRoute component={StockList} />
+        <Route path="add" component={StockForm} />
+        <Route path="edit/:id" component={StockForm} />
+      </Route>
     </Route>
   </Router>,
   document.getElementById('app')

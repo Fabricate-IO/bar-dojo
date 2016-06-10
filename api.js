@@ -5,6 +5,7 @@ const Joi = require('joi');
 
 const models = {
   Recipe: require('./model/Recipe'),
+  Stock: require('./model/Stock'),
   StockType: require('./model/StockType'),
 };
 
@@ -60,7 +61,9 @@ module.exports = [
       const modelName = request.params.modelName;
       delete request.params.modelName;
 
-      Joi.validate(request.query, models[modelName].schema, (err, query) => {
+      const sortableSchema = Joi.object(models[modelName].schema).keys({ order: Joi.string(), orderBy: Joi.string() });
+
+      Joi.validate(request.query, sortableSchema, (err, query) => {
 
         if (err) {
           return reply(Boom.badRequest(err));

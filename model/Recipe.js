@@ -5,7 +5,7 @@
 const Joi = require('joi');
 
 const db = require('../db');
-
+const StockType = require('./StockType');
 
 exports.schema = {
   id: Joi.number(),
@@ -13,7 +13,7 @@ exports.schema = {
   tags: Joi.array().items(Joi.string()), // tag name
   instructions: Joi.string(), // optional
   ingredients: Joi.array().items(Joi.object().keys({
-    stockTypeId: Joi.string(),
+    stockTypeId: StockType.schema.id,
     quantity: Joi.number(),
   })),
 
