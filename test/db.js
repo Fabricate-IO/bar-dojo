@@ -17,7 +17,7 @@ const after = lab.after;
 const expect = Code.expect;
 
 
-describe('CRUD', () => {
+describe('CRUD:', () => {
 
   before((done) => {
 
@@ -36,7 +36,7 @@ describe('CRUD', () => {
   after(Db.exit);
 
 
-  it('read - empty', (done) => {
+  it('read (empty)', (done) => {
 
     Db.StockType.read({}, (err, result) => {
 
@@ -46,7 +46,7 @@ describe('CRUD', () => {
     });
   });
 
-  it('readOne - empty', (done) => {
+  it('readOne (empty)', (done) => {
 
     Db.StockType.readOne({}, (err, result) => {
 
@@ -127,7 +127,7 @@ describe('CRUD', () => {
     });
   });
 
-  it('read - sorted', (done) => {
+  it('read (sorted)', (done) => {
 
     Db.StockType.read({ orderBy: 'id', order: 'desc' }, (err, result) => {
 
@@ -149,7 +149,14 @@ describe('CRUD', () => {
         expect(err).to.be.null();
         expect(result.length).to.equal(2);
         _checkArrayEquality(result, [{ id: 'test2' }, { id: 'test' }]);
-        done();
+
+        Db.StockType.read({ archived: true }, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.length).to.equal(1);
+          _checkArrayEquality(result, [{ id: 'test3' }]);
+          done();
+        });
       });
     });
   });
@@ -165,23 +172,19 @@ describe('CRUD', () => {
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
         _checkArrayEquality(result, [{ id: 'test' }]);
-        done();
+
+        Db.StockType.read({ archived: true }, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.length).to.equal(2);
+          _checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }]);
+          done();
+        });
       });
     });
   });
 
-  it('read - confirm archived', (done) => {
-
-    Db.StockType.read({ archived: true }, (err, result) => {
-
-      expect(err).to.be.null();
-      expect(result.length).to.equal(2);
-      _checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }]);
-      done();
-    });
-  });
-
-  it('updateOne - upsert if it does not exist', (done) => {
+  it('updateOne (upsert if it does not exist)', (done) => {
 
     Db.StockType.updateOne('test5', { unitType: 'bottle' }, (err, result) => {
 
@@ -197,7 +200,7 @@ describe('CRUD', () => {
     });
   });
 
-  it('createOne - id specified', (done) => {
+  it('createOne (id specified)', (done) => {
 
     Db.StockType.createOne({ id: 'test6' }, (err) => {
 
@@ -214,7 +217,7 @@ describe('CRUD', () => {
 });
 
 
-describe('CRUD - egde cases', () => {
+describe('CRUD egde cases:', () => {
 
   before((done) => {
 
@@ -233,7 +236,7 @@ describe('CRUD - egde cases', () => {
   after(Db.exit);
 
 
-  it('createOne - fails validation, errors', (done) => {
+  it('createOne (fails validation, errors)', (done) => {
 
     Db.StockType.createOne({ id: 123 }, (err) => {
 
@@ -242,7 +245,7 @@ describe('CRUD - egde cases', () => {
     });
   });
 
-  it('create - fails validation, errors and does not create an object', (done) => {
+  it('create (fails validation, errors and does not create an object)', (done) => {
 
     Db.StockType.create([{ id: 1 }, { id: 2 }], (err) => {
 
@@ -257,7 +260,7 @@ describe('CRUD - egde cases', () => {
     });
   });
 
-  it('createOne - errors on duplicate id', (done) => {
+  it('createOne (errors on duplicate id)', (done) => {
 
     Db.StockType.createOne({ id: 'test' }, (err) => {
 
@@ -266,6 +269,57 @@ describe('CRUD - egde cases', () => {
       Db.StockType.createOne({ id: 'test' }, (err) => {
 
         expect(err).to.not.be.null();
+        done();
+      });
+    });
+  });
+
+  it('createOne (preSave triggers)', (done) => {
+
+    Db.Stock.createOne({ id: 1, initialCost: 10, initialQuantity: 5 }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.Stock.readOne(1, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.initialCost).to.equal(10);
+        expect(result.afterTaxCost).to.be.at.least(10);
+        expect(result.unitCost).to.be.at.least(2);
+        done();
+      });
+    });
+  });
+
+  it('updateOne (preSave triggers)', (done) => {
+
+    Db.Stock.updateOne(1, { initialCost: 20 }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.Stock.readOne(1, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.initialCost).to.equal(20);
+        expect(result.afterTaxCost).to.be.at.least(20);
+        expect(result.unitCost).to.be.at.least(4);
+        done();
+      });
+    });
+  });
+
+  it('createOne (preSave does not trigger if fields not present)', (done) => {
+
+    Db.Stock.createOne({ id: 2 }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.Stock.readOne(2, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.initialCost).to.be.undefined();
+        expect(result.afterTaxCost).to.be.undefined();
+        expect(result.unitCost).to.be.undefined();
         done();
       });
     });

@@ -101,7 +101,7 @@ const AppLayout = React.createClass({
             open={this.state.open}
             onRequestChange={(open) => this.setState({open})}
           >
-            <h2>Bar Dojo</h2>
+            <img src="/static/img/logo.png" style={style.logo}/>
             <Link to="/drinks" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Drinks</MenuItem></Link>
             <Link to="/patrons" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Patrons</MenuItem></Link>
             <Link to="/inventory" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Inventory</MenuItem></Link>

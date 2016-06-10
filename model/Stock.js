@@ -43,8 +43,12 @@ exports.indexes = [
 
 exports.preSave = function (object, callback) {
 
-  object.afterTaxCost = object.initialCost * (1 + .06 + .18); // TODO put tax in config (separate sales, alcohol tax)
-  object.unitCost = (object.afterTaxCost / object.initialQuantity).toFixed(2);
+  if (object.initialCost != null) {
+    object.afterTaxCost = object.initialCost * (1 + .06 + .18); // TODO put tax in config (separate sales, alcohol tax)
+    if (object.initialQuantity != null) {
+      object.unitCost = (object.afterTaxCost / object.initialQuantity).toFixed(2);
+    }
+  }
   callback(null, object);
 };
 

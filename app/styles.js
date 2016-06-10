@@ -8,6 +8,12 @@ import { // color options: http://www.material-ui.com/#/customization/colors
 
 module.exports = {
   backgroundColor: grey50,
+  logo: {
+    maxHeight: 42,
+    width: 'auto',
+    paddingTop: 12,
+    paddingLeft: 12,
+  },
   appbar: {
     backgroundColor: cyan500,
   },

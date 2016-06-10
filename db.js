@@ -4,6 +4,7 @@
 
 const Async = require('async');
 const Fs = require('fs');
+const Hoek = require('hoek');
 const Joi = require('joi');
 const Models = {};
 const MongoClient = require('mongodb').MongoClient;
@@ -56,6 +57,7 @@ exports.exit = function (callback) {
 function createMany (modelName, objects, callback) {
   Async.eachSeries(objects, (object, cb) => { createOne(modelName, object, cb); }, callback);
 }
+
 function createOne (modelName, object, callback) {
 
   Joi.validate(object, Models[modelName].schema, (err, object) => {
@@ -64,26 +66,34 @@ function createOne (modelName, object, callback) {
       return callback(err);
     }
 
-    if (object.id == null) {
+    Models[modelName].preSave(object, (err, object) => {
 
-      Mongo.collection(modelName).findOne({}, { sort: [[ 'id', 'desc' ]] }, (err, result) => {
+      if (err) {
+        return callback(err);
+      }
 
-        if (err) {
-          return callback(err);
-        }
+      if (object.id == null) {
 
-        object.id = (result == null) ? 0 : Number(result.id) + 1;
+        Mongo.collection(modelName).findOne({}, { sort: [[ 'id', 'desc' ]] }, (err, result) => {
+
+          if (err) {
+            return callback(err);
+          }
+
+          object.id = (result == null) ? 0 : Number(result.id) + 1;
+          return Mongo.collection(modelName).insert(object, callback);
+        });
+      }
+      else {
         return Mongo.collection(modelName).insert(object, callback);
-      });
-    }
-    else {
-      return Mongo.collection(modelName).insert(object, callback);
-    }
+      }
+    });
   });
 }
 
 // skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
 function readMany (modelName, query, callback) {
+
   query.archived = query.archived || { $ne: true };
   let sort = { id: -1 };
   if (query.orderBy != null) {
@@ -94,21 +104,58 @@ function readMany (modelName, query, callback) {
   delete query.order;
   return Mongo.collection(modelName).find(query).sort(sort).toArray(callback);
 }
+
 function readOne (modelName, id, callback) {
   return Mongo.collection(modelName).findOne({ id: id }, callback);
 }
 
+// bulk edit via query - does not upsert
 function updateMany (modelName, query, delta, callback) {
-  return Mongo.collection(modelName).update(query, { $set: delta }, callback);
+
+  Joi.validate(delta, Models[modelName].schema, (err, delta) => {
+
+    if (err) {
+      return callback(err);
+    }
+
+    return Mongo.collection(modelName).update(query, { $set: delta }, callback);
+  });
 }
+
+// update a single ID - creates if it doesn't exist
 function updateOne (modelName, id, delta, callback) {
-  return Mongo.collection(modelName).updateOne({ id: id }, { $set: delta }, { upsert: true }, callback);
+
+  readOne(modelName, id, (err, object) => {
+
+    if (err) {
+      return callback(err);
+    }
+
+    if (object == null) {
+      delta.id = id;
+      return createOne(modelName, delta, callback);
+    }
+
+    Hoek.merge(object, delta);
+
+    Models[modelName].preSave(object, (err, object) => {
+
+      if (err) {
+        return callback(err);
+      }
+
+      return Mongo.collection(modelName).updateOne({ id: id }, { $set: object }, callback);
+    });
+  });
+
+
 }
 
 // doesn't actually delete, just flags as archived
 function deleteMany (modelName, query, callback) {
   return updateMany(modelName, query, { archived: true }, callback);
 }
+
 function deleteOne (modelName, id, callback) {
   return updateOne(modelName, id, { archived: true }, callback);
 }
@@ -119,6 +166,7 @@ function deleteOne (modelName, id, callback) {
 function _requireModels (modelName, callback) {
 
   Models[modelName] = require('./model/' + modelName + '.js');
+  Models[modelName].preSave = Models[modelName].preSave || ((object, callback) => { callback(null, object); });
   return callback();
 }
 

@@ -7,7 +7,7 @@ const Db = require('./db');
 const Routes = require('./routes');
 
 const Config = {
-  mongoUrl: 'mongodb://localhost:27017/BarNinja',
+  mongoUrl: 'mongodb://localhost:27017/BarDojo',
   server: {
     host: 'localhost',
     port: 8000,
