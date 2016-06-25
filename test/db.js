@@ -27,7 +27,7 @@ describe('CRUD:', () => {
 
       expect(err).to.be.null();
 
-      Db.StockType.nuke({}, (err) => {
+      Db.nuke((err) => {
 
         expect(err).to.be.null();
         done();
@@ -227,7 +227,7 @@ describe('CRUD egde cases:', () => {
 
       expect(err).to.be.null();
 
-      Db.StockType.nuke({}, (err) => {
+      Db.nuke((err) => {
 
         expect(err).to.be.null();
         done();

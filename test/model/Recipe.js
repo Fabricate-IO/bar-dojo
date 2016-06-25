@@ -25,15 +25,10 @@ describe('Recipe:', () => {
 
       expect(err).to.be.null();
 
-      Db.Stock.nuke({}, (err) => {
+      Db.nuke((err) => {
 
         expect(err).to.be.null();
-
-        Db.Recipe.nuke({}, (err) => {
-
-          expect(err).to.be.null();
-          done();
-        });
+        done();
       });
     });
   });

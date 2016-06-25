@@ -25,7 +25,7 @@ describe('Stock:', () => {
 
       expect(err).to.be.null();
 
-      Db.Stock.nuke({}, (err) => {
+      Db.nuke((err) => {
 
         expect(err).to.be.null();
         done();

@@ -11,6 +11,13 @@ const MongoClient = require('mongodb').MongoClient;
 let Mongo = null; // object for accessing the db
 let Config = null;
 
+const modelNames = [ // in requirement order
+  'StockType',
+  'Stock',
+  'Recipe',
+];
+
+
 exports.init = function (config, callback) {
 
   Config = config;
@@ -28,12 +35,6 @@ exports.init = function (config, callback) {
     }
 
     // fetch and initialize all models
-    const modelNames = [ // in requirement order
-      'StockType',
-      'Stock',
-      'Recipe',
-    ];
-
     Async.series([
       (cb) => { Async.each(modelNames, _requireModels, cb); },
       (cb) => { Async.each(modelNames, _setModelInitialState, cb); }, // must be done before other db tasks that might create the table
@@ -47,9 +48,16 @@ exports.init = function (config, callback) {
 
 
 exports.exit = function (callback) {
-
   Mongo.close();
   return callback();
+};
+
+
+// DELETES ALL COLLECTIONS - USE WITH CAUTION
+exports.nuke = function (callback) {
+  Async.each(modelNames, (modelName, callback) => {
+    exports[modelName].nuke({}, callback);
+  }, callback);
 };
 
 
