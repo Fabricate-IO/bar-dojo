@@ -2,6 +2,8 @@ import React from 'react';
 import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 
+import styles from '../styles';
+
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
@@ -46,13 +48,20 @@ const Recipe = React.createClass({
     hashHistory.push('/drinks/edit/' + this.props.recipe.id);
   },
   render: function () {
+
     let expanded = '';
     if (this.state.expanded) {
       expanded = <RecipeExpanded recipe={this.props.recipe} />
     }
+    let style = {};
+    if (this.props.recipe.inStock === false) {
+      style = styles.outOfStock;
+    }
+
     return (
       <ListItem
         onClick={this.handleClick}
+        style={style}
         rightIconButton={
           <div>
             <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
@@ -95,14 +104,23 @@ module.exports = React.createClass({
     });
   },
   render: function () {
-    const recipes = this.state.data.map((recipe) => {
+    const recipesInStock = this.state.data.filter((element) => {
+      return (element.inStock === true);
+    }).map((recipe) => {
+      return <Recipe key={recipe.id} recipe={recipe} onDelete={this.onDelete}></Recipe>;
+    });
+    const recipesOutOfStock = this.state.data.filter((element) => {
+      return (element.inStock === false);
+    }).map((recipe) => {
       return <Recipe key={recipe.id} recipe={recipe} onDelete={this.onDelete}></Recipe>;
     });
     return (
       <List>
-        {recipes}
+        {recipesInStock}
         <Divider />
         <Subheader>Out of stock</Subheader>
+        <Divider />
+        {recipesOutOfStock}
       </List>
     );
   },

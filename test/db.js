@@ -1,14 +1,16 @@
+// General DB CRUD test cases
+// Using StockType model
+// Model-specific test cases go in /test/model
+
 'use strict';
 
 const Code = require('code');
-const Db = require('../db');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 
-const Config = {
-  mongoUrl: 'mongodb://localhost:27017/test',
-  nuke: true,
-};
+const Config = require('../config-testing');
+const Db = require('../db');
+const helpers = require('./helpers');
 
 const describe = lab.describe;
 const it = lab.it;
@@ -85,7 +87,7 @@ describe('CRUD:', () => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
-        _checkArrayEquality(result, [{ id: 'test', unitType: 'oz' }]);
+        helpers.checkArrayEquality(result, [{ id: 'test', unitType: 'oz' }]);
         done();
       });
     });
@@ -101,7 +103,7 @@ describe('CRUD:', () => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
-        _checkArrayEquality(result, [{ id: 'test', unitType: 'bottle' }]);
+        helpers.checkArrayEquality(result, [{ id: 'test', unitType: 'bottle' }]);
         done();
       });
     });
@@ -122,7 +124,7 @@ describe('CRUD:', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
-      _checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }, { id: 'test' }]);
+      helpers.checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }, { id: 'test' }]);
       done();
     });
   });
@@ -133,7 +135,7 @@ describe('CRUD:', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
-      _checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }, { id: 'test' }]);
+      helpers.checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }, { id: 'test' }]);
       done();
     });
   });
@@ -148,13 +150,13 @@ describe('CRUD:', () => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(2);
-        _checkArrayEquality(result, [{ id: 'test2' }, { id: 'test' }]);
+        helpers.checkArrayEquality(result, [{ id: 'test2' }, { id: 'test' }]);
 
         Db.StockType.read({ archived: true }, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(1);
-          _checkArrayEquality(result, [{ id: 'test3' }]);
+          helpers.checkArrayEquality(result, [{ id: 'test3' }]);
           done();
         });
       });
@@ -171,13 +173,13 @@ describe('CRUD:', () => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
-        _checkArrayEquality(result, [{ id: 'test' }]);
+        helpers.checkArrayEquality(result, [{ id: 'test' }]);
 
         Db.StockType.read({ archived: true }, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(2);
-          _checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }]);
+          helpers.checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }]);
           done();
         });
       });
@@ -273,74 +275,4 @@ describe('CRUD egde cases:', () => {
       });
     });
   });
-
-  it('createOne (preSave triggers)', (done) => {
-
-    Db.Stock.createOne({ id: 1, initialCost: 10, initialQuantity: 5 }, (err) => {
-
-      expect(err).to.be.null();
-
-      Db.Stock.readOne(1, (err, result) => {
-
-        expect(err).to.be.null();
-        expect(result.initialCost).to.equal(10);
-        expect(result.afterTaxCost).to.be.at.least(10);
-        expect(result.unitCost).to.be.at.least(2);
-        done();
-      });
-    });
-  });
-
-  it('updateOne (preSave triggers)', (done) => {
-
-    Db.Stock.updateOne(1, { initialCost: 20 }, (err) => {
-
-      expect(err).to.be.null();
-
-      Db.Stock.readOne(1, (err, result) => {
-
-        expect(err).to.be.null();
-        expect(result.initialCost).to.equal(20);
-        expect(result.afterTaxCost).to.be.at.least(20);
-        expect(result.unitCost).to.be.at.least(4);
-        done();
-      });
-    });
-  });
-
-  it('createOne (preSave does not trigger if fields not present)', (done) => {
-
-    Db.Stock.createOne({ id: 2 }, (err) => {
-
-      expect(err).to.be.null();
-
-      Db.Stock.readOne(2, (err, result) => {
-
-        expect(err).to.be.null();
-        expect(result.initialCost).to.be.undefined();
-        expect(result.afterTaxCost).to.be.undefined();
-        expect(result.unitCost).to.be.undefined();
-        done();
-      });
-    });
-  });
 });
-
-
-/* ===== Helpers ===== */
-
-// checks that a contains b
-function _checkArrayEquality (a, b) {
-  expect(a.length).to.equal(b.length);
-  for (let i = 0; i < a.length; i++) {
-    _checkEquality(a[i], b[i]);
-  }
-}
-
-
-// checks for equality (that a contains b)
-function _checkEquality (a, b) {
-  Object.keys(b).forEach((property) => {
-    expect(a[property]).to.equal(b[property], { prototype: false });
-  });
-}

@@ -9,9 +9,11 @@ const Joi = require('joi');
 const Models = {};
 const MongoClient = require('mongodb').MongoClient;
 let Mongo = null; // object for accessing the db
+let Config = null;
 
+exports.init = function (config, callback) {
 
-exports.init = function (Config, callback) {
+  Config = config;
 
   MongoClient.connect(Config.mongoUrl, (err, db) => {
 
@@ -66,7 +68,7 @@ function createOne (modelName, object, callback) {
       return callback(err);
     }
 
-    Models[modelName].preSave(object, (err, object) => {
+    Models[modelName].preSave(Config, object, (err, object) => {
 
       if (err) {
         return callback(err);
@@ -102,7 +104,13 @@ function readMany (modelName, query, callback) {
   }
   delete query.orderBy;
   delete query.order;
-  return Mongo.collection(modelName).find(query).sort(sort).toArray(callback);
+
+  if (Models[modelName].readMany) {
+    return Models[modelName].readMany(Mongo, query, sort, callback);
+  }
+  else {
+    return Mongo.collection(modelName).find(query).sort(sort).toArray(callback);
+  }
 }
 
 function readOne (modelName, id, callback) {
@@ -138,7 +146,7 @@ function updateOne (modelName, id, delta, callback) {
 
     Hoek.merge(object, delta);
 
-    Models[modelName].preSave(object, (err, object) => {
+    Models[modelName].preSave(Config, object, (err, object) => {
 
       if (err) {
         return callback(err);
@@ -166,7 +174,7 @@ function deleteOne (modelName, id, callback) {
 function _requireModels (modelName, callback) {
 
   Models[modelName] = require('./model/' + modelName + '.js');
-  Models[modelName].preSave = Models[modelName].preSave || ((object, callback) => { callback(null, object); });
+  Models[modelName].preSave = Models[modelName].preSave || ((Config, object, callback) => { callback(null, object); });
   return callback();
 }
 

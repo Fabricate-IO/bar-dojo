@@ -1,6 +1,3 @@
-'use strict';
-
-
 module.exports = [
   {
     method: 'GET',

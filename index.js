@@ -3,16 +3,9 @@
 const Async = require('async');
 const Hapi = require('hapi');
 
+const Config = require('./config');
 const Db = require('./db');
 const Routes = require('./routes');
-
-const Config = {
-  mongoUrl: 'mongodb://localhost:27017/BarDojo',
-  server: {
-    host: 'localhost',
-    port: 8000,
-  }
-};
 
 
 exports.init = function (callback) {

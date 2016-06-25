@@ -16,9 +16,13 @@ exports.schema = {
     stockTypeId: StockType.schema.id,
     quantity: Joi.number(),
   })),
-
-  created: Joi.date().timestamp(),
   archived: Joi.boolean().default(false),
+
+  // Metadata
+  // costMin - number
+  // costMax - number
+  inStock: Joi.boolean(),
+  created: Joi.date().timestamp(),
 };
 
 
@@ -40,6 +44,66 @@ exports.indexes = [
     },
   },
 ];
+
+
+// attaches UI metadata
+exports.readMany = function (Mongo, query, sort, callback) {
+
+  const queryInStock = query.inStock;
+  delete query.inStock;
+
+  Mongo.collection("Stock").find({ remainingQuantity: { $gt: 0 } }).toArray((err, result) => {
+
+    if (err) {
+      return callback(err);
+    }
+
+    // convert stock into a dict of stocks by stockTypeId
+    const stock = {};
+    result.forEach((element) => {
+      const id = element.stockTypeId;
+      stock[id] = stock[id] || [];
+      stock[id].push(element);
+    });
+
+    Mongo.collection("Recipe").find(query).sort(sort).toArray((err, result) => {
+
+      if (err) {
+        return callback(err);
+      }
+
+      // calculate metadata
+      const recipes = result.map((element) => {
+
+        element.inStock = true;
+        element.ingredients.forEach((ingredient) => {
+
+          let inStock = false;
+
+          if (stock[ingredient.stockTypeId] != null) {
+
+            stock[ingredient.stockTypeId].forEach((stock) => {
+
+              if (stock.remainingQuantity >= ingredient.quantity) {
+                inStock = true;
+              }
+            });
+          }
+
+          if (!inStock) {
+            element.inStock = false;
+          }
+        });
+
+        return element;
+      }).filter((element) => {
+        return (queryInStock == null || queryInStock === element.inStock);
+      });
+
+      return callback(recipes);
+    });
+  });
+};
 
 
 exports.initialState = [

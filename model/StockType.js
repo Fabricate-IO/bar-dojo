@@ -12,9 +12,10 @@ const db = require('../db');
 exports.schema = {
   id: Joi.string(), // unique key
   unitType: Joi.string().valid(['oz', 'bottle', 'cup', 'wedge']),
-
-  created: Joi.date().timestamp(),
   archived: Joi.boolean().default(false),
+
+  // Metadata
+  created: Joi.date().timestamp(),
 };
 
 

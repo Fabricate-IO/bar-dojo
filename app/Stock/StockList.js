@@ -2,6 +2,8 @@ import React from 'react';
 import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 
+import styles from '../styles';
+
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
@@ -29,14 +31,21 @@ const Stock = React.createClass({
     hashHistory.push('/inventory/edit/' + this.props.stock.id);
   },
   render: function () {
+
     let expanded = '';
 // TODO
     // if (this.state.expanded) {
-    //   expanded = <RecipeExpanded recipe={this.props.recipe} />
+    //   expanded = <StockExpanded stock={this.props.stock} />
     // }
+    let style = {};
+    if (this.props.stock.inStock === false) {
+      style = styles.outOfStock;
+    }
+
     return (
       <ListItem
         onClick={this.handleClick}
+        style={style}
         rightIconButton={
           <div>
             <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
@@ -81,12 +90,23 @@ module.exports = React.createClass({
     });
   },
   render: function () {
-    const stock = this.state.data.map((stock) => {
+    const stockInStock = this.state.data.filter((element) => {
+      return (element.inStock === true);
+    }).map((stock) => {
+      return <Stock key={stock.id} stock={stock} onDelete={this.onDelete}></Stock>;
+    });
+    const stockOutOfStock = this.state.data.filter((element) => {
+      return (element.inStock === false);
+    }).map((stock) => {
       return <Stock key={stock.id} stock={stock} onDelete={this.onDelete}></Stock>;
     });
     return (
       <List>
-        {stock}
+        {stockInStock}
+        <Divider />
+        <Subheader>Out of stock</Subheader>
+        <Divider />
+        {stockOutOfStock}
       </List>
     );
   },

@@ -27,7 +27,7 @@ module.exports = [
           return reply(Boom.badRequest(err));
         }
 
-        request.server.app.db[modelName].deleteOne(request.params.id, (err, result) => {
+        request.server.app.db[modelName].deleteOne(params.id, (err, result) => {
           return reply(err || result);
         });
       });
@@ -109,11 +109,6 @@ module.exports = [
   {
     method: 'POST',
     path: '/api/{modelName}',
-    config: {
-      validate: {
-        payload: models.Recipe.schema,
-      },
-    },
     handler: (request, reply) => {
 
       const modelName = request.params.modelName;

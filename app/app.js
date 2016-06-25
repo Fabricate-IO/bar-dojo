@@ -2,10 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, IndexRoute, IndexRedirect, Link, hashHistory } from 'react-router';
 import injectTapEventPlugin from 'react-tap-event-plugin';
+
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 // import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import style from './styles';
+import styles from './styles';
 
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
@@ -101,14 +102,14 @@ const AppLayout = React.createClass({
             open={this.state.open}
             onRequestChange={(open) => this.setState({open})}
           >
-            <img src="/static/img/logo.png" style={style.logo}/>
-            <Link to="/drinks" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Drinks</MenuItem></Link>
-            <Link to="/patrons" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Patrons</MenuItem></Link>
-            <Link to="/inventory" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Inventory</MenuItem></Link>
-            <Link to="/shopping" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>Shopping List</MenuItem></Link>
-            <Link to="/history" style={style.navlink}><MenuItem onTouchTap={this.handleClose}>History</MenuItem></Link>
+            <img src="/static/img/logo.png" style={styles.logo}/>
+            <Link to="/drinks" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Drinks</MenuItem></Link>
+            <Link to="/patrons" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Patrons</MenuItem></Link>
+            <Link to="/inventory" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Inventory</MenuItem></Link>
+            <Link to="/shopping" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Shopping List</MenuItem></Link>
+            <Link to="/history" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>History</MenuItem></Link>
           </Drawer>
-          <div style={style.contentBox}>
+          <div style={styles.contentBox}>
             {this.props.children}
           </div>
         </div>

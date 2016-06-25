@@ -27,4 +27,8 @@ module.exports = {
   textInput: {
     verticalAlign: 'bottom',
   },
+
+  outOfStock: {
+    opacity: 0.7,
+  },
 };

@@ -34,11 +34,13 @@ const IngredientSelect = React.createClass({
     this.props.removeIngredient(this.props.index);
   },
   render: function () {
+
     const options = this.props.StockTypes.map((StockType) => {
       return <MenuItem key={StockType.id} value={StockType.id} primaryText={StockType.id} />;
     });
     const units = this.state.StockType.unitType || 'units';
     const quantityLabel = 'Quantity (' + units + ')';
+
     return (
       <div>
         <TextField
@@ -68,7 +70,7 @@ const IngredientSelect = React.createClass({
 module.exports = React.createClass({
   getInitialState: function () {
     return {
-      StockType: [],
+      StockTypes: [],
       object: {
         name: '',
         instructions: '',
@@ -77,16 +79,18 @@ module.exports = React.createClass({
     };
   },
   componentWillMount: function () {
+
     NetworkRequest('GET', '/api/StockType?orderBy=name', (err, result) => {
 
       if (err) {
         return console.error('StockType API', status, err.toString());
       }
 
-      this.setState({ StockType: result });
+      this.setState({ StockTypes: result });
     });
   },
   componentDidMount: function () {
+
     if (this.props.params.id != null) {
 
       NetworkRequest('GET', '/api/Recipe/' + this.props.params.id, (err, result) => {
@@ -101,6 +105,7 @@ module.exports = React.createClass({
     }
   },
   handleSave: function (e) {
+
     e.preventDefault();
     const object = this.state.object;
     if (object.name == null || object.ingredients == null) {
@@ -122,15 +127,19 @@ module.exports = React.createClass({
       type = 'PUT';
     }
     this.setState({ object: {} });
+
     NetworkRequest(type, url, recipe, (err, result) => {
+
       if (err) {
         this.setState({ object: object });
         return console.error('Recipe API', status, err.toString());
       }
+
       hashHistory.push('/drinks');
     });
   },
   handleInputChange: function (e) {
+
     const object = this.state.object;
     object[e.target.name] = e.target.value;
     this.setState({ object: object });
@@ -151,16 +160,18 @@ module.exports = React.createClass({
     this.setState({ object: this.state.object });
   },
   render: function () {
+
     const ingredients = this.state.object.ingredients.map((ingredient, index) => {
       return <IngredientSelect
         key={ingredient.stockTypeId}
         index={index}
         ingredient={ingredient}
-        StockTypes={this.state.StockType}
+        StockTypes={this.state.StockTypes}
         changeIngredient={this.changeIngredient}
         removeIngredient={this.removeIngredient}
       />;
     });
+
     return (
       <form onSubmit={this.handleSave}>
         <TextField
@@ -169,6 +180,7 @@ module.exports = React.createClass({
           floatingLabelFixed={true}
           value={this.state.object.name}
           onChange={this.handleInputChange}
+          style={style.textInput}
         />
         <br/>
         <TextField
@@ -179,6 +191,7 @@ module.exports = React.createClass({
           rows={2}
           value={this.state.object.instructions}
           onChange={this.handleInputChange}
+          style={style.textInput}
         />
         <br/>
         {ingredients}
