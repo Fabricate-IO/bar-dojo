@@ -104,57 +104,41 @@ describe('Stock:', () => {
       done();
     });
   });
+
+  it('update updates preSave fields', (done) => {
+
+    Config.taxRate = 0.1;
+
+    Db.Stock.updateOne(1, { initialCost: 20 }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.Stock.readOne(1, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.initialCost).to.equal(20);
+        expect(result.afterTaxCost).to.equal(22);
+        expect(result.unitCost).to.equal(2.2);
+        Config.taxRate = 0;
+        done();
+      });
+    });
+  });
+
+  it('update does not trigger preSave if fields not present', (done) => {
+
+    Db.Stock.updateOne(1, { initialCost: null }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.Stock.readOne(1, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.initialCost).to.be.null();
+        expect(result.afterTaxCost).to.equal(22);
+        expect(result.unitCost).to.equal(2.2);
+        done();
+      });
+    });
+  });
 });
-
-
-
-// it('createOne (preSave triggers)', (done) => {
-
-//     Db.Stock.createOne({ id: 1, initialCost: 10, initialQuantity: 5 }, (err) => {
-
-//       expect(err).to.be.null();
-
-//       Db.Stock.readOne(1, (err, result) => {
-
-//         expect(err).to.be.null();
-//         expect(result.initialCost).to.equal(10);
-//         expect(result.afterTaxCost).to.be.at.least(10);
-//         expect(result.unitCost).to.be.at.least(2);
-//         done();
-//       });
-//     });
-//   });
-
-//   it('updateOne (preSave triggers)', (done) => {
-
-//     Db.Stock.updateOne(1, { initialCost: 20 }, (err) => {
-
-//       expect(err).to.be.null();
-
-//       Db.Stock.readOne(1, (err, result) => {
-
-//         expect(err).to.be.null();
-//         expect(result.initialCost).to.equal(20);
-//         expect(result.afterTaxCost).to.be.at.least(20);
-//         expect(result.unitCost).to.be.at.least(4);
-//         done();
-//       });
-//     });
-//   });
-
-//   it('createOne (preSave does not trigger if fields not present)', (done) => {
-
-//     Db.Stock.createOne({ id: 2 }, (err) => {
-
-//       expect(err).to.be.null();
-
-//       Db.Stock.readOne(2, (err, result) => {
-
-//         expect(err).to.be.null();
-//         expect(result.initialCost).to.be.undefined();
-//         expect(result.afterTaxCost).to.be.undefined();
-//         expect(result.unitCost).to.be.undefined();
-//         done();
-//       });
-//     });
-//   });

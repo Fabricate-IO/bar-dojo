@@ -4,3 +4,9 @@
 
 
 A handy web app for managing a bar
+
+## Setup
+
+TODO: install Node, Mongo, Gulp, `npm install && npm install -g gulp lab`; run `npm test` to make sure everything's good
+
+Powered by React, [Material-UI](http://www.material-ui.com/), Mongo
