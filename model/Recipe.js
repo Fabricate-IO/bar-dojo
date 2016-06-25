@@ -52,7 +52,7 @@ exports.readMany = function (Mongo, query, sort, callback) {
   const queryInStock = query.inStock;
   delete query.inStock;
 
-  Mongo.collection("Stock").find({ remainingQuantity: { $gt: 0 } }).toArray((err, result) => {
+  Mongo.collection("Stock").find({ remainingQuantity: { $gt: 0 }, archived: { $ne: true } }).toArray((err, result) => {
 
     if (err) {
       return callback(err);
@@ -76,9 +76,14 @@ exports.readMany = function (Mongo, query, sort, callback) {
       const recipes = result.map((element) => {
 
         element.inStock = true;
+        element.costMin = 0;
+        element.costMax = 0;
+
         element.ingredients.forEach((ingredient) => {
 
           let inStock = false;
+          let costMin = 9999;
+          let costMax = 0;
 
           if (stock[ingredient.stockTypeId] != null) {
 
@@ -86,8 +91,13 @@ exports.readMany = function (Mongo, query, sort, callback) {
 
               if (stock.remainingQuantity >= ingredient.quantity) {
                 inStock = true;
+                costMin = Math.min(costMin, stock.unitCost * ingredient.quantity);
+                costMax = Math.max(costMax, stock.unitCost * ingredient.quantity);
               }
             });
+
+            element.costMin += costMin;
+            element.costMax += costMax;
           }
 
           if (!inStock) {
@@ -100,7 +110,7 @@ exports.readMany = function (Mongo, query, sort, callback) {
         return (queryInStock == null || queryInStock === element.inStock);
       });
 
-      return callback(recipes);
+      return callback(null, recipes);
     });
   });
 };

@@ -8,8 +8,22 @@ import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
-import IconDelete from 'material-ui/svg-icons/action/delete';
 import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
+
+
+const StockExpanded = React.createClass({
+  render: function () {
+    const stock = this.props.stock;
+
+    return (
+      <div style={styles.expanded}>
+        <h1>{stock.stockTypeId}</h1>
+        <div>{stock.remainingQuantity} {stock.stockType.unitType} remaining (out of {stock.initialQuantity} {stock.stockType.unitType})</div>
+        <div>${stock.unitCost} per {stock.stockType.unitType} (initial cost: ${stock.afterTaxCost})</div>
+      </div>
+    );
+  },
+});
 
 
 const Stock = React.createClass({
@@ -21,22 +35,15 @@ const Stock = React.createClass({
   handleClick: function () {
     this.setState({ expanded: !this.state.expanded });
   },
-  handleDelete: function (e) {
-    e.preventDefault();
-    if (window.confirm("Are you sure you want to delete " + this.props.stock.name + '?')) {
-      this.props.onDelete(this.props.stock.id);
-    }
-  },
   handleEdit: function () {
     hashHistory.push('/inventory/edit/' + this.props.stock.id);
   },
   render: function () {
 
     let expanded = '';
-// TODO
-    // if (this.state.expanded) {
-    //   expanded = <StockExpanded stock={this.props.stock} />
-    // }
+    if (this.state.expanded) {
+      expanded = <StockExpanded stock={this.props.stock} />
+    }
     let style = {};
     if (this.props.stock.inStock === false) {
       style = styles.outOfStock;
@@ -49,7 +56,6 @@ const Stock = React.createClass({
         rightIconButton={
           <div>
             <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
-            <IconButton onClick={this.handleDelete}><IconDelete /></IconButton>
           </div>
         }
       >
@@ -68,38 +74,46 @@ module.exports = React.createClass({
       data: [],
     };
   },
+  componentWillMount: function () {
+
+    NetworkRequest('GET', '/api/StockType?orderBy=name', (err, result) => {
+
+      if (err) {
+        return console.error('StockType API', status, err.toString());
+      }
+
+      this.setState({ StockTypes: result });
+    });
+  },
   componentDidMount: function () {
+
     NetworkRequest('GET', '/api/Stock?orderBy=name', (err, result) => {
 
       if (err) {
         return console.error('Stock API', status, err.toString());
       }
 
-      this.setState({ data: result });
-    });
-  },
-  onDelete: function (id) {
-    const data = this.state.data;
-    const newData = data.filter((stock) => { return stock.id !== id; });
-    this.setState({ data: newData });
-    NetworkRequest('DELETE', '/api/Stock/' + id, (err, result) => {
-      if (err) {
-        this.setState({ data: data });
-        return console.error('Stock API', status, err.toString());
-      }
+      const stock = result.map((stock) => {
+        stock.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === stock.stockTypeId; });
+        return stock;
+      });
+
+      this.setState({ data: stock });
     });
   },
   render: function () {
+
     const stockInStock = this.state.data.filter((element) => {
       return (element.inStock === true);
     }).map((stock) => {
-      return <Stock key={stock.id} stock={stock} onDelete={this.onDelete}></Stock>;
+      return <Stock key={stock.id} stock={stock}></Stock>;
     });
     const stockOutOfStock = this.state.data.filter((element) => {
       return (element.inStock === false);
     }).map((stock) => {
-      return <Stock key={stock.id} stock={stock} onDelete={this.onDelete}></Stock>;
+      return <Stock key={stock.id} stock={stock}></Stock>;
     });
+
     return (
       <List>
         {stockInStock}

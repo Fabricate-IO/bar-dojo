@@ -60,34 +60,20 @@ exports.readMany = function (Mongo, query, sort, callback) {
   const queryInStock = query.inStock;
   delete query.inStock;
 
-  Mongo.collection("Stock").find({ remainingQuantity: { $gt: 0 } }).toArray((err, result) => {
+  Mongo.collection("Stock").find(query).toArray((err, result) => {
 
     if (err) {
       return callback(err);
     }
 
-    const inStock = result.map((element) => {
-      element.inStock = true;
+    const stock = result.map((element) => {
+      element.inStock = (element.remainingQuantity > 0);
       return element;
+    }).filter((element) => {
+      return (queryInStock == null || queryInStock === element.inStock);
     });
 
-    Mongo.collection("Stock").find({ remainingQuantity: 0 }).toArray((err, result) => {
-
-      if (err) {
-        return callback(err);
-      }
-
-      const outOfStock = result.map((element) => {
-        element.inStock = false;
-        return element;
-      });
-
-      const stock = inStock.concat(outOfStock).filter((element) => {
-        return (queryInStock == null || queryInStock === element.inStock);
-      });
-
-      return callback(null, stock);
-    });
+    return callback(null, stock);
   });
 };
 

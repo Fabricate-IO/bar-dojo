@@ -8,18 +8,17 @@ import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
-import IconDelete from 'material-ui/svg-icons/action/delete';
 import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
 
 
 const RecipeExpanded = React.createClass({
   render: function () {
     const ingredients = (this.props.recipe.ingredients || []).map((ingredient) => {
-      const text = ingredient.quantity + 'x ' + ingredient.stockTypeId;
+      const text = ingredient.quantity + ingredient.stockType.unitType + ' ' + ingredient.stockTypeId;
       return <ListItem key={ingredient.stockTypeId} primaryText={text} />
     });
     return (
-      <div>
+      <div style={styles.expanded}>
         <List>
           {ingredients}
         </List>
@@ -37,12 +36,6 @@ const Recipe = React.createClass({
   },
   handleClick: function () {
     this.setState({ expanded: !this.state.expanded });
-  },
-  handleDelete: function (e) {
-    e.preventDefault();
-    if (window.confirm("Are you sure you want to delete " + this.props.recipe.name + '?')) {
-      this.props.onDelete(this.props.recipe.id);
-    }
   },
   handleEdit: function () {
     hashHistory.push('/drinks/edit/' + this.props.recipe.id);
@@ -65,12 +58,11 @@ const Recipe = React.createClass({
         rightIconButton={
           <div>
             <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
-            <IconButton onClick={this.handleDelete}><IconDelete /></IconButton>
           </div>
         }
       >
         <div>
-          {this.props.recipe.name}
+          {this.props.recipe.name} (${this.props.recipe.costMin} - ${this.props.recipe.costMax})
         </div>
         {expanded}
       </ListItem>
@@ -84,36 +76,58 @@ module.exports = React.createClass({
       data: [],
     };
   },
-  componentDidMount: function () {
-    NetworkRequest('GET', '/api/Recipe?orderBy=name', (err, result) => {
+  componentWillMount: function () {
+
+    NetworkRequest('GET', '/api/Stock?orderBy=name', (err, result) => {
+
       if (err) {
-        return console.error('Recipe API', status, err.toString());
+        return console.error('Stock API', status, err.toString());
       }
-      this.setState({ data: result });
+
+      this.setState({ Stock: result });
+    });
+
+    NetworkRequest('GET', '/api/StockType?orderBy=name', (err, result) => {
+
+      if (err) {
+        return console.error('StockType API', status, err.toString());
+      }
+
+      this.setState({ StockTypes: result });
     });
   },
-  onDelete: function (id) {
-    const data = this.state.data;
-    const newData = data.filter((recipe) => { return recipe.id !== id; });
-    this.setState({ data: newData });
-    NetworkRequest('DELETE', '/api/Recipe/' + id, (err, result) => {
+  componentDidMount: function () {
+
+    NetworkRequest('GET', '/api/Recipe?orderBy=name', (err, result) => {
+
       if (err) {
-        this.setState({ data: data });
         return console.error('Recipe API', status, err.toString());
       }
+
+      const recipes = result.map((recipe) => {
+        recipe.ingredients = recipe.ingredients.map((ingredient) => {
+          ingredient.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === ingredient.stockTypeId; });
+          return ingredient;
+        });
+        return recipe;
+      });
+
+      this.setState({ data: recipes });
     });
   },
   render: function () {
+
     const recipesInStock = this.state.data.filter((element) => {
       return (element.inStock === true);
     }).map((recipe) => {
-      return <Recipe key={recipe.id} recipe={recipe} onDelete={this.onDelete}></Recipe>;
+      return <Recipe key={recipe.id} recipe={recipe}></Recipe>;
     });
     const recipesOutOfStock = this.state.data.filter((element) => {
       return (element.inStock === false);
     }).map((recipe) => {
-      return <Recipe key={recipe.id} recipe={recipe} onDelete={this.onDelete}></Recipe>;
+      return <Recipe key={recipe.id} recipe={recipe}></Recipe>;
     });
+
     return (
       <List>
         {recipesInStock}

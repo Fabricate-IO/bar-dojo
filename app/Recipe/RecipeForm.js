@@ -147,6 +147,20 @@ module.exports = React.createClass({
   handleCancel: function () {
     hashHistory.push('/drinks');
   },
+  handleDelete: function (e) {
+
+    if (window.confirm("Are you sure you want to delete " + this.state.object.name + '?')) {
+
+      NetworkRequest('DELETE', '/api/Recipe/' + this.props.params.id, (err, result) => {
+
+        if (err) {
+          return console.error('Recipe API', status, err.toString());
+        }
+
+        hashHistory.push('/drinks');
+      });
+    }
+  },
   addIngredient: function () {
     this.state.object.ingredients.push({});
     this.setState({ object: this.state.object });
@@ -199,6 +213,8 @@ module.exports = React.createClass({
         <br/>
         <RaisedButton label="Cancel" onClick={this.handleCancel} />
         <RaisedButton label="Save" type="submit" />
+        <br/>
+        <RaisedButton label="Delete" onClick={this.handleDelete} />
       </form>
     );
   }

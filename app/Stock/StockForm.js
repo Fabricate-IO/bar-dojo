@@ -8,7 +8,6 @@ import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
-import IconDelete from 'material-ui/svg-icons/action/delete';
 
 
 module.exports = React.createClass({
@@ -102,6 +101,20 @@ module.exports = React.createClass({
   handleCancel: function () {
     hashHistory.push('/inventory');
   },
+  handleDelete: function (e) {
+
+    if (window.confirm("Are you sure you want to delete " + this.state.object.name + '?')) {
+
+      NetworkRequest('DELETE', '/api/Stock/' + this.props.params.id, (err, result) => {
+
+        if (err) {
+          return console.error('Stock API', status, err.toString());
+        }
+
+        hashHistory.push('/inventory');
+      });
+    }
+  },
   render: function () {
 
     const options = this.state.StockTypes.map((StockType) => {
@@ -160,6 +173,8 @@ module.exports = React.createClass({
         <br/>
         <RaisedButton label="Cancel" onClick={this.handleCancel} />
         <RaisedButton label="Save" type="submit" />
+        <br/>
+        <RaisedButton label="Delete" onClick={this.handleDelete} />
       </form>
     );
   }
