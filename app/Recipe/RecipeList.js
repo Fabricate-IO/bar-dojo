@@ -7,16 +7,64 @@ import styles from '../styles';
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
 
 
 const RecipeExpanded = React.createClass({
-  render: function () {
-    const ingredients = (this.props.recipe.ingredients || []).map((ingredient) => {
-      const text = ingredient.quantity + ingredient.stockType.unitType + ' ' + ingredient.stockTypeId;
-      return <ListItem key={ingredient.stockTypeId} primaryText={text} />
+  getInitialState: function () {
+    const recipe = this.props.recipe;
+    recipe.ingredients = (recipe.ingredients || []).map((ingredient) => {
+      ingredient.stockId = ingredient.stock[0].id;
+      return ingredient;
     });
+    return recipe;
+  },
+  handleSelectChange: function (event, index, value, ingredientIndex) {
+    event.preventDefault();
+    this.state.ingredients[ingredientIndex].stockId = value;
+    this.setState({ ingredients: this.state.ingredients });
+  },
+  render: function () {
+
+    const ingredients = this.state.ingredients.map((ingredient, ingredientIndex) => {
+
+      const quantity = ingredient.quantity + ingredient.stockType.unitType;
+
+      let options = ingredient.stock[0].name;
+      if (ingredient.stock.length > 1) {
+        // generate select options
+        options = ingredient.stock.map((stock) => {
+          const price = stock.unitCost * ingredient.quantity;
+          const text = stock.name + ' - $' + price.toFixed(2);
+          return <MenuItem key={stock.id} value={stock.id} primaryText={text} />;
+        });
+
+        const handleSelectChange = (event, index, value) => {
+          this.handleSelectChange(event, index, value, ingredientIndex);
+        };
+
+        // create full select field
+        options = <SelectField
+          name={ingredient.id}
+          value={ingredient.stockId}
+          onChange={handleSelectChange}
+          floatingLabelText="Ingredient"
+          style={styles.textInput}
+        >
+          {options}
+        </SelectField>;
+      }
+
+      return (
+        <ListItem key={ingredient.stockTypeId}>
+          {quantity} {options} {ingredient.stockTypeId}
+        </ListItem>
+      );
+    });
+
     return (
       <div style={styles.expanded}>
         <List>
@@ -50,22 +98,28 @@ const Recipe = React.createClass({
     if (this.props.recipe.inStock === false) {
       style = styles.outOfStock;
     }
+    let priceRange = '$' + this.props.recipe.costMin;
+    if (this.props.recipe.costMin !== this.props.recipe.costMax) {
+      priceRange += ' - $' + this.props.recipe.costMax;
+    }
 
     return (
-      <ListItem
-        onClick={this.handleClick}
-        style={style}
-        rightIconButton={
+      <div>
+        <ListItem
+          onClick={this.handleClick}
+          style={style}
+          rightIconButton={
+            <div>
+              <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
+            </div>
+          }
+        >
           <div>
-            <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
+            {this.props.recipe.name} ({priceRange})
           </div>
-        }
-      >
-        <div>
-          {this.props.recipe.name} (${this.props.recipe.costMin} - ${this.props.recipe.costMax})
-        </div>
+        </ListItem>
         {expanded}
-      </ListItem>
+      </div>
     );
   },
 });
@@ -107,6 +161,8 @@ module.exports = React.createClass({
       const recipes = result.map((recipe) => {
         recipe.ingredients = recipe.ingredients.map((ingredient) => {
           ingredient.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === ingredient.stockTypeId; });
+          ingredient.stock = this.state.Stock.filter((Stock) => { return Stock.stockTypeId === ingredient.stockTypeId; })
+              .sort((a, b) => { return (a.unitCost - b.unitCost); });
           return ingredient;
         });
         return recipe;

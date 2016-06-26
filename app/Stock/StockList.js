@@ -13,6 +13,7 @@ import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
 
 const StockExpanded = React.createClass({
   render: function () {
+
     const stock = this.props.stock;
 
     return (
@@ -50,20 +51,22 @@ const Stock = React.createClass({
     }
 
     return (
-      <ListItem
-        onClick={this.handleClick}
-        style={style}
-        rightIconButton={
+      <div>
+        <ListItem
+          onClick={this.handleClick}
+          style={style}
+          rightIconButton={
+            <div>
+              <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
+            </div>
+          }
+        >
           <div>
-            <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
+            {this.props.stock.name}
           </div>
-        }
-      >
-        <div>
-          {this.props.stock.name}
-        </div>
+        </ListItem>
         {expanded}
-      </ListItem>
+      </div>
     );
   },
 });

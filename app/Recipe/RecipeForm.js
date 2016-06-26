@@ -1,7 +1,7 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
-import style from '../styles';
+import styles from '../styles';
 
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
@@ -50,13 +50,13 @@ const IngredientSelect = React.createClass({
           floatingLabelFixed={true}
           value={this.state.object.quantity}
           onChange={this.handleInputChange}
-          style={style.textInput}
+          style={styles.textInput}
         />
         <SelectField
           value={this.state.object.stockTypeId}
           onChange={this.handleSelectChange}
           floatingLabelText="Ingredient"
-          style={style.textInput}
+          style={styles.textInput}
         >
           {options}
         </SelectField>
@@ -194,7 +194,7 @@ module.exports = React.createClass({
           floatingLabelFixed={true}
           value={this.state.object.name}
           onChange={this.handleInputChange}
-          style={style.textInput}
+          style={styles.textInput}
         />
         <br/>
         <TextField
@@ -205,7 +205,7 @@ module.exports = React.createClass({
           rows={2}
           value={this.state.object.instructions}
           onChange={this.handleInputChange}
-          style={style.textInput}
+          style={styles.textInput}
         />
         <br/>
         {ingredients}
