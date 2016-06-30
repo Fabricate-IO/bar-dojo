@@ -1,1 +1,3 @@
-module.exports = [].concat(require('./api'), require('./ui'));
+module.exports = [].concat(
+    require('./api'),
+    require('./ui'));

@@ -16,10 +16,6 @@ import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
 const RecipeExpanded = React.createClass({
   getInitialState: function () {
     const recipe = this.props.recipe;
-    recipe.ingredients = (recipe.ingredients || []).map((ingredient) => {
-      ingredient.stockId = ingredient.stock[0].id;
-      return ingredient;
-    });
     return recipe;
   },
   handleSelectChange: function (event, index, value, ingredientIndex) {
@@ -29,11 +25,19 @@ const RecipeExpanded = React.createClass({
   },
   render: function () {
 
+    let price = 0;
+
     const ingredients = this.state.ingredients.map((ingredient, ingredientIndex) => {
 
-      const quantity = ingredient.quantity + ingredient.stockType.unitType;
+      const quantityText = ingredient.quantity + ingredient.stockType.unitType;
+      const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
+      let options = '-unavailable-';
 
-      let options = ingredient.stock[0].name;
+      if (stock != null) {
+        price += ingredient.quantity * stock.unitCost;
+        options = ingredient.stock[0].name;
+      }
+
       if (ingredient.stock.length > 1) {
         // generate select options
         options = ingredient.stock.map((stock) => {
@@ -60,13 +64,18 @@ const RecipeExpanded = React.createClass({
 
       return (
         <ListItem key={ingredient.stockTypeId}>
-          {quantity} {options} {ingredient.stockTypeId}
+          {quantityText} {options} {ingredient.stockTypeId}
         </ListItem>
       );
     });
 
+    price = price.toFixed(2);
+
     return (
       <div style={styles.expanded}>
+        <h1>
+          {this.state.name} - ${price}
+        </h1>
         <List>
           {ingredients}
         </List>
@@ -152,17 +161,21 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Recipe?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/Recipe?orderBy=unitCost', (err, result) => {
 
       if (err) {
         return console.error('Recipe API', status, err.toString());
       }
 
       const recipes = result.map((recipe) => {
+
         recipe.ingredients = recipe.ingredients.map((ingredient) => {
+
           ingredient.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === ingredient.stockTypeId; });
-          ingredient.stock = this.state.Stock.filter((Stock) => { return Stock.stockTypeId === ingredient.stockTypeId; })
-              .sort((a, b) => { return (a.unitCost - b.unitCost); });
+          ingredient.stock = this.state.Stock.filter((Stock) => { return Stock.stockTypeId === ingredient.stockTypeId; });
+          if (ingredient.stock.length > 0) {
+            ingredient.stockId = ingredient.stock[0].id;
+          }
           return ingredient;
         });
         return recipe;

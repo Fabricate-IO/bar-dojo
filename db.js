@@ -15,6 +15,7 @@ const modelNames = [ // in requirement order
   'StockType',
   'Stock',
   'Recipe',
+  'Patron',
 ];
 
 
@@ -62,6 +63,8 @@ exports.nuke = function (callback) {
 
 
 /* ===== CRUD functions ===== */
+// each of these can be overridden by a model by defining exports[crud function name]
+// even if overridden, it will still go through the same parameter pre-processing for consistency
 
 
 function createMany (modelName, objects, callback) {
@@ -179,10 +182,20 @@ function deleteOne (modelName, id, callback) {
 
 /* ===== PRIVATE HELPERS ===== */
 
+// attaches hooks:
+  // preSave (Config, object, callback): edits to single object before being saved
+  // prePublic (object, callback): edits to single object before being sent over the wire. Includes wrapper to support arrays of objects.
 function _requireModels (modelName, callback) {
+
+  exports[modelName] = {};
 
   Models[modelName] = require('./model/' + modelName + '.js');
   Models[modelName].preSave = Models[modelName].preSave || ((Config, object, callback) => { callback(null, object); });
+  exports[modelName].prePublicObject = Models[modelName].prePublic || ((object, callback) => { callback(null, object); });
+  exports[modelName].prePublicArray = ((objectOrObjects, callback) => {
+    Async.map([].concat(objectOrObjects), exports[modelName].prePublicObject, callback);
+  });
+
   return callback();
 }
 
@@ -228,26 +241,24 @@ function _setModelInitialState (modelName, callback) {
 
 function _assignModelCrudFunctions (modelName, callback) {
 
-  const model = Models[modelName];
+  const model = exports[modelName];
 
-  exports[modelName] = {
-    create: (objects, callback) => { createMany(modelName, objects, callback); },
-    createOne: (objects, callback) => { createOne(modelName, objects, callback); },
-    read: (query, callback) => { readMany(modelName, query, callback); },
-    readOne: (id, callback) => { readOne(modelName, id, callback); },
-    update: (query, delta, callback) => { updateMany(modelName, query, delta, callback); },
-    updateOne: (id, delta, callback) => { updateOne(modelName, id, delta, callback); },
-    delete: (query, callback) => { deleteMany(modelName, query, callback); },
-    deleteOne: (id, callback) => { deleteOne(modelName, id, callback); },
+  model.create = (objects, callback) => { createMany(modelName, objects, callback); };
+  model.createOne = (objects, callback) => { createOne(modelName, objects, callback); };
+  model.read = (query, callback) => { readMany(modelName, query, callback); };
+  model.readOne = (id, callback) => { readOne(modelName, id, callback); };
+  model.update = (query, delta, callback) => { updateMany(modelName, query, delta, callback); };
+  model.updateOne = (id, delta, callback) => { updateOne(modelName, id, delta, callback); };
+  model.delete = (query, callback) => { deleteMany(modelName, query, callback); };
+  model.deleteOne = (id, callback) => { deleteOne(modelName, id, callback); };
 
-    // the actual delete function - USE WITH CAUTION
-    nuke: (query, callback) => {
-      return Mongo.collection(modelName).remove(query, callback);
-    },
-
-    // for testing
-    initialState: model.initialState,
+  // the actual delete function - USE WITH CAUTION
+  model.nuke = (query, callback) => {
+    return Mongo.collection(modelName).remove(query, callback);
   };
+
+  // for testing
+  model.initialState = Models[modelName].initialState;
 
   return callback();
 }

@@ -16,22 +16,15 @@ import IconButton from 'material-ui/IconButton';
 import IconAdd from 'material-ui/svg-icons/content/add';
 import IconSearch from 'material-ui/svg-icons/action/search';
 
-const RecipeList = require('./Recipe/RecipeList');
+const PatronForm = require('./Patron/PatronForm');
+const PatronList = require('./Patron/PatronList');
 const RecipeForm = require('./Recipe/RecipeForm');
-const StockList = require('./Stock/StockList');
+const RecipeList = require('./Recipe/RecipeList');
 const StockForm = require('./Stock/StockForm');
+const StockList = require('./Stock/StockList');
 
 injectTapEventPlugin();
 const theme = getMuiTheme();
-
-
-const PatronLayout = React.createClass({
-  render: function () {
-    return (
-      <div>TODO</div>
-    );
-  }
-});
 
 
 const AppLayout = React.createClass({
@@ -130,7 +123,11 @@ ReactDOM.render(
         <Route path="add" component={RecipeForm} />
         <Route path="edit/:id" component={RecipeForm} />
       </Route>
-      <Route path="/patrons" component={PatronLayout} />
+      <Route path="/patrons">
+        <IndexRoute component={PatronList} />
+        <Route path="add" component={PatronForm} />
+        <Route path="edit/:id" component={PatronForm} />
+      </Route>
       <Route path="/inventory">
         <IndexRoute component={StockList} />
         <Route path="add" component={StockForm} />

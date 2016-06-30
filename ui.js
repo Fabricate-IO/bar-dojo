@@ -1,9 +1,24 @@
+const Setup = require('./setup');
+
+
 module.exports = [
   {
     method: 'GET',
     path: '/',
     handler: (request, reply) => {
-      return reply.file('./app/app.html');
+
+      Setup.setup((err, result) => {
+
+        if (err) {
+          return reply(err);
+        }
+
+        if (result !== true) {
+          return reply.redirect(result);
+        }
+
+        return reply.file('./app/app.html');
+      });
     },
   },
   {

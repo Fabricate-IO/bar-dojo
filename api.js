@@ -7,12 +7,11 @@ const models = {
   Recipe: require('./model/Recipe'),
   Stock: require('./model/Stock'),
   StockType: require('./model/StockType'),
+  Patron: require('./model/Patron'),
 };
 
 
 module.exports = [
-
-/* ===== Recipe ===== */
   {
     method: 'DELETE',
     path: '/api/{modelName}/{id}',
@@ -28,7 +27,12 @@ module.exports = [
         }
 
         request.server.app.db[modelName].deleteOne(params.id, (err, result) => {
-          return reply(err || result);
+
+          if (err) {
+            return reply(Boom.badImplementation(err));
+          }
+
+          return reply(result);
         });
       });
     },
@@ -48,7 +52,19 @@ module.exports = [
         }
 
         request.server.app.db[modelName].readOne(params.id, (err, result) => {
-          return reply(err || result);
+
+          if (err) {
+            return reply(Boom.badImplementation(err));
+          }
+
+          request.server.app.db[modelName].prePublicObject(result, (err, result) => {
+
+            if (err) {
+              return reply(Boom.badImplementation(err));
+            }
+
+            return reply(result);
+          });
         });
       });
     },
@@ -70,7 +86,19 @@ module.exports = [
         }
 
         request.server.app.db[modelName].read(query, (err, result) => {
-          return reply(err || result);
+
+          if (err) {
+            return reply(Boom.badImplementation(err));
+          }
+
+          request.server.app.db[modelName].prePublicArray(result, (err, result) => {
+
+            if (err) {
+              return reply(Boom.badImplementation(err));
+            }
+
+            return reply(result);
+          });
         });
       });
     },
@@ -100,7 +128,12 @@ module.exports = [
           }
 
           request.server.app.db[modelName].updateOne(params.id, payload, (err, result) => {
-            return reply(err || result);
+
+            if (err) {
+              return reply(Boom.badImplementation(err));
+            }
+
+            return reply(result);
           });
         });
       });
@@ -121,7 +154,12 @@ module.exports = [
         }
 
         request.server.app.db[modelName].createOne(payload, (err, result) => {
-          return reply(err || result);
+
+          if (err) {
+            return reply(Boom.badImplementation(err));
+          }
+
+          return reply(result);
         });
       });
     },
