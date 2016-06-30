@@ -13,13 +13,14 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       creating: (this.props.params.id == null), // if creating from scratch (otherwise saving)
+      friends: [],
       object: {
         tab: 0,
       },
     };
   },
   componentDidMount: function () {
-// TODO if creating, fetch list of friends
+
     if (this.state.creating === false) {
 
       NetworkRequest('GET', '/api/Patron/' + this.props.params.id, (err, result) => {
@@ -31,6 +32,15 @@ module.exports = React.createClass({
         this.setState({ object: result });
       });
     }
+
+    NetworkRequest('GET', '/api/Friend', (err, result) => {
+
+      if (err) {
+        return console.error('Friend API', status, err.toString());
+      }
+
+      this.setState({ friends: result });
+    });
   },
   handleSave: function (e) {
 
@@ -44,6 +54,7 @@ module.exports = React.createClass({
     const patron = {
       id: this.props.params.id,
       name: object.name.trim(),
+      splitwiseId: object.splitwiseId,
       tab: object.tab,
     };
     let url = '/api/Patron';
@@ -70,6 +81,11 @@ module.exports = React.createClass({
     object[e.target.name] = e.target.value;
     this.setState({ object: object });
   },
+  handleSplitwiseFriendChange: function (event, index, value) {
+    this.state.object.splitwiseId = value;
+    this.state.object.name = this.state.friends.find((friend) => { return (friend.id === value); }).name;
+    this.setState({ object: this.state.object });
+  },
   handleCancel: function () {
     hashHistory.push('/patrons');
   },
@@ -90,8 +106,23 @@ module.exports = React.createClass({
   render: function () {
 // TODO if not creating, render Splitwise user select as disabled
 
+    const friends = this.state.friends.map((friend) => {
+      return <MenuItem key={friend.id} value={friend.id} primaryText={friend.name} />;
+    });
+    const editing = !this.state.creating;
+
     return (
       <form onSubmit={this.handleSave}>
+        <SelectField
+          value={this.state.object.splitwiseId}
+          onChange={this.handleSplitwiseFriendChange}
+          floatingLabelText="Splitwise Friend"
+          style={style.textInput}
+          disabled={editing}
+        >
+          {friends}
+        </SelectField>
+        <br/>
         <TextField
           name="name"
           floatingLabelText="Name"

@@ -12,7 +12,7 @@ exports.schema = {
   id: Joi.number(), // unique key
   name: Joi.string(),
   tab: Joi.number(), // current amount owed (can be negative, ie gift card / credit)
-  splitwiseId: Joi.string(), // splitwise user id, if their account is tied to splitwise
+  splitwiseId: Joi.number(), // splitwise user id, if their account is tied to splitwise
   secret: {
     splitwiseToken: Joi.string(), // only for the user(s) making the splitwise transactions
     splitwiseSecret: Joi.string(), // only for the user(s) making the splitwise transactions

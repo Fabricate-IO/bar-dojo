@@ -8,6 +8,7 @@ const models = {
   Stock: require('./model/Stock'),
   StockType: require('./model/StockType'),
   Patron: require('./model/Patron'),
+  Friend: require('./model/Friend'),
 };
 
 

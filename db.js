@@ -16,6 +16,7 @@ const modelNames = [ // in requirement order
   'Stock',
   'Recipe',
   'Patron',
+  'Friend',
 ];
 
 
