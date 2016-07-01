@@ -4,37 +4,92 @@ import NetworkRequest from '../networkRequest';
 
 import styles from '../styles';
 
-import { List, ListItem } from 'material-ui/List';
-import Subheader from 'material-ui/Subheader';
+import Dialog from 'material-ui/Dialog';
 import Divider from 'material-ui/Divider';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
+import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
 import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
+import { List, ListItem } from 'material-ui/List';
+import MenuItem from 'material-ui/MenuItem';
+import RaisedButton from 'material-ui/RaisedButton';
+import SelectField from 'material-ui/SelectField';
+import Subheader from 'material-ui/Subheader';
 
 
 const RecipeExpanded = React.createClass({
   getInitialState: function () {
-    const recipe = this.props.recipe;
-    return recipe;
+    return {
+      open: false,
+      Patrons: [],
+      patronId: null,
+      recipe: this.props.recipe,
+    };
   },
-  handleSelectChange: function (event, index, value, ingredientIndex) {
-    event.preventDefault();
-    this.state.ingredients[ingredientIndex].stockId = value;
-    this.setState({ ingredients: this.state.ingredients });
-  },
-  render: function () {
+  calculatePrice: function () {
 
     let price = 0;
 
-    const ingredients = this.state.ingredients.map((ingredient, ingredientIndex) => {
+    const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
+
+      const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
+
+      if (stock != null) {
+        price += ingredient.quantity * stock.unitCost;
+      }
+    });
+
+    return price.toFixed(2);
+  },
+  componentDidMount: function () {
+
+    NetworkRequest('GET', '/api/Patron?orderBy=name', (err, result) => {
+
+      if (err) {
+        return console.error('Patron API', status, err.toString());
+      }
+
+      this.setState({ Patrons: result });
+    });
+  },
+  handleBuy: function () {
+
+    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/charge',
+      { amount: this.calculatePrice() },
+      (err, result) => {
+
+      if (err) {
+        return console.error('Patron API', status, err.toString());
+      }
+
+      this.setState({ open: false });
+    });
+  },
+  handleOpen: function () {
+    this.setState({ open: true });
+  },
+  handleClose: function () {
+    this.setState({ open: false });
+  },
+  handleStockSelect: function (event, index, value, ingredientIndex) {
+    event.preventDefault();
+    this.state.recipe.ingredients[ingredientIndex].stockId = value;
+    this.setState({ ingredients: this.state.recipe.ingredients });
+  },
+  handlePatronSelect: function (event, index, value) {
+    event.preventDefault();
+    this.setState({ patronId: value });
+  },
+  render: function () {
+
+    const price = this.calculatePrice();
+
+    const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
 
       const quantityText = ingredient.quantity + ingredient.stockType.unitType;
       const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
       let options = '-unavailable-';
 
       if (stock != null) {
-        price += ingredient.quantity * stock.unitCost;
         options = ingredient.stock[0].name;
       }
 
@@ -46,15 +101,15 @@ const RecipeExpanded = React.createClass({
           return <MenuItem key={stock.id} value={stock.id} primaryText={text} />;
         });
 
-        const handleSelectChange = (event, index, value) => {
-          this.handleSelectChange(event, index, value, ingredientIndex);
+        const handleStockSelect = (event, index, value) => {
+          this.handleStockSelect(event, index, value, ingredientIndex);
         };
 
         // create full select field
         options = <SelectField
           name={ingredient.id}
           value={ingredient.stockId}
-          onChange={handleSelectChange}
+          onChange={handleStockSelect}
           floatingLabelText="Ingredient"
           style={styles.textInput}
         >
@@ -69,16 +124,51 @@ const RecipeExpanded = React.createClass({
       );
     });
 
-    price = price.toFixed(2);
+    const buyButtonText = 'Buy - $' + price;
+    let buyConfirmText = 'Please select a patron to charge';
+    const buyConfirmDisabled = (this.state.patronId == null);
+    if (buyConfirmDisabled === false) {
+      buyConfirmText = 'Charge ' + this.state.Patrons.find((patron) => { return (patron.id === this.state.patronId); }).name +
+        ' $' + price;
+    }
+    const patrons = this.state.Patrons.map((patron) => {
+      return <MenuItem key={patron.id} value={patron.id} primaryText={patron.name} />;
+    });
 
     return (
       <div style={styles.expanded}>
-        <h1>
-          {this.state.name} - ${price}
-        </h1>
+        <RaisedButton label={buyButtonText} onClick={this.handleOpen} />
         <List>
           {ingredients}
         </List>
+
+        <Dialog
+          title={this.state.recipe.name}
+          actions={[
+            <FlatButton
+              label="Cancel"
+              onTouchTap={this.handleClose}
+            />,
+            <FlatButton
+              label={buyConfirmText}
+              primary={true}
+              onTouchTap={this.handleBuy}
+              disabled={buyConfirmDisabled}
+            />
+          ]}
+          modal={false}
+          open={this.state.open}
+          onRequestClose={this.handleClose}
+        >
+          <SelectField
+            maxHeight={300}
+            value={this.state.patronId}
+            onChange={this.handlePatronSelect}
+            floatingLabelText="Select Patron"
+          >
+            {patrons}
+          </SelectField>
+        </Dialog>
       </div>
     );
   },

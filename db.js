@@ -18,6 +18,17 @@ const modelNames = [ // in requirement order
   'Patron',
   'Friend',
 ];
+const reservedUpdateProperties = [
+  '$inc',
+  '$mul',
+  '$rename',
+  '$setOnInsert',
+  '$set',
+  '$unset',
+  '$min',
+  '$max',
+  '$currentDate'
+];
 
 
 exports.init = function (config, callback) {
@@ -130,6 +141,8 @@ function readOne (modelName, id, callback) {
 }
 
 // bulk edit via query - does not upsert
+// if a reserved keyword is used, call update directly
+// otherwise, assume it's a $set
 function updateMany (modelName, query, delta, callback) {
 
   Joi.validate(delta, Models[modelName].schema, (err, delta) => {
@@ -138,11 +151,18 @@ function updateMany (modelName, query, delta, callback) {
       return callback(err);
     }
 
-    return Mongo.collection(modelName).update(query, { $set: delta }, callback);
+    if (_objectContainsKeys(delta, reservedUpdateProperties) === true) {
+      return Mongo.collection(modelName).update(query, delta, callback);
+    }
+    else {
+      return Mongo.collection(modelName).update(query, { $set: delta }, callback);
+    }
   });
 }
 
 // update a single ID - creates if it doesn't exist
+// if a reserved keyword is used, call update directly
+// otherwise, assume it's a $set
 function updateOne (modelName, id, delta, callback) {
 
   readOne(modelName, id, (err, object) => {
@@ -151,24 +171,26 @@ function updateOne (modelName, id, delta, callback) {
       return callback(err);
     }
 
-    if (object == null) {
+    if (_objectContainsKeys(delta, reservedUpdateProperties) === true) {
+      return Mongo.collection(modelName).updateOne({ id: id }, delta, callback);
+    }
+    else if (object == null) {
       delta.id = id;
       return createOne(modelName, delta, callback);
     }
+    else {
 
-    Hoek.merge(object, delta);
+      Hoek.merge(object, delta);
+      Models[modelName].preSave(Config, object, (err, object) => {
 
-    Models[modelName].preSave(Config, object, (err, object) => {
+        if (err) {
+          return callback(err);
+        }
 
-      if (err) {
-        return callback(err);
-      }
-
-      return Mongo.collection(modelName).updateOne({ id: id }, { $set: object }, callback);
-    });
+        return Mongo.collection(modelName).updateOne({ id: id }, { $set: object }, callback);
+      });
+    }
   });
-
-
 }
 
 // doesn't actually delete, just flags as archived
@@ -281,4 +303,28 @@ function _checkIfCollectionExists (collectionName, callback) {
 
     return callback(null, false);
   });
+}
+
+
+// returns whether the object (incl nested properties) contains any of the listed keys
+function _objectContainsKeys (object, keys) {
+
+  if (object == null) {
+    return false;
+  }
+
+  let hasAKey = false;
+
+  Object.keys(object).forEach((objKey) => {
+
+    if (typeof object[objKey] === 'object') {
+      if (_objectContainsKeys(object[objKey], keys) === true) {
+        hasAKey = true;
+      }
+    }
+
+    if (keys.indexOf(objKey) !== -1) { hasAKey = true; }
+  });
+
+  return hasAKey;
 }

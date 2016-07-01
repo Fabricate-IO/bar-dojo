@@ -104,7 +104,6 @@ module.exports = React.createClass({
     }
   },
   render: function () {
-// TODO if not creating, render Splitwise user select as disabled
 
     const friends = this.state.friends.map((friend) => {
       return <MenuItem key={friend.id} value={friend.id} primaryText={friend.name} />;
@@ -131,9 +130,10 @@ module.exports = React.createClass({
           onChange={this.handleInputChange}
         />
         <br/>
-        <TextField
+        $<TextField
           name="tab"
           type="number"
+          step="0.01"
           floatingLabelText="Tab"
           floatingLabelFixed={true}
           value={this.state.object.tab}

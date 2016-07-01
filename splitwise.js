@@ -4,6 +4,7 @@ const Db = require('./db');
 const Config = require('./config');
 
 let splitwise = null;
+let splitwiseOwnerId = null;
 let setupComplete = false;
 
 
@@ -47,8 +48,13 @@ exports.setup = function (callback) {
 
     else {
       splitwise = splitwise.getSplitwiseApi(result.secret.splitwiseToken, result.secret.splitwiseSecret);
-      setupComplete = true;
-      return callback(null, true);
+      splitwise.getCurrentUser()
+        .then((data) => {
+          splitwiseOwnerId = data.id;
+          setupComplete = true;
+          return callback(null, true);
+        })
+        .catch(callback);
     }
   });
 };
@@ -57,6 +63,28 @@ exports.setup = function (callback) {
 exports.getFriends = function (callback) {
 
   splitwise.getFriends()
+  .then((data) => {
+    return callback(null, data);
+  })
+  .catch(callback);
+};
+
+
+exports.createExpense = function (amount, description, splitwiseId, callback) {
+
+  splitwise.createExpense({
+    payment: false,
+    cost: amount,
+    description: description,
+  }, [{
+    user_id: splitwiseId,
+    paid_share: 0,
+    owed_share: amount,
+  }, {
+    user_id: splitwiseOwnerId,
+    paid_share: amount,
+    owed_share: 0,
+  }])
   .then((data) => {
     return callback(null, data);
   })
