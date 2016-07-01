@@ -18,7 +18,7 @@ const Patron = React.createClass({
   getInitialState: function () {
     return {
       open: false,
-      settleType: (this.props.patron.splitwiseId != null) ? 'splitwise' : 'cash',
+      settlePlatform: (this.props.patron.splitwiseId != null) ? 'splitwise' : 'cash',
     };
   },
   handleOpen: function () {
@@ -31,12 +31,12 @@ const Patron = React.createClass({
     hashHistory.push('/patrons/edit/' + this.props.patron.id);
   },
   handleSettleSelect: function (event, index, value) {
-    this.setState({ settleType: value });
+    this.setState({ settlePlatform: value });
   },
   handleSettle: function () {
 
     NetworkRequest('POST', '/api/Patron/' + this.props.patron.id + '/settle',
-      { type: this.state.settleType },
+      { platform: this.state.settlePlatform },
       (err, result) => {
 
       if (err) {
@@ -55,22 +55,21 @@ const Patron = React.createClass({
     if (this.props.patron.splitwiseId != null) {
       settleOptions.push(<MenuItem key='1' value='splitwise' primaryText='Splitwise' />);
     }
-    const modalTitle = 'Settle with ' + this.props.patron.name + ' - $' + this.props.patron.tab;
+    const tab = '$' + this.props.patron.tab;
+    const modalTitle = 'Settle with ' + this.props.patron.name + ' - ' + tab;
 
     return (
       <div>
         <ListItem
           rightIconButton={
             <div>
-              <RaisedButton label="Settle" onClick={this.handleOpen} />
+              <FlatButton label="Settle" onClick={this.handleOpen} />
               <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
             </div>
           }
-        >
-          <div>
-            {this.props.patron.name} - ${this.props.patron.tab}
-          </div>
-        </ListItem>
+          primaryText={this.props.patron.name}
+          secondaryText={tab}
+        />
         {expanded}
         <Dialog
           title={modalTitle}
@@ -90,7 +89,7 @@ const Patron = React.createClass({
           onRequestClose={this.handleClose}
         >
           <SelectField
-            value={this.state.settleType}
+            value={this.state.settlePlatform}
             onChange={this.handleSettleSelect}
             floatingLabelText="Type of settlement"
           >

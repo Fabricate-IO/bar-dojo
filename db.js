@@ -53,6 +53,7 @@ exports.init = function (config, callback) {
       (cb) => { Async.each(modelNames, _setModelInitialState, cb); }, // must be done before other db tasks that might create the table
       (cb) => { Async.each(modelNames, _initializeIndexes, cb); },
       (cb) => { Async.each(modelNames, _assignModelCrudFunctions, cb); },
+      (cb) => { Async.each(modelNames, (name, cb) => { exports[name] = Models[name]; cb(); }, cb)},
     ], (err) => {
       return callback(err, exports);
     });
@@ -145,19 +146,11 @@ function readOne (modelName, id, callback) {
 // otherwise, assume it's a $set
 function updateMany (modelName, query, delta, callback) {
 
-  Joi.validate(delta, Models[modelName].schema, (err, delta) => {
+  if (_objectContainsKeys(delta, reservedUpdateProperties) === false) {
+    delta = { $set: delta };
+  }
 
-    if (err) {
-      return callback(err);
-    }
-
-    if (_objectContainsKeys(delta, reservedUpdateProperties) === true) {
-      return Mongo.collection(modelName).update(query, delta, callback);
-    }
-    else {
-      return Mongo.collection(modelName).update(query, { $set: delta }, callback);
-    }
-  });
+  return Mongo.collection(modelName).update(query, delta, { multi: true }, callback);
 }
 
 // update a single ID - creates if it doesn't exist
@@ -171,25 +164,25 @@ function updateOne (modelName, id, delta, callback) {
       return callback(err);
     }
 
-    if (_objectContainsKeys(delta, reservedUpdateProperties) === true) {
-      return Mongo.collection(modelName).updateOne({ id: id }, delta, callback);
-    }
-    else if (object == null) {
+    if (object == null) {
       delta.id = id;
       return createOne(modelName, delta, callback);
     }
-    else {
 
-      Hoek.merge(object, delta);
-      Models[modelName].preSave(Config, object, (err, object) => {
+    Hoek.merge(object, delta);
 
-        if (err) {
-          return callback(err);
-        }
+    Models[modelName].preSave(Config, object, (err, object) => {
 
-        return Mongo.collection(modelName).updateOne({ id: id }, { $set: object }, callback);
-      });
-    }
+      if (err) {
+        return callback(err);
+      }
+
+      if (_objectContainsKeys(delta, reservedUpdateProperties) === false) {
+        delta = { $set: object }; // set object instead of delta in case preSave adjusted other fields
+      }
+
+      return Mongo.collection(modelName).updateOne({ id: id }, delta, callback);
+    });
   });
 }
 
@@ -210,13 +203,11 @@ function deleteOne (modelName, id, callback) {
   // prePublic (object, callback): edits to single object before being sent over the wire. Includes wrapper to support arrays of objects.
 function _requireModels (modelName, callback) {
 
-  exports[modelName] = {};
-
   Models[modelName] = require('./model/' + modelName + '.js');
   Models[modelName].preSave = Models[modelName].preSave || ((Config, object, callback) => { callback(null, object); });
-  exports[modelName].prePublicObject = Models[modelName].prePublic || ((object, callback) => { callback(null, object); });
-  exports[modelName].prePublicArray = ((objectOrObjects, callback) => {
-    Async.map([].concat(objectOrObjects), exports[modelName].prePublicObject, callback);
+  Models[modelName].prePublicObject = Models[modelName].prePublic || ((object, callback) => { callback(null, object); });
+  Models[modelName].prePublicArray = ((objectOrObjects, callback) => {
+    Async.map([].concat(objectOrObjects), Models[modelName].prePublicObject, callback);
   });
 
   return callback();
@@ -264,7 +255,7 @@ function _setModelInitialState (modelName, callback) {
 
 function _assignModelCrudFunctions (modelName, callback) {
 
-  const model = exports[modelName];
+  const model = Models[modelName];
 
   model.create = (objects, callback) => { createMany(modelName, objects, callback); };
   model.createOne = (objects, callback) => { createOne(modelName, objects, callback); };

@@ -202,6 +202,58 @@ describe('CRUD:', () => {
     });
   });
 
+  it('updateOne (is able to increment)', (done) => {
+
+    Db.Stock.createOne({ id: 99, initialQuantity: 1 }, (err, result) => {
+
+      expect(err).to.be.null();
+
+      Db.Stock.updateOne(99, { $inc: { initialQuantity: 2 } }, (err, result) => {
+
+        expect(err).to.be.null();
+
+        Db.Stock.readOne(99, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.initialQuantity).to.equal(3);
+          done();
+        });
+      });
+    });
+  });
+
+  it('updateMany (is able to increment)', (done) => {
+
+    Db.Stock.createOne({ id: 100, initialQuantity: 2 }, (err, result) => {
+
+      expect(err).to.be.null();
+
+      Db.Stock.read({}, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.length).to.equal(2);
+
+        Db.Stock.update({}, { $inc: { initialQuantity: 2 } }, (err, result) => {
+
+          expect(err).to.be.null();
+
+          Db.Stock.readOne(99, (err, result) => {
+
+            expect(err).to.be.null();
+            expect(result.initialQuantity).to.equal(5);
+
+            Db.Stock.readOne(100, (err, result) => {
+
+              expect(err).to.be.null();
+              expect(result.initialQuantity).to.equal(4);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
   it('createOne (id specified)', (done) => {
 
     Db.StockType.createOne({ id: 'test6' }, (err) => {

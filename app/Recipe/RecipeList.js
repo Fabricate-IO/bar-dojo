@@ -13,13 +13,14 @@ import { List, ListItem } from 'material-ui/List';
 import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 import SelectField from 'material-ui/SelectField';
+import Snackbar from 'material-ui/Snackbar';
 import Subheader from 'material-ui/Subheader';
 
 
 const RecipeExpanded = React.createClass({
   getInitialState: function () {
     return {
-      open: false,
+      modal: false,
       Patrons: [],
       patronId: null,
       recipe: this.props.recipe,
@@ -61,14 +62,16 @@ const RecipeExpanded = React.createClass({
         return console.error('Patron API', status, err.toString());
       }
 
-      this.setState({ open: false });
+      this.setState({ modal: false });
+      this.props.handleClose();
+      this.props.openSnackbar(this.state.recipe.name + ' purchased for $' + this.calculatePrice());
     });
   },
-  handleOpen: function () {
-    this.setState({ open: true });
+  handleModalOpen: function () {
+    this.setState({ modal: true });
   },
-  handleClose: function () {
-    this.setState({ open: false });
+  handleModalClose: function () {
+    this.setState({ modal: false });
   },
   handleStockSelect: function (event, index, value, ingredientIndex) {
     event.preventDefault();
@@ -137,7 +140,7 @@ const RecipeExpanded = React.createClass({
 
     return (
       <div style={styles.expanded}>
-        <RaisedButton label={buyButtonText} onClick={this.handleOpen} />
+        <RaisedButton label={buyButtonText} onClick={this.handleModalOpen} />
         <List>
           {ingredients}
         </List>
@@ -147,7 +150,7 @@ const RecipeExpanded = React.createClass({
           actions={[
             <FlatButton
               label="Cancel"
-              onTouchTap={this.handleClose}
+              onTouchTap={this.handleModalClose}
             />,
             <FlatButton
               label={buyConfirmText}
@@ -157,8 +160,8 @@ const RecipeExpanded = React.createClass({
             />
           ]}
           modal={false}
-          open={this.state.open}
-          onRequestClose={this.handleClose}
+          open={this.state.modal}
+          onRequestClose={this.handleModalClose}
         >
           <SelectField
             maxHeight={300}
@@ -184,6 +187,9 @@ const Recipe = React.createClass({
   handleClick: function () {
     this.setState({ expanded: !this.state.expanded });
   },
+  handleClose: function () {
+    this.setState({ expanded: false });
+  },
   handleEdit: function () {
     hashHistory.push('/drinks/edit/' + this.props.recipe.id);
   },
@@ -191,7 +197,11 @@ const Recipe = React.createClass({
 
     let expanded = '';
     if (this.state.expanded) {
-      expanded = <RecipeExpanded recipe={this.props.recipe} />
+      expanded = <RecipeExpanded
+          recipe={this.props.recipe}
+          handleClose={this.handleClose}
+          openSnackbar={this.props.openSnackbar}
+      />;
     }
     let style = {};
     if (this.props.recipe.inStock === false) {
@@ -227,6 +237,10 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       data: [],
+      snackbar: {
+        open: false,
+        message: null,
+      },
     };
   },
   componentWillMount: function () {
@@ -274,27 +288,45 @@ module.exports = React.createClass({
       this.setState({ data: recipes });
     });
   },
+  handleSnackbarClose: function () {
+    this.state.snackbar.open = false;
+    this.setState({ snackbar: this.state.snackbar });
+  },
+  handleSnackbarOpen: function (message) {
+    this.state.snackbar.open = true;
+    this.state.snackbar.message = message;
+    this.setState({ snackbar: this.state.snackbar });
+  },
   render: function () {
 
     const recipesInStock = this.state.data.filter((element) => {
       return (element.inStock === true);
     }).map((recipe) => {
-      return <Recipe key={recipe.id} recipe={recipe}></Recipe>;
+      return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen}></Recipe>;
     });
     const recipesOutOfStock = this.state.data.filter((element) => {
       return (element.inStock === false);
     }).map((recipe) => {
-      return <Recipe key={recipe.id} recipe={recipe}></Recipe>;
+      return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen}></Recipe>;
     });
 
     return (
-      <List>
-        {recipesInStock}
-        <Divider />
-        <Subheader>Out of stock</Subheader>
-        <Divider />
-        {recipesOutOfStock}
-      </List>
+      <div>
+        <List>
+          {recipesInStock}
+          <Divider />
+          <Subheader>Out of stock</Subheader>
+          <Divider />
+          {recipesOutOfStock}
+        </List>
+
+        <Snackbar
+          open={this.state.snackbar.open}
+          message={this.state.snackbar.message}
+          autoHideDuration={4000}
+          onRequestClose={this.handleSnackbarClose}
+        />
+      </div>
     );
   },
 });

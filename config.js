@@ -4,7 +4,6 @@ const Hoek = require('hoek');
 const defaults = {
   mongoUrl: 'mongodb://localhost:27017/BarDojo',
   server: {
-    host: 'localhost',
     port: 8000,
   },
   taxRate: .24, // including sales tax, alcohol tax, etc
