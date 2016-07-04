@@ -140,10 +140,11 @@ module.exports = React.createClass({
           onChange={this.handleInputChange}
         />
         <br/>
-        <RaisedButton label="Cancel" onClick={this.handleCancel} />
-        <RaisedButton label="Save" type="submit" />
+        <RaisedButton label="Save" primary={true} type="submit" />
         <br/>
-        <RaisedButton label="Delete" onClick={this.handleDelete} />
+        <RaisedButton label="Cancel" onClick={this.handleCancel} />
+        <br/>
+        { this.state.creating ? null : <RaisedButton label="Delete" secondary={true} onClick={this.handleDelete} /> }
       </form>
     );
   }

@@ -70,6 +70,7 @@ const IngredientSelect = React.createClass({
 module.exports = React.createClass({
   getInitialState: function () {
     return {
+      creating: (this.props.params.id == null), // if creating from scratch (otherwise saving)
       StockTypes: [],
       object: {
         name: '',
@@ -91,7 +92,7 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
 
-    if (this.props.params.id != null) {
+    if (this.state.creating === false) {
 
       NetworkRequest('GET', '/api/Recipe/' + this.props.params.id, (err, result) => {
 
@@ -211,10 +212,11 @@ module.exports = React.createClass({
         {ingredients}
         <RaisedButton label="Add Ingredient" onClick={this.addIngredient} />
         <br/>
-        <RaisedButton label="Cancel" onClick={this.handleCancel} />
-        <RaisedButton label="Save" type="submit" />
+        <RaisedButton label="Save" primary={true} type="submit" />
         <br/>
-        <RaisedButton label="Delete" onClick={this.handleDelete} />
+        <RaisedButton label="Cancel" onClick={this.handleCancel} />
+        <br/>
+        { this.state.creating ? null : <RaisedButton label="Delete" secondary={true} onClick={this.handleDelete} /> }
       </form>
     );
   }

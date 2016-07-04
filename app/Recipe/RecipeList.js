@@ -90,7 +90,7 @@ const RecipeExpanded = React.createClass({
 
       const quantityText = ingredient.quantity + ingredient.stockType.unitType;
       const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
-      let options = '-unavailable-';
+      let options = '';
 
       if (stock != null) {
         options = ingredient.stock[0].name;
@@ -113,7 +113,6 @@ const RecipeExpanded = React.createClass({
           name={ingredient.id}
           value={ingredient.stockId}
           onChange={handleStockSelect}
-          floatingLabelText="Ingredient"
           style={styles.textInput}
         >
           {options}
@@ -121,8 +120,10 @@ const RecipeExpanded = React.createClass({
       }
 
       return (
-        <ListItem key={ingredient.stockTypeId}>
-          {quantityText} {options} {ingredient.stockTypeId}
+        <ListItem key={ingredient.stockTypeId} style={styles.inlineSelect} innerDivStyle={styles.inlineSelect}>
+          <div style={ stock == null ? styles.outOfStock : null }>
+            {quantityText} {options} {ingredient.stockTypeId}
+          </div>
         </ListItem>
       );
     });

@@ -22,11 +22,17 @@ module.exports = {
     color: grey50,
     textDecoration: 'none',
   },
+
   contentBox: {
     padding: '12px 24px',
   },
   expanded: {
     padding: '10px',
+  },
+  inlineSelect: {
+    lineHeight: '48px',
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   textInput: {
     verticalAlign: 'bottom',

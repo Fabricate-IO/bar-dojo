@@ -76,6 +76,3 @@ exports.readMany = function (Mongo, query, sort, callback) {
     return callback(null, stock);
   });
 };
-
-
-exports.initialState = [];

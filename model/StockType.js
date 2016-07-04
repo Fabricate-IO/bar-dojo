@@ -31,23 +31,4 @@ exports.indexes = [
 ];
 
 
-exports.initialState = [
-  // hard alcohol
-  { id: 'dark rum', unitType: 'oz' },
-  { id: 'gin', unitType: 'oz' },
-  { id: 'tequila', unitType: 'oz' },
-  { id: 'vodka', unitType: 'oz' },
-  { id: 'white rum', unitType: 'oz' },
-  // liquors
-  { id: 'irish cream', unitType: 'oz' },
-  { id: 'kahlua', unitType: 'oz' },
-  { id: 'triple sec', unitType: 'oz' },
-  // other alcohols
-  { id: 'beer', unitType: 'bottle' },
-  { id: 'ginger beer', unitType: 'bottle' },
-  // mixers and juices
-  { id: 'cola', unitType: 'oz' },
-  { id: 'milk', unitType: 'oz' },
-  // misc
-  { id: 'ice cube' },
-];
+exports.initialState = require('./initial/StockType');

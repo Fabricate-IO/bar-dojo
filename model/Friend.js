@@ -34,7 +34,3 @@ exports.readMany = function (Mongo, query, sort, callback) {
     return callback(null, friends);
   });
 };
-
-
-exports.initialState = [];
-exports.indexes = [];

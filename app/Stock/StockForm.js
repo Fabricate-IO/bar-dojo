@@ -3,11 +3,12 @@ import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 import style from '../styles';
 
-import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
+import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
+import RaisedButton from 'material-ui/RaisedButton';
+import MenuItem from 'material-ui/MenuItem';
+import SelectField from 'material-ui/SelectField';
+import TextField from 'material-ui/TextField';
 
 
 module.exports = React.createClass({
@@ -21,7 +22,7 @@ module.exports = React.createClass({
   },
   componentWillMount: function () {
 
-    NetworkRequest('GET', '/api/StockType?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/StockType?orderBy=id&order=asc', (err, result) => {
 
       if (err) {
         return console.error('StockType API', status, err.toString());
@@ -98,6 +99,14 @@ module.exports = React.createClass({
     this.state.object.stockTypeId = this.state.StockType.id;
     this.setState(this.state);
   },
+  handleQuantityShortcut: function (event) {
+// TODO hardcoded ML to OZ conversion, should use bar settings
+    const quantity = Math.round(event.currentTarget.dataset.quantity * 0.0338);
+console.log(quantity)
+    this.state.object.initialQuantity = quantity;
+    this.state.object.remainingQuantity = quantity;
+    this.setState({ object: this.state.object });
+  },
   handleCancel: function () {
     hashHistory.push('/inventory');
   },
@@ -161,6 +170,15 @@ module.exports = React.createClass({
           style={style.textInput}
         />
         <br/>
+        { this.state.creating ?
+          <div>
+            Shortcuts:
+            <FlatButton label="1.5L" onClick={this.handleQuantityShortcut} data-quantity="1500" />
+            <FlatButton label="750ml" onClick={this.handleQuantityShortcut} data-quantity="750" />
+            <FlatButton label="375ml" onClick={this.handleQuantityShortcut} data-quantity="375" />
+          </div>
+          : null
+        }
         <TextField
           name="initialCost"
           type="number"
@@ -171,10 +189,11 @@ module.exports = React.createClass({
           style={style.textInput}
         />
         <br/>
-        <RaisedButton label="Cancel" onClick={this.handleCancel} />
-        <RaisedButton label="Save" type="submit" />
+        <RaisedButton label="Save" primary={true} type="submit" />
         <br/>
-        <RaisedButton label="Delete" onClick={this.handleDelete} />
+        <RaisedButton label="Cancel" onClick={this.handleCancel} />
+        <br/>
+        { this.state.creating ? null : <RaisedButton label="Delete" secondary={true} onClick={this.handleDelete} /> }
       </form>
     );
   }
