@@ -6,7 +6,7 @@ const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 
-const Config = require('../../config-testing');
+const Config = require('../../config');
 const Db = require('../../db');
 const helpers = require('../helpers');
 

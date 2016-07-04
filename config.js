@@ -24,6 +24,8 @@ const defaults = {
   }
 };
 
-const internals = Hoek.applyToDefaults(defaults, require('./config-secret'));
+const options = (process.env.NODE_ENV === 'test') ? require('./config-test') : require('./config-secret');
+
+const internals = Hoek.applyToDefaults(defaults, options);
 
 module.exports = internals;

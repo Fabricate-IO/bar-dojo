@@ -8,7 +8,7 @@ const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 
-const Config = require('../config-testing');
+const Config = require('../config');
 const Db = require('../db');
 const helpers = require('./helpers');
 
@@ -290,7 +290,7 @@ describe('CRUD egde cases:', () => {
   after(Db.exit);
 
 
-  it('createOne (fails validation, errors)', (done) => {
+  it('createOne (errors on validation)', (done) => {
 
     Db.StockType.createOne({ id: 123 }, (err) => {
 
@@ -299,7 +299,7 @@ describe('CRUD egde cases:', () => {
     });
   });
 
-  it('create (fails validation, errors and does not create an object)', (done) => {
+  it('create (errors on validation and does not create an object)', (done) => {
 
     Db.StockType.create([{ id: 1 }, { id: 2 }], (err) => {
 
@@ -314,16 +314,22 @@ describe('CRUD egde cases:', () => {
     });
   });
 
-  it('createOne (errors on duplicate id)', (done) => {
+  it('createOne (errors on duplicate id and does not create an object)', (done) => {
 
     Db.StockType.createOne({ id: 'test' }, (err) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.createOne({ id: 'test' }, (err) => {
+      Db.StockType.createOne({ id: 'test' }, (err, result) => {
 
         expect(err).to.not.be.null();
-        done();
+
+        Db.StockType.read({}, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.length).to.equal(1);
+          done();
+        });
       });
     });
   });

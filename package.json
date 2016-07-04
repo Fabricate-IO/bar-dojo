@@ -4,8 +4,8 @@
   "description": "A handy web app for managing a bar",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "lab -c"
+    "start": "set NODE_ENV=production && node index.js",
+    "test": "set NODE_ENV=test && lab -c"
   },
   "repository": {
     "type": "git",
