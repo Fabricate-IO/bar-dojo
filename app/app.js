@@ -41,10 +41,8 @@ const AppLayout = React.createClass({
       return this.setState({ searchbarVisible: true });
     }
     else if (document.body.getBoundingClientRect().width < 425) {
-      // TODO also search here
       return this.setState({ searchbarVisible: false });
     }
-    alert(this.state.search);
   },
   handleAdd: function () {
     ((path) => {
@@ -55,7 +53,12 @@ const AppLayout = React.createClass({
     })(this.props.location.pathname);
   },
   handleToggle: function () { this.setState({open: !this.state.open}); },
-  handleClose: function () { this.setState({open: false}); },
+  handleNavigate: function () {
+    this.setState({
+      open: false,
+      search: null,
+    });
+  },
   render: function () {
 
     const pageName = ((path) => {
@@ -96,18 +99,18 @@ const AppLayout = React.createClass({
             onRequestChange={(open) => this.setState({open})}
           >
             <img src="/static/img/logo.png" style={styles.logo}/>
-            <Link to="/drinks" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Drinks</MenuItem></Link>
-            <Link to="/patrons" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Patrons</MenuItem></Link>
-            <Link to="/inventory" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Inventory</MenuItem></Link>
-            <Link to="/shopping" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>Shopping List</MenuItem></Link>
-            <Link to="/history" style={styles.navlink}><MenuItem onTouchTap={this.handleClose}>History</MenuItem></Link>
+            <Link to="/drinks" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Drinks</MenuItem></Link>
+            <Link to="/patrons" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Patrons</MenuItem></Link>
+            <Link to="/inventory" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Inventory</MenuItem></Link>
           </Drawer>
           <div style={styles.contentBox}>
-            {this.props.children}
+            {React.cloneElement(this.props.children, { search: this.state.search })}
           </div>
         </div>
       </MuiThemeProvider>
     );
+    // <Link to="/shopping" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Shopping List</MenuItem></Link>
+    // <Link to="/history" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>History</MenuItem></Link>
   }
 });
 

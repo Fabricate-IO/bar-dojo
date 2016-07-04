@@ -3,10 +3,11 @@ import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 import style from '../styles';
 
-import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
+import Avatar from 'material-ui/Avatar';
 import MenuItem from 'material-ui/MenuItem';
+import RaisedButton from 'material-ui/RaisedButton';
+import SelectField from 'material-ui/SelectField';
+import TextField from 'material-ui/TextField';
 
 
 module.exports = React.createClass({
@@ -54,6 +55,7 @@ module.exports = React.createClass({
     const patron = {
       id: this.props.params.id,
       name: object.name.trim(),
+      image: object.image,
       splitwiseId: object.splitwiseId,
       tab: object.tab,
     };
@@ -82,8 +84,10 @@ module.exports = React.createClass({
     this.setState({ object: object });
   },
   handleSplitwiseFriendChange: function (event, index, value) {
+    const friend = this.state.friends.find((friend) => { return (friend.id === value); });
     this.state.object.splitwiseId = value;
-    this.state.object.name = this.state.friends.find((friend) => { return (friend.id === value); }).name;
+    this.state.object.name = friend.name;
+    this.state.object.image = friend.image;
     this.setState({ object: this.state.object });
   },
   handleCancel: function () {
@@ -106,7 +110,12 @@ module.exports = React.createClass({
   render: function () {
 
     const friends = this.state.friends.map((friend) => {
-      return <MenuItem key={friend.id} value={friend.id} primaryText={friend.name} />;
+      return <MenuItem
+        key={friend.id}
+        value={friend.id}
+        leftIcon={<Avatar src={friend.image} />}
+        primaryText={friend.name}
+      />;
     });
     const editing = !this.state.creating;
 

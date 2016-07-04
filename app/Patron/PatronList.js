@@ -3,7 +3,9 @@ import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 
 import styles from '../styles';
+import utils from '../utils';
 
+import Avatar from 'material-ui/Avatar';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
@@ -61,6 +63,9 @@ const Patron = React.createClass({
     return (
       <div>
         <ListItem
+          leftAvatar={
+            <Avatar src={this.props.patron.image} />
+          }
           rightIconButton={
             <div>
               <FlatButton label="Settle" onClick={this.handleOpen} />
@@ -88,6 +93,8 @@ const Patron = React.createClass({
           open={this.state.open}
           onRequestClose={this.handleClose}
         >
+          <Avatar src={this.props.patron.image} size="80" />
+          <br/>
           <SelectField
             value={this.state.settlePlatform}
             onChange={this.handleSettleSelect}
@@ -120,7 +127,11 @@ module.exports = React.createClass({
   },
   render: function () {
 
-    const patrons = this.state.data.map((patron) => {
+    const searched = this.state.data.filter((element) => {
+      return utils.search(this.props.search, [element.name]);
+    });
+
+    const patrons = searched.map((patron) => {
       return <Patron key={patron.id} patron={patron}></Patron>;
     });
 

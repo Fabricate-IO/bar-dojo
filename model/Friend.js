@@ -22,9 +22,9 @@ exports.readMany = function (Mongo, query, sort, callback) {
     }
 
     const friends = result.map((friend) => {
-
       return {
         id: friend.id,
+        image: friend.picture.large,
         name: ([friend.first_name, friend.last_name]).filter((name) => { return (name != null); })
             .join(' ')
             .trim(),

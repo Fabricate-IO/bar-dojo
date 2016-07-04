@@ -3,6 +3,7 @@ import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 
 import styles from '../styles';
+import utils from '../utils';
 
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
@@ -106,12 +107,16 @@ module.exports = React.createClass({
   },
   render: function () {
 
-    const stockInStock = this.state.data.filter((element) => {
+    const searched = this.state.data.filter((element) => {
+      return utils.search(this.props.search, [element.name, element.stockTypeId]);
+    });
+
+    const stockInStock = searched.filter((element) => {
       return (element.inStock === true);
     }).map((stock) => {
       return <Stock key={stock.id} stock={stock}></Stock>;
     });
-    const stockOutOfStock = this.state.data.filter((element) => {
+    const stockOutOfStock = searched.filter((element) => {
       return (element.inStock === false);
     }).map((stock) => {
       return <Stock key={stock.id} stock={stock}></Stock>;

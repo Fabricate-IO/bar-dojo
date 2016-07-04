@@ -3,6 +3,7 @@ import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 
 import styles from '../styles';
+import utils from '../utils';
 
 import Dialog from 'material-ui/Dialog';
 import Divider from 'material-ui/Divider';
@@ -26,7 +27,7 @@ const RecipeExpanded = React.createClass({
       recipe: this.props.recipe,
     };
   },
-  calculatePrice: function () {
+  calculatePrice: function (options) {
 
     let price = 0;
 
@@ -39,7 +40,7 @@ const RecipeExpanded = React.createClass({
       }
     });
 
-    return price.toFixed(2);
+    return utils.formatPrice(price, options);
   },
   componentDidMount: function () {
 
@@ -55,7 +56,7 @@ const RecipeExpanded = React.createClass({
   handleBuy: function () {
 
     NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/charge',
-      { amount: this.calculatePrice() },
+      { amount: this.calculatePrice({ unitless: true }) },
       (err, result) => {
 
       if (err) {
@@ -64,7 +65,7 @@ const RecipeExpanded = React.createClass({
 
       this.setState({ modal: false });
       this.props.handleClose();
-      this.props.openSnackbar(this.state.recipe.name + ' purchased for $' + this.calculatePrice());
+      this.props.openSnackbar(this.state.recipe.name + ' purchased for ' + this.calculatePrice());
     });
   },
   handleModalOpen: function () {
@@ -100,7 +101,7 @@ const RecipeExpanded = React.createClass({
         // generate select options
         options = ingredient.stock.map((stock) => {
           const price = stock.unitCost * ingredient.quantity;
-          const text = stock.name + ' - $' + price.toFixed(2);
+          const text = stock.name + ' - ' + utils.formatPrice(price);
           return <MenuItem key={stock.id} value={stock.id} primaryText={text} />;
         });
 
@@ -128,12 +129,11 @@ const RecipeExpanded = React.createClass({
       );
     });
 
-    const buyButtonText = 'Buy - $' + price;
+    const buyButtonText = 'Buy - ' + price;
     let buyConfirmText = 'Please select a patron to charge';
     const buyConfirmDisabled = (this.state.patronId == null);
     if (buyConfirmDisabled === false) {
-      buyConfirmText = 'Charge ' + this.state.Patrons.find((patron) => { return (patron.id === this.state.patronId); }).name +
-        ' $' + price;
+      buyConfirmText = 'Charge ' + this.state.Patrons.find((patron) => { return (patron.id === this.state.patronId); }).name + ' ' + price;
     }
     const patrons = this.state.Patrons.map((patron) => {
       return <MenuItem key={patron.id} value={patron.id} primaryText={patron.name} />;
@@ -208,9 +208,9 @@ const Recipe = React.createClass({
     if (this.props.recipe.inStock === false) {
       style = styles.outOfStock;
     }
-    let priceRange = '$' + this.props.recipe.costMin;
+    let priceRange = utils.formatPrice(this.props.recipe.costMin);
     if (this.props.recipe.costMin !== this.props.recipe.costMax) {
-      priceRange += ' - $' + this.props.recipe.costMax;
+      priceRange += ' - ' + utils.formatPrice(this.props.recipe.costMax);
     }
 
     return (
@@ -300,12 +300,16 @@ module.exports = React.createClass({
   },
   render: function () {
 
-    const recipesInStock = this.state.data.filter((element) => {
+    const searched = this.state.data.filter((element) => {
+      return utils.search(this.props.search, [element.name]);
+    });
+
+    const recipesInStock = searched.filter((element) => {
       return (element.inStock === true);
     }).map((recipe) => {
       return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen}></Recipe>;
     });
-    const recipesOutOfStock = this.state.data.filter((element) => {
+    const recipesOutOfStock = searched.filter((element) => {
       return (element.inStock === false);
     }).map((recipe) => {
       return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen}></Recipe>;

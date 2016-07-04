@@ -13,6 +13,7 @@ const db = require('../db');
 exports.schema = {
   id: Joi.number(), // unique key
   name: Joi.string(),
+  image: Joi.string(), // optional; pulled from API they're created from when possible
   tab: Joi.number(), // current amount owed (can be negative, ie gift card / credit)
   splitwiseId: Joi.number(), // splitwise user id, if their account is tied to splitwise
   secret: {
