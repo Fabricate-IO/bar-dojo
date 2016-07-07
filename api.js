@@ -185,7 +185,9 @@ module.exports = [
     },
     handler: (request, reply) => {
 
-      request.server.app.db.Patron.updateOne(request.params.id, { $inc: { tab: request.payload.amount } }, (err, result) => {
+      const Db = request.server.app.db;
+
+      Db.Patron.updateOne(request.params.id, { tab: Db.Rethink.row('tab').add(amount).default(amount) }, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));
@@ -210,7 +212,9 @@ module.exports = [
     },
     handler: (request, reply) => {
 
-      request.server.app.db.Patron.settle(request.server.app.db, request.params.id, request.payload.platform, (err, result) => {
+      const Db = request.server.app.db;
+
+      Db.Patron.settle(Db, request.params.id, request.payload.platform, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));

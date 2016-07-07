@@ -29,13 +29,12 @@ exports.indexes = [];
 
 exports.hooks = {
 
-  // attaches metadata
-  read: function (Mongo, query, sort, limit, callback) {
+  read: function (Rethink, query, sort, limit, callback) {
 
     const queryInStock = query.inStock;
     delete query.inStock;
 
-    Mongo.collection("BarStock").find(query).limit(limit).toArray((err, result) => {
+    Rethink.table('BarStock').filter(query).orderBy(sort).limit(limit).run((err, result) => {
 
       if (err) {
         return callback(err);

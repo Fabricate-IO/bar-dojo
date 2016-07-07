@@ -169,7 +169,7 @@ describe('Recipe:', () => {
   it('minCost, maxCost based on non-archived, in stock options of sufficient quantity', (done) => {
 
     Db.Recipe.read({}, (err, result) => {
-console.log(err, result);
+// console.log(err, result);
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
 

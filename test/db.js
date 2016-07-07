@@ -50,7 +50,7 @@ describe('CRUD:', () => {
 
   it('readOne (empty)', (done) => {
 
-    Db.StockType.readOne({}, (err, result) => {
+    Db.StockType.readOne(0, (err, result) => {
 
       expect(err).to.be.null();
       expect(result).to.be.null();
@@ -60,7 +60,7 @@ describe('CRUD:', () => {
 
   it('createOne', (done) => {
 
-    Db.StockType.createOne({ id: 'test' }, (err) => {
+    Db.StockType.createOne({ id: 'test' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -72,7 +72,18 @@ describe('CRUD:', () => {
     Db.StockType.readOne('test', (err, result) => {
 
       expect(err).to.be.null();
+      expect(result).to.not.be.null();
       expect(result.id).to.equal('test');
+      done();
+    });
+  });
+
+  it('read', (done) => {
+
+    Db.StockType.read({}, (err, result) => {
+
+      expect(err).to.be.null();
+      expect(result.length).to.equal(1);
       done();
     });
   });
@@ -131,11 +142,11 @@ describe('CRUD:', () => {
 
   it('read (sorted)', (done) => {
 
-    Db.StockType.read({ orderBy: 'id', order: 'desc' }, (err, result) => {
+    Db.StockType.read({ orderBy: 'id', order: 'asc' }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
-      helpers.checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }, { id: 'test' }]);
+      helpers.checkArrayEquality(result, [{ id: 'test' }, { id: 'test2' }, { id: 'test3' }]);
       done();
     });
   });
@@ -202,58 +213,6 @@ describe('CRUD:', () => {
     });
   });
 
-  it('updateOne (is able to increment)', (done) => {
-
-    Db.Patron.createOne({ id: 99, tab: 0 }, (err, result) => {
-
-      expect(err).to.be.null();
-
-      Db.Patron.updateOne(99, { $inc: { tab: 2 } }, (err, result) => {
-
-        expect(err).to.be.null();
-
-        Db.Patron.readOne(99, (err, result) => {
-
-          expect(err).to.be.null();
-          expect(result.tab).to.equal(2);
-          done();
-        });
-      });
-    });
-  });
-
-  it('updateMany (is able to increment)', (done) => {
-
-    Db.Patron.createOne({ id: 100, tab: 0 }, (err, result) => {
-
-      expect(err).to.be.null();
-
-      Db.Patron.read({}, (err, result) => {
-
-        expect(err).to.be.null();
-        expect(result.length).to.equal(2);
-
-        Db.Patron.update({}, { $inc: { tab: 2 } }, (err, result) => {
-
-          expect(err).to.be.null();
-
-          Db.Patron.readOne(99, (err, result) => {
-
-            expect(err).to.be.null();
-            expect(result.tab).to.equal(4);
-
-            Db.Patron.readOne(100, (err, result) => {
-
-              expect(err).to.be.null();
-              expect(result.tab).to.equal(2);
-              done();
-            });
-          });
-        });
-      });
-    });
-  });
-
   it('createOne (id specified)', (done) => {
 
     Db.StockType.createOne({ id: 'test6' }, (err) => {
@@ -299,7 +258,6 @@ describe('CRUD egde cases:', () => {
     });
   });
 
-// TODO broken, maximum call stack size exceeded?
   it('create (errors on validation and does not create an object)', (done) => {
 
     Db.StockType.create([{ id: 1 }, { id: 2 }], (err) => {
@@ -321,7 +279,7 @@ describe('CRUD egde cases:', () => {
 
       expect(err).to.be.null();
 
-      Db.StockType.createOne({ id: 'test' }, (err) => {
+      Db.StockType.createOne({ id: 'test' }, (err, result) => {
 
         expect(err).to.not.be.null();
 

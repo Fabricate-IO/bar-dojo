@@ -25,11 +25,18 @@ exports.checkArrayEquality = function (a, b) {
 
 
 // given an array of objects, returns a dictionary of id: object
-exports.objectArrayToDict = function (array) {
+// id [optional]: string of field, or function to contstruct key from element. Defaults to 'id'
+exports.objectArrayToDict = function (array, id) {
+
+  id = id || 'id';
+  if (typeof id === 'string') {
+    id = ((el) => { return el[id]; });
+  }
 
   const output = {};
   array.forEach((element) => {
-    output[element.id] = element;
+    const key = id(element);
+    output[key] = element;
   });
   return output;
 };

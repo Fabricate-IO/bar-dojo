@@ -72,13 +72,13 @@ describe('BarStock:', () => {
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.length);
 
-      const stock = helpers.objectArrayToDict(result);
-      expect(stock[0].inStock).to.equal(false);
-      expect(stock[1].inStock).to.equal(true);
-      expect(stock[2].inStock).to.equal(true);
-      expect(stock[0].volumeAvailable).to.equal(0);
-      expect(stock[1].volumeAvailable).to.equal(10);
-      expect(stock[2].volumeAvailable).to.equal(100);
+      const stock = helpers.objectArrayToDict(result, _compoundKey);
+      expect(stock['0-0'].inStock).to.equal(false);
+      expect(stock['0-1'].inStock).to.equal(true);
+      expect(stock['0-2'].inStock).to.equal(true);
+      expect(stock['0-0'].volumeAvailable).to.equal(0);
+      expect(stock['0-1'].volumeAvailable).to.equal(10);
+      expect(stock['0-2'].volumeAvailable).to.equal(100);
 
       done();
     });
@@ -90,8 +90,8 @@ describe('BarStock:', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
-      const ids = result.map((element) => { return element.id; });
-      expect(ids).to.contain([1, 2]);
+      const ids = result.map(_compoundKey);
+      expect(ids).to.contain(['0-1', '0-2']);
       done();
     });
   });
@@ -102,45 +102,13 @@ describe('BarStock:', () => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
-      expect(result[0].id).to.equal(0);
+      const ids = result.map(_compoundKey);
+      expect(ids).to.contain(['0-0']);
       done();
     });
   });
-
-  // it('update updates preSave fields', (done) => {
-
-  //   Config.taxRate = 0.1;
-
-  //   Db.BarStock.updateOne(1, { initialCost: 20 }, (err) => {
-
-  //     expect(err).to.be.null();
-
-  //     Db.BarStock.readOne(1, (err, result) => {
-
-  //       expect(err).to.be.null();
-  //       expect(result.initialCost).to.equal(20);
-  //       expect(result.afterTaxCost).to.equal(22);
-  //       expect(result.unitCost).to.equal(2.2);
-  //       Config.taxRate = 0;
-  //       done();
-  //     });
-  //   });
-  // });
-
-  // it('update does not trigger preSave if fields not present', (done) => {
-
-  //   Db.BarStock.updateOne(1, { initialCost: null }, (err) => {
-
-  //     expect(err).to.be.null();
-
-  //     Db.BarStock.readOne(1, (err, result) => {
-
-  //       expect(err).to.be.null();
-  //       expect(result.initialCost).to.be.null();
-  //       expect(result.afterTaxCost).to.equal(22);
-  //       expect(result.unitCost).to.equal(2.2);
-  //       done();
-  //     });
-  //   });
-  // });
 });
+
+function _compoundKey (element) {
+  return element.barId + '-' + element.stockModelId;
+}

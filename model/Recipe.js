@@ -45,15 +45,16 @@ exports.indexes = [
   },
 ];
 
+
 exports.hooks = {
 
   // attaches metadata
-  read: function (Mongo, query, sort, limit, callback) {
+  read: function (Rethink, query, sort, limit, callback) {
 
     const queryInStock = query.inStock;
     delete query.inStock;
 
-    Mongo.collection("BarStock").find({ remainingQuantity: { $gt: 0 }, archived: { $ne: true } }).toArray((err, result) => {
+    Rethink.table('BarStock').filter({ inStock: true, archived: false }).run((err, result) => {
 
       if (err) {
         return callback(err);
@@ -67,7 +68,7 @@ exports.hooks = {
         stock[id].push(element);
       });
 
-      Mongo.collection("Recipe").find(query).sort(sort).limit(limit).toArray((err, result) => {
+      Rethink.table('Recipe').filter(query).orderBy(sort).limit(limit).run((err, result) => {
 
         if (err) {
           return callback(err);

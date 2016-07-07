@@ -1,4 +1,4 @@
-// Wrapper around db objects (assumes they're using mongo)
+// Wrapper around the DB
 
 'use strict';
 
@@ -7,8 +7,8 @@ const Fs = require('fs');
 const Hoek = require('hoek');
 const Joi = require('joi');
 const Models = {};
-const MongoClient = require('mongodb').MongoClient;
-let Mongo = null; // object for accessing the db
+const RethinkDb = require('rethinkdbdash');
+let Rethink = null;
 let Config = null;
 
 const modelNames = [ // in requirement order
@@ -20,51 +20,33 @@ const modelNames = [ // in requirement order
   'Patron',
   'Friend',
 ];
-const reservedUpdateProperties = [
-  '$inc',
-  '$mul',
-  '$rename',
-  '$setOnInsert',
-  '$set',
-  '$unset',
-  '$min',
-  '$max',
-  '$currentDate'
-];
 
 
 exports.init = function (config, callback) {
 
   Config = config;
 
-  MongoClient.connect(Config.mongoUrl, (err, db) => {
+  Rethink = RethinkDb(Config.rethink);
 
-    if (err) {
-      return callback(err);
-    }
+  if (Config.nuke === true) {
+    Rethink.dbDrop(Config.rethink.db);
+  }
 
-    Mongo = db;
-
-    if (Config.nuke === true) {
-      Mongo.dropDatabase();
-    }
-
-    // fetch and initialize all models
-    Async.series([
-      (cb) => { Async.each(modelNames, _requireModels, cb); },
-      (cb) => { Async.each(modelNames, _setModelInitialState, cb); }, // must be done before other db tasks that might create the table
-      (cb) => { Async.each(modelNames, _initializeIndexes, cb); },
-      (cb) => { Async.each(modelNames, _assignModelCrudFunctions, cb); },
-      (cb) => { Async.each(modelNames, (name, cb) => { exports[name] = Models[name]; cb(); }, cb)},
-    ], (err) => {
-      return callback(err, exports);
-    });
+  // fetch and initialize all models
+  Async.series([
+    (cb) => { Async.each(modelNames, _requireModels, cb); },
+    (cb) => { Async.each(modelNames, _setModelInitialState, cb); }, // must be done before other db tasks that might create the table
+    (cb) => { Async.each(modelNames, _initializeIndexes, cb); },
+    (cb) => { Async.each(modelNames, _assignModelCrudFunctions, cb); },
+    (cb) => { Async.each(modelNames, (name, cb) => { exports[name] = Models[name]; cb(); }, cb)},
+  ], (err) => {
+    return callback(err, exports);
   });
 };
 
 
 exports.exit = function (callback) {
-  Mongo.close();
+  Rethink.getPoolMaster().drain();
   return callback();
 };
 
@@ -100,20 +82,22 @@ function createOne (modelName, object, callback) {
         return callback(err);
       }
 
+      object.archived = object.archived || false; // global default
+
       if (object.id == null) {
 
-        Mongo.collection(modelName).findOne({}, { sort: [[ 'id', 'desc' ]] }, (err, result) => {
+        Rethink.table(modelName).max('id').default({ id: 0 }).run((err, result) => {
 
           if (err) {
             return callback(err);
           }
 
-          object.id = (result == null) ? 0 : Number(result.id) + 1;
-          return Mongo.collection(modelName).insert(object, callback);
+          object.id = Number(result.id) + 1;
+          return Rethink.table(modelName).insert(object).run(callback);
         });
       }
       else {
-        return Mongo.collection(modelName).insert(object, callback);
+        return Rethink.table(modelName).insert(object).run(callback);
       }
     });
   });
@@ -122,22 +106,23 @@ function createOne (modelName, object, callback) {
 // skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
 function read (modelName, query, callback) {
 
-  query.archived = query.archived || { $ne: true };
-  let sort = { id: -1 };
-  if (query.orderBy != null) {
-    sort = {};
-    sort[query.orderBy] = (query.order === 'desc') ? -1 : 1; // default to asc
+  query.archived = query.archived || false;
+  query.orderBy = query.orderBy || 'id';
+  let sort = Rethink.desc(query.orderBy); // default to desc to show most recent / largest first
+  if (query.order === 'asc') {
+    sort = Rethink.asc(query.orderBy);
   }
   delete query.orderBy;
   delete query.order;
-  let limit = query.limit || 0;
+  let limit = query.limit || 1000;
   delete query.limit;
 
-  return Models[modelName].hooks.read(Mongo, query, sort, limit, callback);
+  return Models[modelName].hooks.read(Rethink, query, sort, limit, callback);
 }
 
 // read one, based on id. Uses read to reduce code redundancy
 function readOne (modelName, id, callback) {
+
   return read(modelName, { id: id, limit: 1 }, (err, result) => {
     return callback(err, result[0] || null);
   });
@@ -147,12 +132,7 @@ function readOne (modelName, id, callback) {
 // if a reserved keyword is used, call update directly
 // otherwise, assume it's a $set
 function update (modelName, query, delta, callback) {
-
-  if (_objectContainsKeys(delta, reservedUpdateProperties) === false) {
-    delta = { $set: delta };
-  }
-
-  return Mongo.collection(modelName).update(query, delta, { multi: true }, callback);
+  return Rethink.table(modelName).filter(query).update(delta).run(callback);
 }
 
 // update a single ID - creates if it doesn't exist
@@ -179,11 +159,7 @@ function updateOne (modelName, id, delta, callback) {
         return callback(err);
       }
 
-      if (_objectContainsKeys(delta, reservedUpdateProperties) === false) {
-        delta = { $set: object }; // set object instead of delta in case preSave adjusted other fields
-      }
-
-      return Mongo.collection(modelName).updateOne({ id: id }, delta, callback);
+      return Rethink.table(modelName).get(id).update(delta).run(callback);
     });
   });
 }
@@ -213,23 +189,25 @@ function _requireModels (modelName, callback) {
     prePublicArray: ((objectOrObjects, callback) => {
       Async.map([].concat(objectOrObjects), prePublicObject, callback);
     }),
-    read: hooks.read || ((Mongo, query, sort, limit, callback) => { Mongo.collection(modelName).find(query).sort(sort).limit(limit).toArray(callback) }),
+    read: hooks.read || ((Rethink, query, sort, limit, callback) => {
+      Rethink.table(modelName).filter(query).orderBy(sort).limit(limit).run(callback);
+    }),
   };
 
   return callback();
 }
 
-
+// TODO redo indexes from Mongo
 function _initializeIndexes (modelName, callback) {
+  // const model = Models[modelName];
+  // const collection = Mongo.collection(modelName);
 
-  const model = Models[modelName];
-  const collection = Mongo.collection(modelName);
-
-  model.indexes = [].concat(model.indexes || []);
-  model.indexes.push({ keys: { archived: 1 } }); // automatic index on the archived field
-  Async.forEach(model.indexes, (index, callback) => {
-    collection.createIndex(index.keys, index.options, callback);
-  }, callback);
+  // model.indexes = [].concat(model.indexes || []);
+  // model.indexes.push({ keys: { archived: 1 } }); // automatic index on the archived field
+  // Async.forEach(model.indexes, (index, callback) => {
+  //   collection.createIndex(index.keys, index.options, callback);
+  // }, callback);
+  callback();
 }
 
 
@@ -245,15 +223,23 @@ function _setModelInitialState (modelName, callback) {
 
       // TODO log to server: console.log(modelName + ' does not exist, initializing');
 
-      if (Models[modelName].initialState == null) {
-        // TODO log to server: console.log('No initial state defined for ' + modelName + ', skipping initialization');
-        return callback();
-      }
+      Rethink.tableCreate(modelName).run((err, result) => {
 
-      return create(modelName, Models[modelName].initialState, callback);
+        if (err) {
+          return callback(err);
+        }
+
+        if (Models[modelName].initialState == null) {
+          // TODO log to server: console.log('No initial state defined for ' + modelName + ', skipping initialization');
+          return callback();
+        }
+
+        return create(modelName, Models[modelName].initialState, callback);
+      });
     }
-
-    return callback();
+    else {
+      return callback();
+    }
   });
 }
 
@@ -273,7 +259,7 @@ function _assignModelCrudFunctions (modelName, callback) {
 
   // the actual delete function - USE WITH CAUTION
   model.nuke = (query, callback) => {
-    return Mongo.collection(modelName).remove(query, callback);
+    Rethink.table(modelName).filter(query).delete().run(callback);
   };
 
   // for testing
@@ -285,42 +271,12 @@ function _assignModelCrudFunctions (modelName, callback) {
 
 function _checkIfCollectionExists (collectionName, callback) {
 
-  Mongo.listCollections().toArray((err, items) => {
+  Rethink.tableList().run((err, result) => {
 
     if (err) {
       return callback(err);
     }
 
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].name === collectionName) {
-        return callback(null, true);
-      }
-    }
-
-    return callback(null, false);
+    return callback(null, result.indexOf(collectionName) !== -1);
   });
-}
-
-
-// returns whether the object (incl nested properties) contains any of the listed keys
-function _objectContainsKeys (object, keys) {
-
-  if (object == null) {
-    return false;
-  }
-
-  let hasAKey = false;
-
-  Object.keys(object).forEach((objKey) => {
-
-    if (typeof object[objKey] === 'object') {
-      if (_objectContainsKeys(object[objKey], keys) === true) {
-        hasAKey = true;
-      }
-    }
-
-    if (keys.indexOf(objKey) !== -1) { hasAKey = true; }
-  });
-
-  return hasAKey;
 }
