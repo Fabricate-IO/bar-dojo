@@ -320,7 +320,7 @@ describe('CRUD egde cases:', () => {
 
       expect(err).to.be.null();
 
-      Db.StockType.createOne({ id: 'test' }, (err, result) => {
+      Db.StockType.createOne({ id: 'test' }, (err) => {
 
         expect(err).to.not.be.null();
 

@@ -219,11 +219,10 @@ function _initializeIndexes (modelName, callback) {
   const model = Models[modelName];
   const collection = Mongo.collection(modelName);
 
-  model.indexes = [].concat(model.indexes).push({ keys: { archived: 1 } }); // automatic index on the archived field
-
+  model.indexes = [].concat(model.indexes || []);
+  model.indexes.push({ keys: { archived: 1 } }); // automatic index on the archived field
   Async.forEach(model.indexes, (index, callback) => {
-    collection.createIndex(index.keys, index.options);
-    callback();
+    collection.createIndex(index.keys, index.options, callback);
   }, callback);
 }
 

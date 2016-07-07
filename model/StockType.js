@@ -22,7 +22,7 @@ exports.schema = {
 exports.indexes = [
   {
     keys: {
-      id: 1
+      id: 1,
     },
     options: {
       unique: true,
