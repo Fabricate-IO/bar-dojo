@@ -10,7 +10,7 @@ const db = require('../db');
 
 
 exports.schema = {
-  id: Joi.string(), // unique key
+  id: Joi.string().description('unique broad lower case name, ie white rum, dark rum'),
   unitType: Joi.string().valid(['oz', 'bottle', 'cup', 'wedge']),
   archived: Joi.boolean().default(false),
 

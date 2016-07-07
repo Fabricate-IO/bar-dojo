@@ -9,6 +9,6 @@ A handy web app for managing a bar
 
 TODO: install Node, Mongo, Gulp, `npm install && npm install -g gulp lab`; run `npm test` to make sure everything's good
 
-Powered by React, [Material-UI](http://www.material-ui.com/), Mongo, [Splitwise](http://dev.splitwise.com/dokuwiki/doku.php?id=index)
+Powered by React, [Material-UI](http://www.material-ui.com/), MongoDB, [Splitwise](http://dev.splitwise.com/dokuwiki/doku.php?id=index)
 
 Some coktail information borrowed from [TheCocktailDb](http://www.thecocktaildb.com/)

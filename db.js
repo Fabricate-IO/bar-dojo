@@ -13,7 +13,9 @@ let Config = null;
 
 const modelNames = [ // in requirement order
   'StockType',
-  'Stock',
+  'StockModel',
+  'StockTransaction',
+  'BarStock',
   'Recipe',
   'Patron',
   'Friend',
@@ -80,7 +82,7 @@ exports.nuke = function (callback) {
 // even if overridden, it will still go through the same parameter pre-processing for consistency
 
 
-function createMany (modelName, objects, callback) {
+function create (modelName, objects, callback) {
   Async.eachSeries(objects, (object, cb) => { createOne(modelName, object, cb); }, callback);
 }
 
@@ -92,7 +94,7 @@ function createOne (modelName, object, callback) {
       return callback(err);
     }
 
-    Models[modelName].preSave(Config, object, (err, object) => {
+    Models[modelName].hooks.preSave(Config, object, (err, object) => {
 
       if (err) {
         return callback(err);
@@ -118,7 +120,7 @@ function createOne (modelName, object, callback) {
 }
 
 // skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
-function readMany (modelName, query, callback) {
+function read (modelName, query, callback) {
 
   query.archived = query.archived || { $ne: true };
   let sort = { id: -1 };
@@ -128,23 +130,23 @@ function readMany (modelName, query, callback) {
   }
   delete query.orderBy;
   delete query.order;
+  let limit = query.limit || 0;
+  delete query.limit;
 
-  if (Models[modelName].readMany) {
-    return Models[modelName].readMany(Mongo, query, sort, callback);
-  }
-  else {
-    return Mongo.collection(modelName).find(query).sort(sort).toArray(callback);
-  }
+  return Models[modelName].hooks.read(Mongo, query, sort, limit, callback);
 }
 
+// read one, based on id. Uses read to reduce code redundancy
 function readOne (modelName, id, callback) {
-  return Mongo.collection(modelName).findOne({ id: id }, callback);
+  return read(modelName, { id: id, limit: 1 }, (err, result) => {
+    return callback(err, result[0] || null);
+  });
 }
 
 // bulk edit via query - does not upsert
 // if a reserved keyword is used, call update directly
 // otherwise, assume it's a $set
-function updateMany (modelName, query, delta, callback) {
+function update (modelName, query, delta, callback) {
 
   if (_objectContainsKeys(delta, reservedUpdateProperties) === false) {
     delta = { $set: delta };
@@ -171,7 +173,7 @@ function updateOne (modelName, id, delta, callback) {
 
     Hoek.merge(object, delta);
 
-    Models[modelName].preSave(Config, object, (err, object) => {
+    Models[modelName].hooks.preSave(Config, object, (err, object) => {
 
       if (err) {
         return callback(err);
@@ -186,12 +188,11 @@ function updateOne (modelName, id, delta, callback) {
   });
 }
 
-// doesn't actually delete, just flags as archived
-function deleteMany (modelName, query, callback) {
-  return updateMany(modelName, query, { archived: true }, callback);
+function archive (modelName, query, callback) {
+  return update(modelName, query, { archived: true }, callback);
 }
 
-function deleteOne (modelName, id, callback) {
+function archiveOne (modelName, id, callback) {
   return updateOne(modelName, id, { archived: true }, callback);
 }
 
@@ -199,16 +200,21 @@ function deleteOne (modelName, id, callback) {
 /* ===== PRIVATE HELPERS ===== */
 
 // attaches hooks:
-  // preSave (Config, object, callback): edits to single object before being saved
-  // prePublic (object, callback): edits to single object before being sent over the wire. Includes wrapper to support arrays of objects.
+  // preSave: edits to single object before being saved
+  // prePublic: edits to single object before being sent over the wire. Includes wrapper to support arrays of objects.
+  // read: reads one or more objects, with the ability to manipulate them before returning
 function _requireModels (modelName, callback) {
 
   Models[modelName] = require('./model/' + modelName + '.js');
-  Models[modelName].preSave = Models[modelName].preSave || ((Config, object, callback) => { callback(null, object); });
-  Models[modelName].prePublicObject = Models[modelName].prePublic || ((object, callback) => { callback(null, object); });
-  Models[modelName].prePublicArray = ((objectOrObjects, callback) => {
-    Async.map([].concat(objectOrObjects), Models[modelName].prePublicObject, callback);
-  });
+  const hooks = Models[modelName].hooks || {};
+  Models[modelName].hooks = {
+    preSave: hooks.preSave || ((Config, object, callback) => { callback(null, object); }),
+    prePublicObject: hooks.prePublic || ((object, callback) => { callback(null, object); }),
+    prePublicArray: ((objectOrObjects, callback) => {
+      Async.map([].concat(objectOrObjects), prePublicObject, callback);
+    }),
+    read: hooks.read || ((Mongo, query, sort, limit, callback) => { Mongo.collection(modelName).find(query).sort(sort).limit(limit).toArray(callback) }),
+  };
 
   return callback();
 }
@@ -244,7 +250,7 @@ function _setModelInitialState (modelName, callback) {
         return callback();
       }
 
-      return createMany(modelName, Models[modelName].initialState, callback);
+      return create(modelName, Models[modelName].initialState, callback);
     }
 
     return callback();
@@ -256,14 +262,14 @@ function _assignModelCrudFunctions (modelName, callback) {
 
   const model = Models[modelName];
 
-  model.create = (objects, callback) => { createMany(modelName, objects, callback); };
+  model.create = (objects, callback) => { create(modelName, objects, callback); };
   model.createOne = (objects, callback) => { createOne(modelName, objects, callback); };
-  model.read = (query, callback) => { readMany(modelName, query, callback); };
+  model.read = (query, callback) => { read(modelName, query, callback); };
   model.readOne = (id, callback) => { readOne(modelName, id, callback); };
-  model.update = (query, delta, callback) => { updateMany(modelName, query, delta, callback); };
+  model.update = (query, delta, callback) => { update(modelName, query, delta, callback); };
   model.updateOne = (id, delta, callback) => { updateOne(modelName, id, delta, callback); };
-  model.delete = (query, callback) => { deleteMany(modelName, query, callback); };
-  model.deleteOne = (id, callback) => { deleteOne(modelName, id, callback); };
+  model.delete = (query, callback) => { archive(modelName, query, callback); };
+  model.deleteOne = (id, callback) => { archiveOne(modelName, id, callback); };
 
   // the actual delete function - USE WITH CAUTION
   model.nuke = (query, callback) => {

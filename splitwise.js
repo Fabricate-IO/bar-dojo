@@ -47,6 +47,11 @@ exports.setup = function (callback) {
 // TODO exchange request code for access token? (splitwise.getOAuthAccessToken)
 
     else {
+
+      if (splitwise.getSplitwiseApi == null) {
+        return callback(new Error('Failed to initialize Splitwise API'));
+      }
+
       splitwise = splitwise.getSplitwiseApi(result.secret.splitwiseToken, result.secret.splitwiseSecret);
       splitwise.getCurrentUser()
         .then((data) => {

@@ -4,8 +4,10 @@ const Boom = require('boom');
 const Joi = require('joi');
 
 const models = {
+  BarStock: require('./model/BarStock'),
   Recipe: require('./model/Recipe'),
-  Stock: require('./model/Stock'),
+  StockModel: require('./model/StockModel'),
+  StockTransaction: require('./model/StockTransaction'),
   StockType: require('./model/StockType'),
   Patron: require('./model/Patron'),
   Friend: require('./model/Friend'),
@@ -59,7 +61,7 @@ module.exports = [
             return reply(Boom.badImplementation(err));
           }
 
-          request.server.app.db[modelName].prePublicObject(result, (err, result) => {
+          request.server.app.db[modelName].hooks.prePublicObject(result, (err, result) => {
 
             if (err) {
               return reply(Boom.badImplementation(err));
@@ -93,7 +95,7 @@ module.exports = [
             return reply(Boom.badImplementation(err));
           }
 
-          request.server.app.db[modelName].prePublicArray(result, (err, result) => {
+          request.server.app.db[modelName].hooks.prePublicArray(result, (err, result) => {
 
             if (err) {
               return reply(Boom.badImplementation(err));

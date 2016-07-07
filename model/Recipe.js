@@ -7,10 +7,10 @@ const Joi = require('joi');
 const db = require('../db');
 const StockType = require('./StockType');
 
+
 exports.schema = {
   id: Joi.number(),
   name: Joi.string(),
-  tags: Joi.array().items(Joi.string()), // tag name
   instructions: Joi.string(), // optional
   ingredients: Joi.array().items(Joi.object().keys({
     stockTypeId: StockType.schema.id,
@@ -19,9 +19,9 @@ exports.schema = {
   archived: Joi.boolean().default(false),
 
   // Metadata
-  // costMin - number
-  // costMax - number
-  inStock: Joi.boolean(),
+  costMin: Joi.number().description('Current cheapest cost, calculated live'),
+  costMax: Joi.number().description('Current most expensive cost, calculated live'),
+  inStock: Joi.boolean().description('If it is currently possible to make this drink, calculated live'),
   created: Joi.date().timestamp(),
 };
 
@@ -45,74 +45,76 @@ exports.indexes = [
   },
 ];
 
+exports.hooks = {
 
-// attaches UI metadata
-exports.readMany = function (Mongo, query, sort, callback) {
+  // attaches metadata
+  read: function (Mongo, query, sort, limit, callback) {
 
-  const queryInStock = query.inStock;
-  delete query.inStock;
+    const queryInStock = query.inStock;
+    delete query.inStock;
 
-  Mongo.collection("Stock").find({ remainingQuantity: { $gt: 0 }, archived: { $ne: true } }).toArray((err, result) => {
-
-    if (err) {
-      return callback(err);
-    }
-
-    // convert stock into a dict of stocks by stockTypeId
-    const stock = {};
-    result.forEach((element) => {
-      const id = element.stockTypeId;
-      stock[id] = stock[id] || [];
-      stock[id].push(element);
-    });
-
-    Mongo.collection("Recipe").find(query).sort(sort).toArray((err, result) => {
+    Mongo.collection("BarStock").find({ remainingQuantity: { $gt: 0 }, archived: { $ne: true } }).toArray((err, result) => {
 
       if (err) {
         return callback(err);
       }
 
-      // calculate metadata
-      const recipes = result.map((element) => {
-
-        element.inStock = true;
-        element.costMin = 0;
-        element.costMax = 0;
-
-        element.ingredients.forEach((ingredient) => {
-
-          let inStock = false;
-          let costMin = 9999;
-          let costMax = 0;
-
-          if (stock[ingredient.stockTypeId] != null) {
-
-            stock[ingredient.stockTypeId].forEach((stock) => {
-
-              if (stock.remainingQuantity >= ingredient.quantity) {
-                inStock = true;
-                costMin = Math.min(costMin, stock.unitCost * ingredient.quantity);
-                costMax = Math.max(costMax, stock.unitCost * ingredient.quantity);
-              }
-            });
-
-            element.costMin += costMin;
-            element.costMax += costMax;
-          }
-
-          if (!inStock) {
-            element.inStock = false;
-          }
-        });
-
-        return element;
-      }).filter((element) => {
-        return (queryInStock == null || queryInStock === element.inStock);
+      // convert stock into a dict of stocks by stockTypeId
+      const stock = {};
+      result.forEach((element) => {
+        const id = element.stockTypeId;
+        stock[id] = stock[id] || [];
+        stock[id].push(element);
       });
 
-      return callback(null, recipes);
+      Mongo.collection("Recipe").find(query).sort(sort).limit(limit).toArray((err, result) => {
+
+        if (err) {
+          return callback(err);
+        }
+
+        // calculate metadata
+        const recipes = result.map((element) => {
+
+          element.inStock = true;
+          element.costMin = 0;
+          element.costMax = 0;
+
+          element.ingredients.forEach((ingredient) => {
+
+            let inStock = false;
+            let costMin = 9999;
+            let costMax = 0;
+
+            if (stock[ingredient.stockTypeId] != null) {
+
+              stock[ingredient.stockTypeId].forEach((stock) => {
+
+                if (stock.remainingQuantity >= ingredient.quantity) {
+                  inStock = true;
+                  costMin = Math.min(costMin, stock.unitCost * ingredient.quantity);
+                  costMax = Math.max(costMax, stock.unitCost * ingredient.quantity);
+                }
+              });
+
+              element.costMin += costMin;
+              element.costMax += costMax;
+            }
+
+            if (!inStock) {
+              element.inStock = false;
+            }
+          });
+
+          return element;
+        }).filter((element) => {
+          return (queryInStock == null || queryInStock === element.inStock);
+        });
+
+        return callback(null, recipes);
+      });
     });
-  });
+  },
 };
 
 

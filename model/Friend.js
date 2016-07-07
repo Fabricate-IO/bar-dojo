@@ -13,24 +13,27 @@ exports.schema = {
 };
 
 
-exports.readMany = function (Mongo, query, sort, callback) {
+exports.hooks = {
 
-  Splitwise.getFriends((err, result) => {
+  read: function (Mongo, query, sort, callback) {
 
-    if (err) {
-      return callback(err);
-    }
+    Splitwise.getFriends((err, result) => {
 
-    const friends = result.map((friend) => {
-      return {
-        id: friend.id,
-        image: friend.picture.large,
-        name: ([friend.first_name, friend.last_name]).filter((name) => { return (name != null); })
-            .join(' ')
-            .trim(),
-      };
+      if (err) {
+        return callback(err);
+      }
+
+      const friends = result.map((friend) => {
+        return {
+          id: friend.id,
+          image: friend.picture.large,
+          name: ([friend.first_name, friend.last_name]).filter((name) => { return (name != null); })
+              .join(' ')
+              .trim(),
+        };
+      });
+
+      return callback(null, friends);
     });
-
-    return callback(null, friends);
-  });
+  },
 };

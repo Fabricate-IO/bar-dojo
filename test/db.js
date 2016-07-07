@@ -204,18 +204,18 @@ describe('CRUD:', () => {
 
   it('updateOne (is able to increment)', (done) => {
 
-    Db.Stock.createOne({ id: 99, initialQuantity: 1 }, (err, result) => {
+    Db.Patron.createOne({ id: 99, tab: 0 }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.Stock.updateOne(99, { $inc: { initialQuantity: 2 } }, (err, result) => {
+      Db.Patron.updateOne(99, { $inc: { tab: 2 } }, (err, result) => {
 
         expect(err).to.be.null();
 
-        Db.Stock.readOne(99, (err, result) => {
+        Db.Patron.readOne(99, (err, result) => {
 
           expect(err).to.be.null();
-          expect(result.initialQuantity).to.equal(3);
+          expect(result.tab).to.equal(2);
           done();
         });
       });
@@ -224,28 +224,28 @@ describe('CRUD:', () => {
 
   it('updateMany (is able to increment)', (done) => {
 
-    Db.Stock.createOne({ id: 100, initialQuantity: 2 }, (err, result) => {
+    Db.Patron.createOne({ id: 100, tab: 0 }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.Stock.read({}, (err, result) => {
+      Db.Patron.read({}, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(2);
 
-        Db.Stock.update({}, { $inc: { initialQuantity: 2 } }, (err, result) => {
+        Db.Patron.update({}, { $inc: { tab: 2 } }, (err, result) => {
 
           expect(err).to.be.null();
 
-          Db.Stock.readOne(99, (err, result) => {
+          Db.Patron.readOne(99, (err, result) => {
 
             expect(err).to.be.null();
-            expect(result.initialQuantity).to.equal(5);
+            expect(result.tab).to.equal(4);
 
-            Db.Stock.readOne(100, (err, result) => {
+            Db.Patron.readOne(100, (err, result) => {
 
               expect(err).to.be.null();
-              expect(result.initialQuantity).to.equal(4);
+              expect(result.tab).to.equal(2);
               done();
             });
           });
@@ -299,6 +299,7 @@ describe('CRUD egde cases:', () => {
     });
   });
 
+// TODO broken, maximum call stack size exceeded?
   it('create (errors on validation and does not create an object)', (done) => {
 
     Db.StockType.create([{ id: 1 }, { id: 2 }], (err) => {

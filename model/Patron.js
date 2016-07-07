@@ -38,11 +38,13 @@ exports.indexes = [
 ];
 
 
-// before being sent over the wire, strip secret info
-exports.prePublic = function (object, callback) {
+exports.hooks = {
 
-  delete object.secret;
-  return callback(null, object);
+  prePublic: function (object, callback) {
+
+    delete object.secret;
+    return callback(null, object);
+  },
 };
 
 
