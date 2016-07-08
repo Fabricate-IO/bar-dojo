@@ -25,8 +25,6 @@ exports.setup = function (callback) {
       return callback(err);
     }
 
-console.log(err, result);
-
     if (result.secret == null || result.secret.splitwiseToken == null || result.secret.splitwiseSecret == null) {
 
       // get splitwise access code and save to master user

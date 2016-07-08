@@ -2,6 +2,7 @@
 
 'use strict';
 
+const Async = require('async');
 const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
@@ -36,18 +37,21 @@ describe('Patron:', () => {
   after(Db.exit);
 
 
-  const fixtures = [
-    {
-      id: 1,
-      name: 'Tester',
-      tab: 10,
-    },
-  ];
+  const fixtures = {
+    Patron: [
+      {
+        id: 1,
+        name: 'Tester',
+        tab: 10,
+      },
+    ],
+  };
 
   it('create fixtures', (done) => {
 
-    Db.Patron.create(fixtures, (err) => {
-
+    Async.eachOf(fixtures, (value, key, callback) => {
+      Db[key].create(value, callback);
+    }, (err) => {
       expect(err).to.be.null();
       done();
     });

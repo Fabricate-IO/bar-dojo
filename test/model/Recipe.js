@@ -37,6 +37,59 @@ describe('Recipe:', () => {
   after(Db.exit);
 
   const fixtures = {
+    BarStock: [
+      {
+        barId: 0,
+        stockModelId: 0,
+        volumeCost: 1,
+        residualVolume: 10,
+      },
+      {
+        barId: 0,
+        stockModelId: 1,
+        volumeCost: 10,
+        remainingUnits: [10],
+        residualVolume: 0,
+      },
+      {
+        barId: 0,
+        stockModelId: 2,
+        volumeCost: 999,
+        residualVolume: 2,
+      },
+      {
+        barId: 0,
+        stockModelId: 3,
+        volumeCost: 999,
+        residualVolume: 0,
+      },
+      {
+        barId: 0,
+        stockModelId: 4,
+        volumeCost: 999,
+        residualVolume: 10,
+        archived: true,
+      },
+      {
+        barId: 0,
+        stockModelId: 5,
+        volumeCost: 999,
+        residualVolume: 2,
+      },
+      {
+        barId: 0,
+        stockModelId: 6,
+        volumeCost: 999,
+        residualVolume: 0,
+      },
+      {
+        barId: 0,
+        stockModelId: 7,
+        volumeCost: 999,
+        residualVolume: 10,
+        archived: true,
+      },
+    ],
     Recipe: [
       {
         id: 0,
@@ -100,57 +153,12 @@ describe('Recipe:', () => {
         name: 'Archived BarStock',
       },
     ],
-    BarStock: [
+    StockType: [
       {
-        barId: 0,
-        stockModelId: 0,
-        volumeCost: 1,
-        residualVolume: 10,
+        id: 'dark rum',
       },
       {
-        barId: 0,
-        stockModelId: 1,
-        volumeCost: 10,
-        remainingUnits: [10],
-        residualVolume: 0,
-      },
-      {
-        barId: 0,
-        stockModelId: 2,
-        volumeCost: 999,
-        residualVolume: 2,
-      },
-      {
-        barId: 0,
-        stockModelId: 3,
-        volumeCost: 999,
-        residualVolume: 0,
-      },
-      {
-        barId: 0,
-        stockModelId: 4,
-        volumeCost: 999,
-        residualVolume: 10,
-        archived: true,
-      },
-      {
-        barId: 0,
-        stockModelId: 5,
-        volumeCost: 999,
-        residualVolume: 2,
-      },
-      {
-        barId: 0,
-        stockModelId: 6,
-        volumeCost: 999,
-        residualVolume: 0,
-      },
-      {
-        barId: 0,
-        stockModelId: 7,
-        volumeCost: 999,
-        residualVolume: 10,
-        archived: true,
+        id: 'gin',
       },
     ],
   };

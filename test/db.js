@@ -4,6 +4,7 @@
 
 'use strict';
 
+const Async = require('async');
 const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
@@ -279,11 +280,47 @@ describe('CRUD egde cases:', () => {
 
       expect(err).to.be.null();
 
-      Db.StockType.createOne({ id: 'test' }, (err, result) => {
+      Db.StockType.createOne({ id: 'test' }, (err) => {
 
         expect(err).to.not.be.null();
 
         Db.StockType.read({}, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.length).to.equal(1);
+          done();
+        });
+      });
+    });
+  });
+
+  it('createOne (errors on duplicate compound id and does not create an object)', (done) => {
+
+    const fixtures = {
+      BarStock: [{
+        barId: 1,
+        stockModelId: 1,
+      }],
+      StockModel: [{
+        id: 1,
+        stockTypeId: 'dark rum',
+      }],
+      StockType: [{
+        id: 'dark rum',
+      }]
+    }
+
+    Async.eachOf(fixtures, (value, key, callback) => {
+      Db[key].create(value, callback);
+    }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.BarStock.createOne({ barId: 1, stockModelId: 1 }, (err) => {
+
+        expect(err).to.not.be.null();
+
+        Db.BarStock.read({}, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(1);

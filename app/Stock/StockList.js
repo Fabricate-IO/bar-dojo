@@ -78,31 +78,15 @@ module.exports = React.createClass({
       data: [],
     };
   },
-  componentWillMount: function () {
-
-    NetworkRequest('GET', '/api/StockType', (err, result) => {
-
-      if (err) {
-        return console.error('StockType API', status, err.toString());
-      }
-
-      this.setState({ StockTypes: result });
-    });
-  },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Stock?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/BarStock?orderBy=name', (err, result) => {
 
       if (err) {
-        return console.error('Stock API', status, err.toString());
+        return console.error('BarStock API', status, err.toString());
       }
 
-      const stock = result.map((stock) => {
-        stock.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === stock.stockTypeId; });
-        return stock;
-      });
-
-      this.setState({ data: stock });
+      this.setState({ data: result });
     });
   },
   render: function () {

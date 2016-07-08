@@ -35,10 +35,10 @@ module.exports = React.createClass({
 
     if (!this.state.creating) {
 
-      NetworkRequest('GET', '/api/Stock/' + this.props.params.id, (err, result) => {
+      NetworkRequest('GET', '/api/BarStock/' + this.props.params.id, (err, result) => {
 
         if (err) {
-          return console.error('Stock API', status, err.toString());
+          return console.error('BarStock API', status, err.toString());
         }
 
         this.setState({ StockType: this.state.StockTypes.find((StockType) => { return StockType.id === result.stockTypeId; }) || {} });

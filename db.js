@@ -84,29 +84,13 @@ function createOne (modelName, object, callback) {
 
       object.archived = object.archived || false; // global default
 
-      if (object.id == null) {
-
-        Rethink.table(modelName).max('id').default({ id: 0 }).run((err, result) => {
-
-          if (err) {
-            return callback(err);
-          }
-
-          object.id = Number(result.id) + 1;
-          return _insert(modelName, object, callback);
+      Models[modelName].hooks.assignId(Rethink, object, (err, object) => {
+        Rethink.table(modelName).insert(object).run((err, result) => {
+          return callback(err || result.first_error || null, result);
         });
-      }
-      else {
-        return _insert(modelName, object, callback);
-      }
+      });
     });
   });
-
-  function _insert(modelName, object, callback) {
-    Rethink.table(modelName).insert(object).run((err, result) => {
-      return callback(err || result.first_error || null, result);
-    });
-  }
 }
 
 // skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
@@ -194,6 +178,22 @@ function _requireModels (modelName, callback) {
   Models[modelName] = require('./model/' + modelName + '.js');
   const hooks = Models[modelName].hooks || {};
   Models[modelName].hooks = {
+    assignId: hooks.assignId || ((Rethink, object, callback) => {
+
+      if (object.id != null) {
+        return callback(null, object);
+      }
+
+      Rethink.table(modelName).max('id').default({ id: 0 }).run((err, result) => {
+
+        if (err) {
+          return callback(err);
+        }
+
+        object.id = Number(result.id) + 1;
+        return callback(null, object);
+      });
+    }),
     preSave: hooks.preSave || ((Config, object, callback) => { callback(null, object); }),
     prePublicObject: hooks.prePublic || ((object, callback) => { callback(null, object); }),
     prePublicArray: ((objectOrObjects, callback) => {

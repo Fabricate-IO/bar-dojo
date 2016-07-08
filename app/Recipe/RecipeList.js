@@ -246,7 +246,7 @@ module.exports = React.createClass({
   },
   componentWillMount: function () {
 
-    NetworkRequest('GET', '/api/Stock?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/BarStock?orderBy=name', (err, result) => {
 
       if (err) {
         return console.error('Stock API', status, err.toString());

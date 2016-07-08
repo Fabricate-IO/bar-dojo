@@ -38,23 +38,6 @@ describe('BarStock:', () => {
 
 
   const fixtures = {
-    StockModel: [
-      {
-        id: 0,
-        stockTypeId: 'dark rum',
-        name: 'out of stock',
-      },
-      {
-        id: 1,
-        stockTypeId: 'dark rum',
-        name: 'in stock - remaining unit',
-      },
-      {
-        id: 2,
-        stockTypeId: 'dark rum',
-        name: 'in stock - residual',
-      },
-    ],
     BarStock: [
       {
         barId: 0,
@@ -72,6 +55,29 @@ describe('BarStock:', () => {
         barId: 0,
         stockModelId: 2,
         residualVolume: 100,
+      },
+    ],
+    StockModel: [
+      {
+        id: 0,
+        stockTypeId: 'dark rum',
+        name: 'out of stock',
+      },
+      {
+        id: 1,
+        stockTypeId: 'dark rum',
+        name: 'in stock - remaining unit',
+      },
+      {
+        id: 2,
+        stockTypeId: 'dark rum',
+        name: 'in stock - residual',
+      },
+    ],
+    StockType: [
+      {
+        id: 'dark rum',
+        unitType: 'oz',
       },
     ],
   };
@@ -125,6 +131,19 @@ describe('BarStock:', () => {
       expect(result.length).to.equal(1);
       const ids = result.map(_compoundKey);
       expect(ids).to.contain(['0-0']);
+      done();
+    });
+  });
+
+  it('read returns object with joined properties', (done) => {
+
+    Db.BarStock.read({ barId: 0, stockModelId: 0 }, (err, result) => {
+
+      expect(err).to.be.null();
+      expect(result.length).to.equal(1);
+      expect(result[0].stockTypeId).to.equal('dark rum');
+      expect(result[0].name).to.equal('out of stock');
+      expect(result[0].unitType).to.equal('oz');
       done();
     });
   });

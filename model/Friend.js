@@ -15,7 +15,8 @@ exports.schema = {
 
 exports.hooks = {
 
-  read: function (Mongo, query, sort, callback) {
+// TODO does not currently support sorting / querying. Since it's pulling from an external API, need to implement in JS
+  read: function (Rethink, query, sort, limit, callback) {
 
     Splitwise.getFriends((err, result) => {
 
@@ -33,7 +34,7 @@ exports.hooks = {
         };
       });
 
-      return callback(null, friends);
+      return callback(null, friends.slice(0, limit));
     });
   },
 };
