@@ -4,7 +4,7 @@
 
 const Joi = require('joi');
 
-const db = require('../db');
+const Db = require('../db');
 const StockType = require('./StockType');
 
 
@@ -54,7 +54,7 @@ exports.hooks = {
     const queryInStock = query.inStock;
     delete query.inStock;
 
-    Rethink.table('BarStock').filter({ inStock: true, archived: false }).run((err, result) => {
+    Db.BarStock.read({ inStock: true }, (err, result) => {
 
       if (err) {
         return callback(err);
@@ -91,10 +91,10 @@ exports.hooks = {
 
               stock[ingredient.stockTypeId].forEach((stock) => {
 
-                if (stock.remainingQuantity >= ingredient.quantity) {
+                if (stock.volumeAvailable >= ingredient.quantity) {
                   inStock = true;
-                  costMin = Math.min(costMin, stock.unitCost * ingredient.quantity);
-                  costMax = Math.max(costMax, stock.unitCost * ingredient.quantity);
+                  costMin = Math.min(costMin, stock.volumeCost * ingredient.quantity);
+                  costMax = Math.max(costMax, stock.volumeCost * ingredient.quantity);
                 }
               });
 

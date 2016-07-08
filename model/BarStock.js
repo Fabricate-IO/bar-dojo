@@ -4,7 +4,7 @@
 
 const Joi = require('joi');
 
-const db = require('../db');
+const Db = require('../db');
 const StockModel = require('./StockModel');
 
 
@@ -34,7 +34,7 @@ exports.hooks = {
     const queryInStock = query.inStock;
     delete query.inStock;
 
-    Rethink.table('BarStock').filter(query).orderBy(sort).limit(limit).run((err, result) => {
+    Rethink.table('BarStock').filter(query).orderBy(sort).limit(limit).eqJoin('stockModelId', Rethink.table('StockModel')).zip().run((err, result) => {
 
       if (err) {
         return callback(err);

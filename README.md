@@ -9,6 +9,8 @@ A handy web app for managing a bar
 
 install Node, Rethink, `npm install && npm install -g gulp lab`
 
+Create `BarDojo` db in Rethink: `r.dbCreate('BarDojo')`
+
 run `npm test` to make sure everything's good
 
 run `gulp` in the background to watch for file changes

@@ -25,13 +25,19 @@ exports.setup = function (callback) {
       return callback(err);
     }
 
+console.log(err, result);
+
     if (result.secret == null || result.secret.splitwiseToken == null || result.secret.splitwiseSecret == null) {
 
       // get splitwise access code and save to master user
       splitwise.getOAuthRequestToken()
       .then(({ token, secret }) => {
 
-        Db.Patron.updateOne(0, { 'secret.splitwiseToken': token, 'secret.splitwiseSecret': secret }, (err, result) => {
+        result.secret = result.secret || {};
+        result.secret.splitwiseToken = token;
+        result.secret.splitwiseSecret = secret;
+
+        Db.Patron.updateOne(0, { secret: result.secret }, (err, result) => {
 
           if (err) {
             return callback(err);

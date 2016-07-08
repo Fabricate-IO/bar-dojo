@@ -93,14 +93,20 @@ function createOne (modelName, object, callback) {
           }
 
           object.id = Number(result.id) + 1;
-          return Rethink.table(modelName).insert(object).run(callback);
+          return _insert(modelName, object, callback);
         });
       }
       else {
-        return Rethink.table(modelName).insert(object).run(callback);
+        return _insert(modelName, object, callback);
       }
     });
   });
+
+  function _insert(modelName, object, callback) {
+    Rethink.table(modelName).insert(object).run((err, result) => {
+      return callback(err || result.first_error || null, result);
+    });
+  }
 }
 
 // skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
@@ -132,7 +138,9 @@ function readOne (modelName, id, callback) {
 // if a reserved keyword is used, call update directly
 // otherwise, assume it's a $set
 function update (modelName, query, delta, callback) {
-  return Rethink.table(modelName).filter(query).update(delta).run(callback);
+  return Rethink.table(modelName).filter(query).update(delta).run((err, result) => {
+      return callback(err || result.first_error || null, result);
+    });
 }
 
 // update a single ID - creates if it doesn't exist
@@ -159,7 +167,9 @@ function updateOne (modelName, id, delta, callback) {
         return callback(err);
       }
 
-      return Rethink.table(modelName).get(id).update(delta).run(callback);
+      return Rethink.table(modelName).get(id).update(delta).run((err, result) => {
+        return callback(err || result.first_error || null, result);
+      });
     });
   });
 }
@@ -187,7 +197,7 @@ function _requireModels (modelName, callback) {
     preSave: hooks.preSave || ((Config, object, callback) => { callback(null, object); }),
     prePublicObject: hooks.prePublic || ((object, callback) => { callback(null, object); }),
     prePublicArray: ((objectOrObjects, callback) => {
-      Async.map([].concat(objectOrObjects), prePublicObject, callback);
+      Async.map([].concat(objectOrObjects), Models[modelName].hooks.prePublicObject, callback);
     }),
     read: hooks.read || ((Rethink, query, sort, limit, callback) => {
       Rethink.table(modelName).filter(query).orderBy(sort).limit(limit).run(callback);

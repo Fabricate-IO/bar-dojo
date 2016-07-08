@@ -12,10 +12,6 @@ exports.schema = {
   id: Joi.number(),
   stockTypeId: StockType.schema.id,
   name: Joi.string(),
-  archived: Joi.boolean().default(false),
-
-  // Metadata
-  created: Joi.date().timestamp(),
 };
 
 

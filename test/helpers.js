@@ -28,14 +28,14 @@ exports.checkArrayEquality = function (a, b) {
 // id [optional]: string of field, or function to contstruct key from element. Defaults to 'id'
 exports.objectArrayToDict = function (array, id) {
 
-  id = id || 'id';
-  if (typeof id === 'string') {
-    id = ((el) => { return el[id]; });
+  let idFunc = id;
+  if (typeof id === 'string' || id == null) {
+    idFunc = ((el) => { return el[id || 'id']; });
   }
 
   const output = {};
   array.forEach((element) => {
-    const key = id(element);
+    const key = idFunc(element);
     output[key] = element;
   });
   return output;

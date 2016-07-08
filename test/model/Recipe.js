@@ -169,13 +169,13 @@ describe('Recipe:', () => {
   it('minCost, maxCost based on non-archived, in stock options of sufficient quantity', (done) => {
 
     Db.Recipe.read({}, (err, result) => {
-// console.log(err, result);
+
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
 
       const recipes = helpers.objectArrayToDict(result);
-      expect(recipes[0].costMin).to.equal(0.5);
-      expect(recipes[0].costMax).to.equal(5);
+      expect(recipes[0].costMin).to.equal(5);
+      expect(recipes[0].costMax).to.equal(50);
 
       done();
     });

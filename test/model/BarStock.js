@@ -2,6 +2,7 @@
 
 'use strict';
 
+const Async = require('async');
 const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
@@ -36,30 +37,50 @@ describe('BarStock:', () => {
   after(Db.exit);
 
 
-  const fixtures = [
-    { // out of stock
-      barId: 0,
-      stockModelId: 0,
-      remainingUnits: [],
-      residualVolume: 0,
-    },
-    { // in stock - remaining unit
-      barId: 0,
-      stockModelId: 1,
-      remainingUnits: [10],
-      residualVolume: 0,
-    },
-    { // in stock - residual
-      barId: 0,
-      stockModelId: 2,
-      residualVolume: 100,
-    },
-  ];
+  const fixtures = {
+    StockModel: [
+      {
+        id: 0,
+        stockTypeId: 'dark rum',
+        name: 'out of stock',
+      },
+      {
+        id: 1,
+        stockTypeId: 'dark rum',
+        name: 'in stock - remaining unit',
+      },
+      {
+        id: 2,
+        stockTypeId: 'dark rum',
+        name: 'in stock - residual',
+      },
+    ],
+    BarStock: [
+      {
+        barId: 0,
+        stockModelId: 0,
+        remainingUnits: [],
+        residualVolume: 0,
+      },
+      {
+        barId: 0,
+        stockModelId: 1,
+        remainingUnits: [10],
+        residualVolume: 0,
+      },
+      {
+        barId: 0,
+        stockModelId: 2,
+        residualVolume: 100,
+      },
+    ],
+  };
 
   it('create fixtures', (done) => {
 
-    Db.BarStock.create(fixtures, (err) => {
-
+    Async.eachOf(fixtures, (value, key, callback) => {
+      Db[key].create(value, callback);
+    }, (err) => {
       expect(err).to.be.null();
       done();
     });
@@ -70,7 +91,7 @@ describe('BarStock:', () => {
     Db.BarStock.read({}, (err, result) => {
 
       expect(err).to.be.null();
-      expect(result.length).to.equal(fixtures.length);
+      expect(result.length).to.equal(fixtures.BarStock.length);
 
       const stock = helpers.objectArrayToDict(result, _compoundKey);
       expect(stock['0-0'].inStock).to.equal(false);
