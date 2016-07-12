@@ -4,7 +4,6 @@
 
 const Joi = require('joi');
 
-const db = require('../db');
 const StockType = require('./StockType');
 
 

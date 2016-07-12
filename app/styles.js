@@ -50,4 +50,7 @@ module.exports = {
   outOfStock: {
     color: grey500,
   },
+  faded: {
+    color: grey500,
+  },
 };

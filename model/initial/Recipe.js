@@ -60,6 +60,27 @@ module.exports = [
     ],
   },
   {
+    name: 'B-2',
+    ingredients: [
+      {
+        stockTypeId: 'coffee liqueur',
+        quantity: 2,
+      },
+      {
+        stockTypeId: 'irish cream liqueur',
+        quantity: 2,
+      },
+      {
+        stockTypeId: 'orange liqueur',
+        quantity: 2,
+      },
+      {
+        stockTypeId: 'dark rum',
+        quantity: 1,
+      },
+    ],
+  },
+  {
     name: 'B-52',
     instructions: 'Layer coffe, cream then orange using the back of a spoon.',
     ingredients: [

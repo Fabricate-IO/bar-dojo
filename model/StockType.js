@@ -6,8 +6,6 @@
 
 const Joi = require('joi');
 
-const db = require('../db');
-
 
 exports.schema = {
   id: Joi.string().description('unique broad lower case name, ie white rum, dark rum'),

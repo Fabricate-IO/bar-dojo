@@ -15,6 +15,7 @@ exports.schema = {
   stockModelId: StockModel.schema.id,
   remainingUnits: Joi.array().items(Joi.number().min(0)).description('Array of remaining full volumes / quantities'),
   residualVolume: Joi.number().min(0).description('How much volume is left in the current open bottle'),
+  residualVolumeDelta: Joi.number().description('Shorthand to express a change in residualVolume; negative value = reduce stock'),
   archived: Joi.boolean().default(false),
 
   // Metadata
@@ -33,6 +34,26 @@ exports.hooks = {
   assignId: function (Rethink, object, callback) {
 
     object.id = object.barId + '-' + object.stockModelId;
+    return callback(null, object);
+  },
+
+  preSave: function (Rethink, object, callback) {
+
+    object.remainingUnits = object.remainingUnits || [];
+    object.residualVolume = object.residualVolume || 0;
+
+    if (object.residualVolumeDelta != null) {
+
+      object.residualVolume += object.residualVolumeDelta;
+
+      while (object.residualVolume < 0 && object.remainingUnits.length > 0) {
+
+        object.residualVolume += object.remainingUnits.shift();
+      }
+
+      object.residualVolume = Math.max(0, object.residualVolume);
+      delete object.residualVolumeDelta;
+    }
     return callback(null, object);
   },
 

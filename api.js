@@ -5,12 +5,12 @@ const Joi = require('joi');
 
 const models = {
   BarStock: require('./model/BarStock'),
+  Friend: require('./model/Friend'),
+  Patron: require('./model/Patron'),
   Recipe: require('./model/Recipe'),
   StockModel: require('./model/StockModel'),
-  StockTransaction: require('./model/StockTransaction'),
   StockType: require('./model/StockType'),
-  Patron: require('./model/Patron'),
-  Friend: require('./model/Friend'),
+  Transaction: require('./model/Transaction'),
 };
 
 
@@ -214,7 +214,7 @@ module.exports = [
 
       const Db = request.server.app.db;
 
-      Db.Patron.settle(Db, request.params.id, request.payload.platform, (err, result) => {
+      Db.Patron.settle(request.params.id, request.payload.platform, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));

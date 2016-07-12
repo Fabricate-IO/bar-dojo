@@ -20,17 +20,6 @@ module.exports = React.createClass({
       object: {},
     };
   },
-  componentWillMount: function () {
-
-    NetworkRequest('GET', '/api/StockType?orderBy=id&order=asc', (err, result) => {
-
-      if (err) {
-        return console.error('StockType API', status, err.toString());
-      }
-
-      this.setState({ StockTypes: result });
-    });
-  },
   componentDidMount: function () {
 
     if (!this.state.creating) {
@@ -43,6 +32,17 @@ module.exports = React.createClass({
 
         this.setState({ StockType: this.state.StockTypes.find((StockType) => { return StockType.id === result.stockTypeId; }) || {} });
         this.setState({ object: result });
+      });
+    }
+    else {
+
+      NetworkRequest('GET', '/api/StockType?orderBy=id&order=asc', (err, result) => {
+
+        if (err) {
+          return console.error('StockType API', status, err.toString());
+        }
+
+        this.setState({ StockTypes: result });
       });
     }
   },
@@ -102,7 +102,7 @@ module.exports = React.createClass({
   handleQuantityShortcut: function (event) {
 // TODO hardcoded ML to OZ conversion, should use bar settings
     const quantity = Math.round(event.currentTarget.dataset.quantity * 0.0338);
-console.log(quantity)
+
     this.state.object.initialQuantity = quantity;
     this.state.object.remainingQuantity = quantity;
     this.setState({ object: this.state.object });

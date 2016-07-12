@@ -254,15 +254,6 @@ module.exports = React.createClass({
 
       this.setState({ Stock: result });
     });
-
-    NetworkRequest('GET', '/api/StockType?orderBy=name', (err, result) => {
-
-      if (err) {
-        return console.error('StockType API', status, err.toString());
-      }
-
-      this.setState({ StockTypes: result });
-    });
   },
   componentDidMount: function () {
 

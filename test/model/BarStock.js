@@ -147,6 +147,52 @@ describe('BarStock:', () => {
       done();
     });
   });
+
+  it('subtracts negative residualVolumeDelta from residualVolume', (done) => {
+
+    Db.BarStock.updateOne('0-2', { residualVolumeDelta: -10 }, (err, result) => {
+
+      expect(err).to.be.null();
+
+      Db.BarStock.readOne('0-2', (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.residualVolume).to.equal(90);
+        done();
+      });
+    });
+  });
+
+  it('pulls from remainingUnits when residualVolume goes below zero', (done) => {
+
+    Db.BarStock.updateOne('0-1', { residualVolumeDelta: -5 }, (err, result) => {
+
+      expect(err).to.be.null();
+
+      Db.BarStock.readOne('0-1', (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.residualVolume).to.equal(5);
+        expect(result.remainingUnits.length).to.equal(0);
+        done();
+      });
+    });
+  });
+
+  it('residualVolume cannot go below zero', (done) => {
+
+    Db.BarStock.updateOne('0-0', { residualVolumeDelta: -5 }, (err, result) => {
+
+      expect(err).to.be.null();
+
+      Db.BarStock.readOne('0-0', (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.residualVolume).to.equal(0);
+        done();
+      });
+    });
+  });
 });
 
 function _compoundKey (element) {

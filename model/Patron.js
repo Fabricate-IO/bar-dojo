@@ -5,17 +5,16 @@
 
 const Joi = require('joi');
 
-const Splitwise = require('../splitwise');
-
-const db = require('../db');
+const Db = require('../db');
 
 
 exports.schema = {
-  id: Joi.number(), // unique key
+  id: Joi.number(),
   name: Joi.string(),
   image: Joi.string(), // optional; pulled from API they're created from when possible
   tab: Joi.number(), // current amount owed (can be negative, ie gift card / credit)
-  splitwiseId: Joi.number(), // splitwise user id, if their account is tied to splitwise
+  tabDelta: Joi.number().description('Shortcut for charging patrons; positive value = increase tab'),
+  splitwiseId: Joi.number().description('splitwise user id, if their account is tied to splitwise'),
   secret: {
     splitwiseToken: Joi.string(), // only for the user(s) making the splitwise transactions
     splitwiseSecret: Joi.string(), // only for the user(s) making the splitwise transactions
@@ -40,46 +39,20 @@ exports.indexes = [
 
 exports.hooks = {
 
+  preSave: function (Rethink, object, callback) {
+
+    if (object.tabDelta != null) {
+      object.tab += object.tabDelta;
+      delete object.tabDelta;
+    }
+
+    return callback(null, object);
+  },
   prePublic: function (object, callback) {
 
     delete object.secret;
     return callback(null, object);
   },
-};
-
-
-// triggers a transaction on the specified platform, then 0's the patron's tab
-exports.settle = function (Db, id, platform, callback) {
-
-  Db.Patron.readOne(id, (err, patron) => {
-
-    if (err) {
-      return callback(err);
-    }
-
-    if (patron == null) {
-      return callback(new Error('Patron id ' + id + ' not found'));
-    }
-
-    if (platform === 'splitwise') {
-
-      if (patron.splitwiseId == null) {
-        return callback(new Error(patron.name + ' is not connected to splitwise'));
-      }
-
-      Splitwise.createExpense(patron.tab, 'Bar Dojo', patron.splitwiseId, (err, result) => {
-
-        if (err) {
-          return callback(err);
-        }
-
-        Db.Patron.updateOne(id, { tab: 0 }, callback);
-      });
-    }
-    else {
-      Db.Patron.updateOne(id, { tab: 0 }, callback);
-    }
-  });
 };
 
 
@@ -90,3 +63,12 @@ exports.initialState = [
     tab: 0,
   },
 ];
+
+
+exports.settle = function (id, platform, callback) {
+  Db.Transaction.createOne({
+    patronId: id,
+    settlementPlatform: platform,
+    type: 'settle',
+  }, callback);
+};

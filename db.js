@@ -14,11 +14,11 @@ let Config = null;
 const modelNames = [ // in requirement order
   'StockType',
   'StockModel',
-  'StockTransaction',
   'BarStock',
   'Recipe',
   'Patron',
   'Friend',
+  'Transaction',
 ];
 
 
@@ -76,17 +76,22 @@ function createOne (modelName, object, callback) {
       return callback(err);
     }
 
-    Models[modelName].hooks.preSave(Config, object, (err, object) => {
+    Models[modelName].hooks.assignId(Rethink, object, (err, object) => {
 
       if (err) {
         return callback(err);
       }
 
-      object.archived = object.archived || false; // global default
+      Models[modelName].hooks.preSave(Rethink, object, (err, object) => {
 
-      Models[modelName].hooks.assignId(Rethink, object, (err, object) => {
+        if (err) {
+          return callback(err);
+        }
+
+        object.archived = object.archived || false; // global default
+
         Rethink.table(modelName).insert(object).run((err, result) => {
-          return callback(err || result.first_error || null, result);
+          return callback(err || result.first_error || null, object);
         });
       });
     });
@@ -118,18 +123,15 @@ function readOne (modelName, id, callback) {
   });
 }
 
-// bulk edit via query - does not upsert
-// if a reserved keyword is used, call update directly
-// otherwise, assume it's a $set
+// bulk edit via query
+// NOTE: does not currently trigger preSave handlers, but that might be a good idea....
 function update (modelName, query, delta, callback) {
   return Rethink.table(modelName).filter(query).update(delta).run((err, result) => {
-      return callback(err || result.first_error || null, result);
-    });
+    return callback(err || result.first_error || null, result);
+  });
 }
 
-// update a single ID - creates if it doesn't exist
-// if a reserved keyword is used, call update directly
-// otherwise, assume it's a $set
+// update a single ID - triggers preSave handlers
 function updateOne (modelName, id, delta, callback) {
 
   readOne(modelName, id, (err, object) => {
@@ -145,13 +147,15 @@ function updateOne (modelName, id, delta, callback) {
 
     Hoek.merge(object, delta);
 
-    Models[modelName].hooks.preSave(Config, object, (err, object) => {
+    Models[modelName].hooks.preSave(Rethink, object, (err, delta) => {
 
       if (err) {
         return callback(err);
       }
 
-      return Rethink.table(modelName).get(id).update(delta).run((err, result) => {
+      delete delta.id;
+
+      Rethink.table(modelName).get(id).update(delta).run((err, result) => {
         return callback(err || result.first_error || null, result);
       });
     });
@@ -194,7 +198,7 @@ function _requireModels (modelName, callback) {
         return callback(null, object);
       });
     }),
-    preSave: hooks.preSave || ((Config, object, callback) => { callback(null, object); }),
+    preSave: hooks.preSave || ((Rethink, object, callback) => { callback(null, object); }),
     prePublicObject: hooks.prePublic || ((object, callback) => { callback(null, object); }),
     prePublicArray: ((objectOrObjects, callback) => {
       Async.map([].concat(objectOrObjects), Models[modelName].hooks.prePublicObject, callback);
@@ -259,7 +263,7 @@ function _assignModelCrudFunctions (modelName, callback) {
   const model = Models[modelName];
 
   model.create = (objects, callback) => { create(modelName, objects, callback); };
-  model.createOne = (objects, callback) => { createOne(modelName, objects, callback); };
+  model.createOne = (object, callback) => { createOne(modelName, object, callback); };
   model.read = (query, callback) => { read(modelName, query, callback); };
   model.readOne = (id, callback) => { readOne(modelName, id, callback); };
   model.update = (query, delta, callback) => { update(modelName, query, delta, callback); };

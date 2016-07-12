@@ -19,6 +19,6 @@ run `npm start` to start the server
 
 ## References
 
-Powered by React, [Material-UI](http://www.material-ui.com/), [RethinkDB](https://rethinkdb.com/api), [Splitwise](http://dev.splitwise.com/dokuwiki/doku.php?id=index)
+Powered by React, [Material-UI](http://www.material-ui.com/), [RethinkDB](https://rethinkdb.com/api) via [RethinkDbDash](https://github.com/neumino/rethinkdbdash), [Splitwise](http://dev.splitwise.com/dokuwiki/doku.php?id=index)
 
 Some coktail information borrowed from [TheCocktailDb](http://www.thecocktaildb.com/)

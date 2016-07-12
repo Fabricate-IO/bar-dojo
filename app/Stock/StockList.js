@@ -19,9 +19,8 @@ const StockExpanded = React.createClass({
 
     return (
       <div style={styles.expanded}>
-        <h1>{stock.stockTypeId}</h1>
-        <div>{stock.remainingQuantity} {stock.stockType.unitType} remaining (out of {stock.initialQuantity} {stock.stockType.unitType})</div>
-        <div>${stock.unitCost} per {stock.stockType.unitType} (initial cost: ${stock.afterTaxCost})</div>
+        <div>{stock.volumeAvailable} {stock.stockType.unitType} remaining</div>
+        <div>${stock.unitCost} per {stock.stockType.unitType}</div>
       </div>
     );
   },
@@ -63,7 +62,7 @@ const Stock = React.createClass({
           }
         >
           <div>
-            {this.props.stock.name}
+            {this.props.stock.name} <span style={styles.faded}>({this.props.stock.stockTypeId})</span>
           </div>
         </ListItem>
         {expanded}
@@ -78,6 +77,17 @@ module.exports = React.createClass({
       data: [],
     };
   },
+  componentWillMount: function () {
+
+    NetworkRequest('GET', '/api/StockType', (err, result) => {
+
+      if (err) {
+        return console.error('StockType API', status, err.toString());
+      }
+
+      this.setState({ StockTypes: result });
+    });
+  },
   componentDidMount: function () {
 
     NetworkRequest('GET', '/api/BarStock?orderBy=name', (err, result) => {
@@ -86,7 +96,12 @@ module.exports = React.createClass({
         return console.error('BarStock API', status, err.toString());
       }
 
-      this.setState({ data: result });
+      const stock = result.map((stock) => {
+        stock.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === stock.stockTypeId; });
+        return stock;
+      });
+
+      this.setState({ data: stock });
     });
   },
   render: function () {
