@@ -178,6 +178,8 @@ describe('Recipe:', () => {
 
     Db.Recipe.read({}, (err, result) => {
 
+console.log(result)
+
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
 

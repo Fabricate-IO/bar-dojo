@@ -29,3 +29,14 @@ exports.indexes = [
     },
   },
 ];
+
+
+exports.initialState = (() => {
+  const StockTypes = require('./initial/StockType');
+  return StockTypes.map((StockType) => {
+    return {
+      name: StockType.id,
+      stockTypeId: StockType.id,
+    };
+  });
+})();

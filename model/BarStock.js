@@ -6,22 +6,24 @@ const Joi = require('joi');
 
 const Db = require('../db');
 const StockModel = require('./StockModel');
+const StockType = require('./StockType');
 
 
-// TODO compound key on stockModelId and barId
 exports.schema = {
-  id: Joi.string(), // compound key: barId.stockModelId
+  id: Joi.string(), // compound key: barId-stockModelId
   barId: Joi.number(),
   stockModelId: StockModel.schema.id,
   remainingUnits: Joi.array().items(Joi.number().min(0)).description('Array of remaining full volumes / quantities'),
   residualVolume: Joi.number().min(0).description('How much volume is left in the current open bottle'),
   residualVolumeDelta: Joi.number().description('Shorthand to express a change in residualVolume; negative value = reduce stock'),
   archived: Joi.boolean().default(false),
+  // unitType
 
   // Metadata
   volumeCost: Joi.number().min(0).description('Cost per <volume>, only updated on StockTransaction saves'),
   volumeAvailable: Joi.number().min(0).description('Amount of volume available, calclulated live based on residual + remaining units'),
   inStock: Joi.boolean().description('If volumeAvailable > 0, calclulated live'),
+  unitType: StockType.schema.unitType,
   created: Joi.date().timestamp(),
 };
 
@@ -66,8 +68,10 @@ exports.hooks = {
     Rethink.table('BarStock')
       .filter(query)
       .eqJoin('stockModelId', Rethink.table('StockModel'))
+      .without({right: "id"})
       .zip()
       .eqJoin('stockTypeId', Rethink.table('StockType'))
+      .without({right: "id"})
       .orderBy(sort)
       .limit(limit)
       .zip()
@@ -81,6 +85,7 @@ exports.hooks = {
         element.remainingUnits = element.remainingUnits || [];
         element.volumeAvailable = element.residualVolume + element.remainingUnits.reduce((a, b) => { return a + b; }, 0);
         element.inStock = (element.volumeAvailable > 0);
+        element.unitType = element.unitType || 'ml';
         return element;
       }).filter((element) => {
         return (queryInStock == null || queryInStock === element.inStock);

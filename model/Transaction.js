@@ -59,7 +59,6 @@ exports.hooks = {
   preSave: function (Rethink, object, callback) {
 
     if (object.type === 'order') {
-
       if (object.ingredients == null || object.ingredients.length === 0) {
         return callback(new Error('No ingredients defined'));
       }
@@ -69,9 +68,14 @@ exports.hooks = {
       }
 
       Async.forEach(object.ingredients, (ingredient, callback) => {
-        Db.BarStock.updateOne(ingredient.barStockId, {
-          residualVolumeDelta: -ingredient.quantity,
-        }, callback);
+
+        if (ingredient.barStockId != null) {
+          return Db.BarStock.updateOne(ingredient.barStockId, {
+            residualVolumeDelta: -ingredient.quantity,
+          }, callback);
+        }
+
+        return callback(new Error('Ingredient missing barStockId'));
       },
       (err) => {
 
@@ -124,8 +128,7 @@ exports.hooks = {
     else if (object.type === 'restock') {
 
       object.monetaryValue = object.monetaryValue * (1 + Config.taxRate); // add taxes
-      // const unitCost = afterTaxCost / object.unitsStocked.reduce((a, b) => { return a + b; }, 1);
-
+console.log(object);
       if (object.barStockId != null) {
         return _updateBarStock(object, callback);
       }

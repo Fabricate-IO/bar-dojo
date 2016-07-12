@@ -77,7 +77,6 @@ describe('BarStock:', () => {
     StockType: [
       {
         id: 'dark rum',
-        unitType: 'oz',
       },
     ],
   };
@@ -143,7 +142,7 @@ describe('BarStock:', () => {
       expect(result.length).to.equal(1);
       expect(result[0].stockTypeId).to.equal('dark rum');
       expect(result[0].name).to.equal('out of stock');
-      expect(result[0].unitType).to.equal('oz');
+      expect(result[0].unitType).to.equal('ml');
       done();
     });
   });

@@ -150,9 +150,9 @@ module.exports = [
 
       const modelName = request.params.modelName;
       delete request.params.modelName;
-
+console.log(request.payload)
       Joi.validate(request.payload, models[modelName].schema, (err, payload) => {
-
+console.log(err, payload)
         if (err) {
           return reply(Boom.badRequest(err));
         }
@@ -172,14 +172,16 @@ module.exports = [
 /* ===== SPECIAL FUNCTIONS ===== */
   {
     method: 'POST',
-    path: '/api/Patron/{id}/charge',
+    path: '/api/Patron/{id}/order',
     config: {
       validate: {
         params: {
           id: models.Patron.schema.id,
         },
         payload: {
-          amount: Joi.number(),
+          monetaryValue: Joi.number(),
+          recipeId: models.Transaction.schema.recipeId,
+          ingredients: models.Transaction.schema.ingredients,
         },
       },
     },
@@ -187,7 +189,13 @@ module.exports = [
 
       const Db = request.server.app.db;
 
-      Db.Patron.updateOne(request.params.id, { tab: Db.Rethink.row('tab').add(amount).default(amount) }, (err, result) => {
+      Db.Transaction.createOne({
+        patronId: request.params.id,
+        type: 'order',
+        monetaryValue: request.payload.monetaryValue,
+        recipeId: request.payload.recipeId,
+        ingredients: request.payload.ingredients,
+      }, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));

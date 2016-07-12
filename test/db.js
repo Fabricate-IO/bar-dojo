@@ -91,7 +91,7 @@ describe('CRUD:', () => {
 
   it('updateOne', (done) => {
 
-    Db.StockType.updateOne('test', { unitType: 'oz' }, (err, result) => {
+    Db.StockType.updateOne('test', { unitType: 'cats' }, (err, result) => {
 
       expect(err).to.be.null();
 
@@ -99,7 +99,7 @@ describe('CRUD:', () => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
-        helpers.checkArrayEquality(result, [{ id: 'test', unitType: 'oz' }]);
+        helpers.checkArrayEquality(result, [{ id: 'test', unitType: 'cats' }]);
         done();
       });
     });

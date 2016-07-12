@@ -3,6 +3,7 @@ import { hashHistory } from 'react-router';
 import NetworkRequest from '../networkRequest';
 import style from '../styles';
 
+import AutoComplete from 'material-ui/AutoComplete';
 import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -14,37 +15,44 @@ import TextField from 'material-ui/TextField';
 module.exports = React.createClass({
   getInitialState: function () {
     return {
-      creating: (this.props.params.id == null), // if creating from scratch (otherwise saving)
+      Stock: [],
       StockTypes: [],
-      StockType: {},
       object: {},
     };
   },
   componentDidMount: function () {
 
-    if (!this.state.creating) {
+    NetworkRequest('GET', '/api/StockModel?orderBy=name&order=asc', (err, StockModel) => {
 
-      NetworkRequest('GET', '/api/BarStock/' + this.props.params.id, (err, result) => {
+      if (err) {
+        return console.error('StockModel API', status, err.toString());
+      }
+
+      NetworkRequest('GET', '/api/BarStock', (err, BarStock) => {
 
         if (err) {
           return console.error('BarStock API', status, err.toString());
         }
 
-        this.setState({ StockType: this.state.StockTypes.find((StockType) => { return StockType.id === result.stockTypeId; }) || {} });
-        this.setState({ object: result });
+        BarStock.forEach((stock) => {
+          const model = StockModel.find((StockModel) => { return (StockModel.id === stock.stockModelId); });
+          if (model != null) {
+            model.barStockId = stock.id;
+          }
+        });
+
+        this.setState({ Stock: StockModel });
       });
-    }
-    else {
+    });
 
-      NetworkRequest('GET', '/api/StockType?orderBy=id&order=asc', (err, result) => {
+    NetworkRequest('GET', '/api/StockType?orderBy=id&order=asc', (err, result) => {
 
-        if (err) {
-          return console.error('StockType API', status, err.toString());
-        }
+      if (err) {
+        return console.error('StockType API', status, err.toString());
+      }
 
-        this.setState({ StockTypes: result });
-      });
-    }
+      this.setState({ StockTypes: result });
+    });
   },
   handleSave: function (e) {
 
@@ -55,28 +63,33 @@ module.exports = React.createClass({
       return;
     }
 
-    const stock = {
-      id: this.props.params.id,
-      name: object.name.trim(),
+    object.unitsStocked = (() => {
+      let arr = [];
+      for (let i = 0; i < object.quantity; i++) {
+        arr.push(Number(object.volume));
+      }
+      return arr;
+    })();
+
+    const transaction = {
+      type: 'restock',
+      monetaryValue: object.monetaryValue,
+      barId: 0, // TODO barId
+      barStockId: object.barStockId,
+      name: object.name,
+      stockModelId: object.stockModelId,
       stockTypeId: object.stockTypeId,
-      initialQuantity: object.initialQuantity,
-      initialCost: object.initialCost,
-      remainingQuantity: object.remainingQuantity,
+      unitsStocked: object.unitsStocked,
     };
-    let url = '/api/Stock';
+    let url = '/api/Transaction';
     let type = 'POST';
-
-    if (!this.state.creating) { // if we were passed an ID, we're saving instead of creating
-      url += '/' + stock.id;
-      type = 'PUT';
-    }
-
+console.log(object)
     this.setState({ object: {} });
-    NetworkRequest(type, url, stock, (err, result) => {
+    NetworkRequest(type, url, transaction, (err, result) => {
 
       if (err) {
         this.setState({ object: object });
-        return console.error('Stock API', status, err.toString());
+        return console.error('Transaction API', status, err.toString());
       }
 
       hashHistory.push('/inventory');
@@ -85,62 +98,62 @@ module.exports = React.createClass({
   handleInputChange: function (e) {
     const object = this.state.object;
     object[e.target.name] = e.target.value;
-
-    if (this.state.creating) {
-      if (e.target.name === 'initialQuantity') { // remainingQuantity = initial
-        object.remainingQuantity = e.target.value;
-      }
-    }
-
     this.setState({ object: object });
+  },
+  handleNameChange: function (e) {
+    const object = this.state.object;
+    object.name = (e.target) ? e.target.value : e;
+    const stock = this.state.Stock.find((stock) => { return (object.name === stock.name); });
+console.log(object.name, stock)
+    if (stock == null) {
+      delete this.state.object.barStockId;
+      delete this.state.object.stockModelId;
+    }
+    else {
+      object.barStockId = stock.barStockId;
+      object.stockModelId = stock.stockModelId;
+      object.stockTypeId = stock.stockTypeId;
+      object.unitType = stock.unitType;
+    }
+    this.setState({ object: object });
+console.log(this.state.object)
   },
   handleStockTypeChange: function (event, index, value) {
     this.state.StockType = this.state.StockTypes[index];
     this.state.object.stockTypeId = this.state.StockType.id;
     this.setState(this.state);
   },
-  handleQuantityShortcut: function (event) {
-// TODO hardcoded ML to OZ conversion, should use bar settings
-    const quantity = Math.round(event.currentTarget.dataset.quantity * 0.0338);
-
-    this.state.object.initialQuantity = quantity;
-    this.state.object.remainingQuantity = quantity;
+  handleVolumeShortcut: function (event) {
+    this.state.object.volume = event.currentTarget.dataset.volume;
     this.setState({ object: this.state.object });
   },
   handleCancel: function () {
     hashHistory.push('/inventory');
   },
-  handleDelete: function (e) {
-
-    if (window.confirm("Are you sure you want to delete " + this.state.object.name + '?')) {
-
-      NetworkRequest('DELETE', '/api/Stock/' + this.props.params.id, (err, result) => {
-
-        if (err) {
-          return console.error('Stock API', status, err.toString());
-        }
-
-        hashHistory.push('/inventory');
-      });
-    }
-  },
   render: function () {
 
-    const options = this.state.StockTypes.map((StockType) => {
+    const StockTypeOptions = this.state.StockTypes.map((StockType) => {
       return <MenuItem key={StockType.id} value={StockType.id} primaryText={StockType.id} />;
     });
-    const units = this.state.StockType.unitType || 'units';
-    const initialUnits = 'Initial ' + units;
-    const remainingUnits = 'Remaining ' + units;
+    const NameOptions = this.state.Stock.map((Stock) => {
+      return Stock.name;
+    });
+    // const units = this.state.object.StockType.unitType || 'units';
+    const units = 'Volume of each unit (TODO - unit)';
 
     return (
       <form onSubmit={this.handleSave}>
-        <TextField
+        <AutoComplete
           name="name"
           floatingLabelText="Name"
           floatingLabelFixed={true}
+          filter={AutoComplete.fuzzyFilter}
+          dataSource={NameOptions}
           value={this.state.object.name}
-          onChange={this.handleInputChange}
+          onUpdateInput={this.handleNameChange}
+          onNewRequest={this.handleNameChange}
+          maxSearchResults={8}
+          openOnFocus={true}
         />
         <SelectField
           value={this.state.object.stockTypeId}
@@ -148,52 +161,48 @@ module.exports = React.createClass({
           floatingLabelText="Stock Type"
           style={style.textInput}
         >
-          {options}
+          {StockTypeOptions}
         </SelectField>
         <br/>
         <TextField
-          name="initialQuantity"
+          name="quantity"
           type="number"
-          floatingLabelText={initialUnits}
+          floatingLabelText='Number of units purchased'
           floatingLabelFixed={true}
-          value={this.state.object.initialQuantity}
+          value={this.state.object.quantity}
           onChange={this.handleInputChange}
           style={style.textInput}
         />
         <TextField
-          name="remainingQuantity"
+          name="volume"
           type="number"
-          floatingLabelText={remainingUnits}
+          floatingLabelText={units}
           floatingLabelFixed={true}
-          value={this.state.object.remainingQuantity}
+          value={this.state.object.volume}
           onChange={this.handleInputChange}
           style={style.textInput}
         />
         <br/>
-        { this.state.creating ?
-          <div>
-            Shortcuts:
-            <FlatButton label="1.5L" onClick={this.handleQuantityShortcut} data-quantity="1500" />
-            <FlatButton label="750ml" onClick={this.handleQuantityShortcut} data-quantity="750" />
-            <FlatButton label="375ml" onClick={this.handleQuantityShortcut} data-quantity="375" />
-          </div>
-          : null
-        }
+        <div>
+          Shortcuts:
+          <FlatButton label="1.5L" onClick={this.handleVolumeShortcut} data-volume="1500" />
+          <FlatButton label="750ml" onClick={this.handleVolumeShortcut} data-volume="750" />
+          <FlatButton label="375ml" onClick={this.handleVolumeShortcut} data-volume="375" />
+          <FlatButton label="330ml (beer bottle)" onClick={this.handleVolumeShortcut} data-volume="330" />
+        </div>
         <TextField
-          name="initialCost"
+          name="monetaryValue"
           type="number"
           floatingLabelText="Purchase cost ($, pre-tax)"
           floatingLabelFixed={true}
-          value={this.state.object.initialCost}
+          value={this.state.object.monetaryValue}
           onChange={this.handleInputChange}
           style={style.textInput}
         />
         <br/>
-        <RaisedButton label="Save" primary={true} type="submit" />
+        <RaisedButton label="Add Inventory" primary={true} type="submit" />
         <br/>
         <RaisedButton label="Cancel" onClick={this.handleCancel} />
-        <br/>
-        { this.state.creating ? null : <RaisedButton label="Delete" secondary={true} onClick={this.handleDelete} /> }
       </form>
     );
   }

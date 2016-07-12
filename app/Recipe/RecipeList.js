@@ -36,7 +36,7 @@ const RecipeExpanded = React.createClass({
       const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
 
       if (stock != null) {
-        price += ingredient.quantity * stock.unitCost;
+        price += ingredient.quantity * stock.volumeCost;
       }
     });
 
@@ -53,10 +53,19 @@ const RecipeExpanded = React.createClass({
       this.setState({ Patrons: result });
     });
   },
-  handleBuy: function () {
+  handleOrder: function () {
 
-    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/charge',
-      { amount: this.calculatePrice({ unitless: true }) },
+    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/order',
+      {
+        monetaryValue: this.calculatePrice({ unitless: true }),
+        recipeId: this.state.recipe.id,
+        ingredients: this.state.recipe.ingredients.map((stock) => {
+          return {
+            quantity: stock.quantity,
+            barStockId: stock.stockId,
+          }
+        }),
+      },
       (err, result) => {
 
       if (err) {
@@ -96,11 +105,14 @@ const RecipeExpanded = React.createClass({
       if (stock != null) {
         options = ingredient.stock[0].name;
       }
+      if (stock == null || ingredient.stock[0].name.toLowerCase() !== ingredient.stockTypeId) {
+        options += ' ' + ingredient.stockTypeId;
+      }
 
       if (ingredient.stock.length > 1) {
         // generate select options
         options = ingredient.stock.map((stock) => {
-          const price = stock.unitCost * ingredient.quantity;
+          const price = stock.volumeCost * ingredient.quantity;
           const text = stock.name + ' - ' + utils.formatPrice(price);
           return <MenuItem key={stock.id} value={stock.id} primaryText={text} />;
         });
@@ -110,20 +122,23 @@ const RecipeExpanded = React.createClass({
         };
 
         // create full select field
-        options = <SelectField
-          name={ingredient.id}
-          value={ingredient.stockId}
-          onChange={handleStockSelect}
-          style={styles.textInput}
-        >
-          {options}
-        </SelectField>;
+        options = <span>
+          <SelectField
+            name={ingredient.id}
+            value={ingredient.stockId}
+            onChange={handleStockSelect}
+            style={styles.textInput}
+          >
+            {options}
+          </SelectField>
+          {ingredient.stockTypeId}
+        </span>;
       }
 
       return (
         <ListItem key={ingredient.stockTypeId} style={styles.inlineSelect} innerDivStyle={styles.inlineSelect}>
           <div style={ stock == null ? styles.outOfStock : null }>
-            {quantityText} {options} {ingredient.stockTypeId}
+            {quantityText} {options}
           </div>
         </ListItem>
       );
@@ -156,7 +171,7 @@ const RecipeExpanded = React.createClass({
             <FlatButton
               label={buyConfirmText}
               primary={true}
-              onTouchTap={this.handleBuy}
+              onTouchTap={this.handleOrder}
               disabled={buyConfirmDisabled}
             />
           ]}
@@ -208,6 +223,7 @@ const Recipe = React.createClass({
     if (this.props.recipe.inStock === false) {
       style = styles.outOfStock;
     }
+
     let priceRange = utils.formatPrice(this.props.recipe.costMin);
     if (this.props.recipe.costMin !== this.props.recipe.costMax) {
       priceRange += ' - ' + utils.formatPrice(this.props.recipe.costMax);
@@ -249,15 +265,24 @@ module.exports = React.createClass({
     NetworkRequest('GET', '/api/BarStock?orderBy=name', (err, result) => {
 
       if (err) {
-        return console.error('Stock API', status, err.toString());
+        return console.error('BarStock API', status, err.toString());
       }
 
       this.setState({ Stock: result });
     });
+
+    NetworkRequest('GET', '/api/StockType?orderBy=name', (err, result) => {
+
+      if (err) {
+        return console.error('StockType API', status, err.toString());
+      }
+
+      this.setState({ StockTypes: result });
+    });
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Recipe?orderBy=unitCost', (err, result) => {
+    NetworkRequest('GET', '/api/Recipe?orderBy=volumeCost', (err, result) => {
 
       if (err) {
         return console.error('Recipe API', status, err.toString());

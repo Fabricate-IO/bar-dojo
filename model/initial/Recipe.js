@@ -37,7 +37,7 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'amaretto liqueur',
-        quantity: 1.5,
+        quantity: 44,
       },
       // 1/2 lemon, juiced
       // ice
@@ -49,11 +49,11 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'sour apple schnapps',
-        quantity: 1.5,
+        quantity: 44,
       },
       // optional: 0.5 oz sweet and sour mix
       // ice
@@ -64,19 +64,19 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'coffee liqueur',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'irish cream liqueur',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'orange liqueur',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'dark rum',
-        quantity: 1,
+        quantity: 29.5,
       },
     ],
   },
@@ -86,15 +86,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'coffee liqueur',
-        quantity: 0.5,
+        quantity: 15,
       },
       {
         stockTypeId: 'irish cream liqueur',
-        quantity: 0.5,
+        quantity: 15,
       },
       {
         stockTypeId: 'orange liqueur',
-        quantity: 0.5,
+        quantity: 15,
       },
     ],
   },
@@ -104,15 +104,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'chocolate liqueur',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'grenadine',
-        quantity: .75,
+        quantity: 22,
       },
     ],
   },
@@ -122,35 +122,35 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'gin',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'tequila',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'white rum',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'orange liqueur',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'grenadine',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'sweet and sour mix',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'club soda',
-        quantity: 3,
+        quantity: 89,
       },
     ],
   },
@@ -159,11 +159,11 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'dark rum',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'ginger beer',
-        quantity: 0.2,
+        quantity: 100,
       },
     ],
   },
@@ -173,31 +173,31 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'ice cube',
-        quantity: 4,
+        quantity: 118,
       },
       {
         stockTypeId: 'gin',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'tequila',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'white rum',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
-        stockTypeId: 'organe liqueur',
-        quantity: 0.5,
+        stockTypeId: 'orange liqueur',
+        quantity: 15,
       },
       {
         stockTypeId: 'cola',
-        quantity: 4,
+        quantity: 118,
       },
       // sweet and sour mix
     ],
@@ -207,23 +207,23 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'dark rum',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'coconut rum',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'pineapple juice',
-        quantity: 3,
+        quantity: 89,
       },
       {
         stockTypeId: 'orange juice',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'grenadine',
-        quantity: 0.1,
+        quantity: 3,
       },
       // ice
     ],
@@ -235,15 +235,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'white rum',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'lime juice',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'club soda',
-        quantity: 2,
+        quantity: 59,
       },
       // ice
     ],
@@ -253,15 +253,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'ginger beer',
-        quantity: 4,
+        quantity: 118,
       },
       {
         stockTypeId: 'lime juice',
-        quantity: 0.5,
+        quantity: 15,
       },
       // Ice
     ],
@@ -272,23 +272,23 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'ice cube',
-        quantity: 4,
+        quantity: 118,
       },
       {
         stockTypeId: 'irish cream liqueur',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
-        stockTypeId: 'coffee liquor',
-        quantity: 1,
+        stockTypeId: 'coffee liqueur',
+        quantity: 29.5,
       },
       {
         stockTypeId: 'milk',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
     ],
   },
@@ -297,11 +297,11 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'dark rum',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'cola',
-        quantity: 5,
+        quantity: 148,
       },
     ],
   },
@@ -311,11 +311,11 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'orange juice',
-        quantity: 6,
+        quantity: 177,
       },
     ],
   },
@@ -324,19 +324,19 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'peach schnapps',
-        quantity: 0.75,
+        quantity: 22,
       },
       {
         stockTypeId: 'cranberry juice',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'orange juice',
-        quantity: 1.5,
+        quantity: 44,
       },
     ],
   },
@@ -345,15 +345,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'coffee liqueur',
-        quantity: 0.5,
+        quantity: 15,
       },
       {
         stockTypeId: 'milk',
-        quantity: 0.5,
+        quantity: 15,
       },
     ],
   },

@@ -16,11 +16,12 @@ const StockExpanded = React.createClass({
   render: function () {
 
     const stock = this.props.stock;
+    const volumeCost = utils.formatPrice(stock.volumeCost);
 
     return (
       <div style={styles.expanded}>
-        <div>{stock.volumeAvailable} {stock.stockType.unitType} remaining</div>
-        <div>${stock.unitCost} per {stock.stockType.unitType}</div>
+        <div>{stock.volumeAvailable} {stock.unitType} remaining</div>
+        <div>{volumeCost} per {stock.unitType}</div>
       </div>
     );
   },
@@ -36,9 +37,9 @@ const Stock = React.createClass({
   handleClick: function () {
     this.setState({ expanded: !this.state.expanded });
   },
-  handleEdit: function () {
-    hashHistory.push('/inventory/edit/' + this.props.stock.id);
-  },
+  // handleEdit: function () {
+  //   hashHistory.push('/inventory/edit/' + this.props.stock.id);
+  // },
   render: function () {
 
     let expanded = '';
@@ -55,11 +56,11 @@ const Stock = React.createClass({
         <ListItem
           onClick={this.handleClick}
           style={style}
-          rightIconButton={
-            <div>
-              <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
-            </div>
-          }
+          // rightIconButton={
+          //   <div>
+          //     <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
+          //   </div>
+          // }
         >
           <div>
             {this.props.stock.name} <span style={styles.faded}>({this.props.stock.stockTypeId})</span>
