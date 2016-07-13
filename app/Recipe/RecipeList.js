@@ -1,7 +1,7 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
-import NetworkRequest from '../networkRequest';
 
+import NetworkRequest from '../networkRequest';
 import styles from '../styles';
 import utils from '../utils';
 
@@ -309,7 +309,7 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Recipe?orderBy=volumeCost', (err, result) => {
+    NetworkRequest('GET', '/api/Recipe?orderBy=name&order=asc', (err, result) => {
 
       if (err) {
         return console.error('Recipe API', status, err.toString());

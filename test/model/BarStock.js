@@ -77,6 +77,7 @@ describe('BarStock:', () => {
     StockType: [
       {
         id: 'dark rum',
+        category: 'spirit',
       },
     ],
   };
@@ -110,7 +111,7 @@ describe('BarStock:', () => {
     });
   });
 
-  it('searching for inStock: true returns expected results', (done) => {
+  it('filtering on inStock: true returns expected results', (done) => {
 
     Db.BarStock.read({ inStock: true }, (err, result) => {
 
@@ -122,7 +123,7 @@ describe('BarStock:', () => {
     });
   });
 
-  it('searching for inStock: false returns expected results', (done) => {
+  it('filtering on inStock: false returns expected results', (done) => {
 
     Db.BarStock.read({ inStock: false }, (err, result) => {
 
@@ -193,6 +194,88 @@ describe('BarStock:', () => {
     });
   });
 });
+
+
+describe('BarStock category search:', () => {
+
+  before((done) => {
+
+    Db.init(Config, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.nuke((err) => {
+
+        expect(err).to.be.null();
+        done();
+      });
+    });
+  });
+
+  after(Db.exit);
+
+
+  const fixtures = {
+    BarStock: [
+      {
+        barId: 0,
+        stockModelId: 0,
+        remainingUnits: [],
+        residualVolume: 0,
+      },
+      {
+        barId: 0,
+        stockModelId: 1,
+        residualVolume: 0,
+      },
+    ],
+    StockModel: [
+      {
+        id: 0,
+        stockTypeId: 'dark rum',
+        name: 'spirit',
+      },
+      {
+        id: 1,
+        stockTypeId: 'ginger beer',
+        name: 'beer',
+      },
+    ],
+    StockType: [
+      {
+        id: 'dark rum',
+        category: 'spirit',
+      },
+      {
+        id: 'ginger beer',
+        category: 'beer',
+      },
+    ],
+  };
+
+  it('create fixtures', (done) => {
+
+    Async.eachOf(fixtures, (value, key, callback) => {
+      Db[key].create(value, callback);
+    }, (err) => {
+      expect(err).to.be.null();
+      done();
+    });
+  });
+
+  it('filtering on category returns expected results', (done) => {
+
+    Db.BarStock.read({ category: 'beer' }, (err, result) => {
+
+      expect(err).to.be.null();
+      expect(result.length).to.equal(1);
+      const ids = result.map(_compoundKey);
+      expect(ids).to.contain(['0-1']);
+      done();
+    });
+  });
+});
+
 
 function _compoundKey (element) {
   return element.barId + '-' + element.stockModelId;

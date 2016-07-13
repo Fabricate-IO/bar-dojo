@@ -1,7 +1,7 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
-import NetworkRequest from '../networkRequest';
 
+import NetworkRequest from '../networkRequest';
 import styles from '../styles';
 import utils from '../utils';
 

@@ -16,6 +16,7 @@ import IconButton from 'material-ui/IconButton';
 import IconAdd from 'material-ui/svg-icons/content/add';
 import IconSearch from 'material-ui/svg-icons/action/search';
 
+const DrinkList = require('./DrinkList');
 const PatronForm = require('./Patron/PatronForm');
 const PatronList = require('./Patron/PatronList');
 const RecipeForm = require('./Recipe/RecipeForm');
@@ -63,6 +64,9 @@ const AppLayout = React.createClass({
 
     const pageName = ((path) => {
       if (path.indexOf('mixed') !== -1) { return 'Mixed Drinks'; }
+      if (path.indexOf('beer') !== -1) { return 'Beer'; }
+      if (path.indexOf('wine') !== -1) { return 'Wine'; }
+      if (path.indexOf('shots') !== -1) { return 'Shots'; }
       if (path.indexOf('patrons') !== -1) { return 'Patrons'; }
       if (path.indexOf('inventory') !== -1) { return 'Inventory'; }
       return 'TODO: set page name';
@@ -100,6 +104,9 @@ const AppLayout = React.createClass({
           >
             <img src="/static/img/logo.png" style={styles.logo}/>
             <Link to="/mixed" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Mixed Drinks</MenuItem></Link>
+            <Link to="/beer" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Beer</MenuItem></Link>
+            <Link to="/wine" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Wine</MenuItem></Link>
+            <Link to="/shots" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Straight Shots</MenuItem></Link>
             <Link to="/patrons" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Patrons</MenuItem></Link>
             <Link to="/inventory" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Inventory</MenuItem></Link>
           </Drawer>
@@ -128,6 +135,15 @@ ReactDOM.render(
         <IndexRoute component={RecipeList} />
         <Route path="add" component={RecipeForm} />
         <Route path="edit/:id" component={RecipeForm} />
+      </Route>
+      <Route path="/beer">
+        <IndexRoute component={DrinkList} />
+      </Route>
+      <Route path="/wine">
+        <IndexRoute component={DrinkList} />
+      </Route>
+      <Route path="/shots">
+        <IndexRoute component={DrinkList} />
       </Route>
       <Route path="/patrons">
         <IndexRoute component={PatronList} />

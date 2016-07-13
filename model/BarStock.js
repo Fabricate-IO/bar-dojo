@@ -19,6 +19,8 @@ exports.schema = {
   archived: Joi.boolean().default(false),
   // unitType
 
+  category: StockType.schema.category.description('For searching'),
+
   // Metadata
   volumeCost: Joi.number().min(0).description('Cost per <volume>, only updated on StockTransaction saves'),
   volumeAvailable: Joi.number().min(0).description('Amount of volume available, calclulated live based on residual + remaining units'),
@@ -66,13 +68,13 @@ exports.hooks = {
 
     // implementation note: joining before order by insures output is ordered
     Rethink.table('BarStock')
-      .filter(query)
       .eqJoin('stockModelId', Rethink.table('StockModel'))
-      .without({right: "id"})
+      .without({ right: { 'id': true, 'archived': true }})
       .zip()
       .eqJoin('stockTypeId', Rethink.table('StockType'))
-      .without({right: "id"})
+      .without({ right: { 'id': true, 'archived': true }})
       .zip()
+      .filter(query)
       .orderBy(sort)
       .limit(limit)
       .run((err, result) => {
