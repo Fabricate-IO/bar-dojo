@@ -20,7 +20,8 @@ const StockExpanded = React.createClass({
 
     return (
       <div style={styles.expanded}>
-        <div>{stock.volumeAvailable} {stock.unitType} remaining</div>
+        <div>{stock.abv}% ABV</div>
+        <div>{stock.volumeAvailable} {stock.unitType} (incl {stock.remainingUnits.length} full bottles) remaining</div>
         <div>{volumeCost} per {stock.unitType}</div>
       </div>
     );
@@ -91,7 +92,7 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/BarStock?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/BarStock?orderBy=name&order=asc', (err, result) => {
 
       if (err) {
         return console.error('BarStock API', status, err.toString());
@@ -100,6 +101,13 @@ module.exports = React.createClass({
       const stock = result.map((stock) => {
         stock.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === stock.stockTypeId; });
         return stock;
+      // NOTE: only have to sort here b/c rethink doesn't currently support case-agnostic searching
+      }).sort((a, b) => { // ascending, by name, ignore case
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+        if (a < b) { return -1; }
+        if (b < a) { return 1; }
+        return 0;
       });
 
       this.setState({ data: stock });

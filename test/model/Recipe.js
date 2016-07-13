@@ -178,8 +178,6 @@ describe('Recipe:', () => {
 
     Db.Recipe.read({}, (err, result) => {
 
-console.log(result)
-
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
 
@@ -191,40 +189,40 @@ console.log(result)
     });
   });
 
-  // it('sets inStock correctly', (done) => {
+  it('sets inStock correctly', (done) => {
 
-  //   Db.Recipe.read({}, (err, result) => {
+    Db.Recipe.read({}, (err, result) => {
 
-  //     expect(err).to.be.null();
-  //     expect(result.length).to.equal(recipeFixtures.length);
+      expect(err).to.be.null();
+      expect(result.length).to.equal(fixtures.Recipe.length);
 
-  //     const recipes = helpers.objectArrayToDict(result);
-  //     expect(recipes[0].inStock).to.equal(true);
-  //     expect(recipes[1].inStock).to.equal(false);
+      const recipes = helpers.objectArrayToDict(result);
+      expect(recipes[0].inStock).to.equal(true);
+      expect(recipes[1].inStock).to.equal(false);
 
-  //     done();
-  //   });
-  // });
+      done();
+    });
+  });
 
-  // it('searches for inStock correctly', (done) => {
+  it('searches for inStock correctly', (done) => {
 
-  //   Db.Recipe.read({ inStock: true }, (err, result) => {
+    Db.Recipe.read({ inStock: true }, (err, result) => {
 
-  //     expect(err).to.be.null();
-  //     expect(result.length).to.equal(1);
-  //     expect(result[0].id).to.equal(0);
-  //     done();
-  //   });
-  // });
+      expect(err).to.be.null();
+      expect(result.length).to.equal(1);
+      expect(result[0].id).to.equal(0);
+      done();
+    });
+  });
 
-  // it('searches for outOfStock correctly', (done) => {
+  it('searches for outOfStock correctly', (done) => {
 
-  //   Db.Recipe.read({ inStock: false }, (err, result) => {
+    Db.Recipe.read({ inStock: false }, (err, result) => {
 
-  //     expect(err).to.be.null();
-  //     expect(result.length).to.equal(1);
-  //     expect(result[0].id).to.equal(1);
-  //     done();
-  //   });
-  // });
+      expect(err).to.be.null();
+      expect(result.length).to.equal(1);
+      expect(result[0].id).to.equal(1);
+      done();
+    });
+  });
 });

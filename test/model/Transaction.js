@@ -70,6 +70,8 @@ describe('Transaction (order):', () => {
       {
         id: 0,
         stockTypeId: 'rum',
+        name: 'Test Rum',
+        abv: 40,
       },
     ],
     StockType: [
@@ -160,10 +162,14 @@ describe('Transaction (restock):', () => {
       {
         id: 0,
         stockTypeId: 'rum',
+        name: 'Test Rum 0',
+        abv: 40,
       },
       {
         id: 1,
         stockTypeId: 'rum',
+        name: 'Test Rum 1',
+        abv: 40,
       },
     ],
     StockType: [
@@ -237,7 +243,8 @@ describe('Transaction (restock):', () => {
       type: 'restock',
       barId: 0,
       stockTypeId: 'rum',
-      name: 'New',
+      name: 'Test rum 2',
+      abv: 50,
       monetaryValue: 10,
       unitsStocked: [100],
     }, (err) => {
@@ -248,6 +255,8 @@ describe('Transaction (restock):', () => {
 
         expect(err).to.be.null();
         expect(result).to.not.be.null();
+        expect(result.abv).to.equal(50);
+        expect(result.name).to.equal('Test rum 2');
 
         Db.BarStock.readOne('0-2', (err, result) => {
 

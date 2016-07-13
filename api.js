@@ -150,9 +150,9 @@ module.exports = [
 
       const modelName = request.params.modelName;
       delete request.params.modelName;
-console.log(request.payload)
+
       Joi.validate(request.payload, models[modelName].schema, (err, payload) => {
-console.log(err, payload)
+
         if (err) {
           return reply(Boom.badRequest(err));
         }
@@ -179,9 +179,10 @@ console.log(err, payload)
           id: models.Patron.schema.id,
         },
         payload: {
+          abv: models.StockModel.schema.abv,
+          ingredients: models.Transaction.schema.ingredients,
           monetaryValue: Joi.number(),
           recipeId: models.Transaction.schema.recipeId,
-          ingredients: models.Transaction.schema.ingredients,
         },
       },
     },

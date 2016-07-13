@@ -15,19 +15,15 @@ module.exports = [
     // http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=15561
 // NOTE: 1 lime juiced = 1 oz juice
 // TODO
-// Bloody Mary
 // Cosmopolitan
-// Gin and Tonic
 // Liquid Cocaine http://www.webtender.com/db/drink/1351?x74
 // Manhattan
 // Margarita
 // Martini
-// Mimosa
-// Negroni
 // Old Fashion
 // Orgasm
 // Pina Colada
-// Sazerac
+// Side Car
 // Tequilla Sunrise
 
 
@@ -67,7 +63,7 @@ module.exports = [
         quantity: 59,
       },
       {
-        stockTypeId: 'irish cream liqueur',
+        stockTypeId: 'cream liqueur',
         quantity: 59,
       },
       {
@@ -89,13 +85,30 @@ module.exports = [
         quantity: 15,
       },
       {
-        stockTypeId: 'irish cream liqueur',
+        stockTypeId: 'cream liqueur',
         quantity: 15,
       },
       {
         stockTypeId: 'orange liqueur',
         quantity: 15,
       },
+    ],
+  },
+  // http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=13815
+  {
+    name: 'Bloody Mary',
+    ingredients: [
+      {
+        stockTypeId: 'vodka',
+        quantity: 44,
+      },
+      {
+        stockTypeId: 'tomato juice',
+        quantity: 44,
+      },
+      // pinch of salt
+      // pinch of pepper
+      // ice
     ],
   },
   {
@@ -167,14 +180,30 @@ module.exports = [
       },
     ],
   },
+  // http://allrecipes.com/recipe/49355/gin-and-tonic/
+  {
+    name: 'Gin and Tonic',
+    ingredients: [
+      {
+        stockTypeId: 'gin',
+        quantity: 118,
+      },
+      {
+        stockTypeId: 'tonic water',
+        quantity: 118,
+      },
+      {
+        stockTypeId: 'lime juice',
+        quantity: 15,
+      },
+      // ice
+    ],
+  },
+  // http://allrecipes.com/recipe/228491/the-real-long-island-iced-tea/
   {
     name: 'Long Island Ice Tea',
     instructions: 'Add ingredients. Shake vigorously. Enjoy',
     ingredients: [
-      {
-        stockTypeId: 'ice cube',
-        quantity: 118,
-      },
       {
         stockTypeId: 'gin',
         quantity: 29.5,
@@ -199,7 +228,11 @@ module.exports = [
         stockTypeId: 'cola',
         quantity: 118,
       },
-      // sweet and sour mix
+      {
+        stockTypeId: 'sweet and sour mix',
+        quantity: 118,
+      },
+      // ice
     ],
   },
   {
@@ -226,6 +259,19 @@ module.exports = [
         quantity: 3,
       },
       // ice
+    ],
+  },
+  {
+    name: 'Mimosa',
+    ingredients: [
+      {
+        stockTypeId: 'orange juice',
+        quantity: 59,
+      },
+      {
+        stockTypeId: 'sparkling wine',
+        quantity: 177.5,
+      },
     ],
   },
   {
@@ -275,7 +321,7 @@ module.exports = [
         quantity: 118,
       },
       {
-        stockTypeId: 'irish cream liqueur',
+        stockTypeId: 'cream liqueur',
         quantity: 29.5,
       },
       {
@@ -292,6 +338,25 @@ module.exports = [
       },
     ],
   },
+  // http://www.esquire.com/food-drink/drinks/recipes/a3683/negroni-drink-recipe/
+  {
+    name: 'Negroni',
+    ingredients: [
+      {
+        stockTypeId: 'gin',
+        quantity: 44,
+      },
+      {
+        stockTypeId: 'campari',
+        quantity: 22,
+      },
+      {
+        stockTypeId: 'vermout',
+        quantity: 22,
+      },
+      // ice
+    ],
+  },
   {
     name: 'Rum and Coke',
     ingredients: [
@@ -303,6 +368,32 @@ module.exports = [
         stockTypeId: 'cola',
         quantity: 148,
       },
+    ],
+  },
+  // http://www.chowhound.com/recipes/sazerac-cocktail-10330
+  {
+    name: 'Sazerac',
+    // instructions: '', // LOTS of instructions
+    ingredients: [
+      {
+        stockTypeId: 'whiskey', // rye whiskey
+        quantity: 44,
+      },
+      {
+        stockTypeId: 'absinthe',
+        quantity: 5, // 1 barspoon
+      },
+      {
+        stockTypeId: "peychaud's bitters",
+        quantity: 2, // 2 dashes
+      },
+      {
+        stockTypeId: 'angostura bitters',
+        quantity: 1, // 1 dash
+      },
+      // 1 sugar - cube
+      // ice
+      // lemon peel
     ],
   },
   {

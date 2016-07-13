@@ -72,26 +72,26 @@ exports.hooks = {
       .zip()
       .eqJoin('stockTypeId', Rethink.table('StockType'))
       .without({right: "id"})
+      .zip()
       .orderBy(sort)
       .limit(limit)
-      .zip()
       .run((err, result) => {
 
-      if (err) {
-        return callback(err);
-      }
+        if (err) {
+          return callback(err);
+        }
 
-      const stock = result.map((element) => {
-        element.remainingUnits = element.remainingUnits || [];
-        element.volumeAvailable = element.residualVolume + element.remainingUnits.reduce((a, b) => { return a + b; }, 0);
-        element.inStock = (element.volumeAvailable > 0);
-        element.unitType = element.unitType || 'ml';
-        return element;
-      }).filter((element) => {
-        return (queryInStock == null || queryInStock === element.inStock);
+        const stock = result.map((element) => {
+          element.remainingUnits = element.remainingUnits || [];
+          element.volumeAvailable = element.residualVolume + element.remainingUnits.reduce((a, b) => { return a + b; }, 0);
+          element.inStock = (element.volumeAvailable > 0);
+          element.unitType = element.unitType || 'ml';
+          return element;
+        }).filter((element) => {
+          return (queryInStock == null || queryInStock === element.inStock);
+        });
+
+        return callback(null, stock);
       });
-
-      return callback(null, stock);
-    });
   },
 };

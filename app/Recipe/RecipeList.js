@@ -27,6 +27,25 @@ const RecipeExpanded = React.createClass({
       recipe: this.props.recipe,
     };
   },
+  calculateAbv: function (options) {
+
+    let abv = 0;
+    let volume = 0;
+
+    const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
+
+      const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
+
+      if (stock != null) {
+        abv += ingredient.quantity * stock.abv;
+        volume += ingredient.quantity;
+      }
+    });
+
+    abv /= volume;
+
+    return utils.formatAbv(abv, options);
+  },
   calculatePrice: function (options) {
 
     let price = 0;
@@ -57,14 +76,15 @@ const RecipeExpanded = React.createClass({
 
     NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/order',
       {
-        monetaryValue: this.calculatePrice({ unitless: true }),
-        recipeId: this.state.recipe.id,
+        abv: this.calculateAbv({ unitless: true }),
         ingredients: this.state.recipe.ingredients.map((stock) => {
           return {
             quantity: stock.quantity,
             barStockId: stock.stockId,
           }
         }),
+        monetaryValue: this.calculatePrice({ unitless: true }),
+        recipeId: this.state.recipe.id,
       },
       (err, result) => {
 
@@ -94,6 +114,7 @@ const RecipeExpanded = React.createClass({
   },
   render: function () {
 
+    const abv = this.calculateAbv();
     const price = this.calculatePrice();
 
     const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
@@ -123,15 +144,16 @@ const RecipeExpanded = React.createClass({
 
         // create full select field
         options = <span>
+          {ingredient.stockTypeId}: &nbsp;
           <SelectField
             name={ingredient.id}
             value={ingredient.stockId}
             onChange={handleStockSelect}
             style={styles.textInput}
+            autoWidth={true}
           >
             {options}
           </SelectField>
-          {ingredient.stockTypeId}
         </span>;
       }
 
@@ -144,7 +166,7 @@ const RecipeExpanded = React.createClass({
       );
     });
 
-    const buyButtonText = 'Buy - ' + price;
+    const buyButtonText = 'Buy - ' + price + ' (' + abv + ')';
     let buyConfirmText = 'Please select a patron to charge';
     const buyConfirmDisabled = (this.state.patronId == null);
     if (buyConfirmDisabled === false) {
@@ -229,6 +251,11 @@ const Recipe = React.createClass({
       priceRange += ' - ' + utils.formatPrice(this.props.recipe.costMax);
     }
 
+    let abvRange = utils.formatAbv(this.props.recipe.abvMin);
+    if (this.props.recipe.abvMin !== this.props.recipe.abvMax) {
+      abvRange += ' - ' + utils.formatAbv(this.props.recipe.abvMax);
+    }
+
     return (
       <div>
         <ListItem
@@ -241,7 +268,7 @@ const Recipe = React.createClass({
           }
         >
           <div>
-            {this.props.recipe.name} ({priceRange})
+            {this.props.recipe.name} ({priceRange}, {abvRange})
           </div>
         </ListItem>
         {expanded}

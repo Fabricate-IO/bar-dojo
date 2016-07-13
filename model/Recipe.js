@@ -80,12 +80,17 @@ exports.hooks = {
           element.inStock = true;
           element.costMin = 0;
           element.costMax = 0;
+          element.abvMin = 0;
+          element.abvMax = 0;
+          element.volume = 0;
 
           element.ingredients.forEach((ingredient) => {
 
             let inStock = false;
             let costMin = 9999;
             let costMax = 0;
+            let abvMin = 9999;
+            let abvMax = 0;
 
             if (stock[ingredient.stockTypeId] != null) {
 
@@ -95,17 +100,27 @@ exports.hooks = {
                   inStock = true;
                   costMin = Math.min(costMin, stock.volumeCost * ingredient.quantity);
                   costMax = Math.max(costMax, stock.volumeCost * ingredient.quantity);
+                  abvMin = Math.min(abvMin, stock.abv * ingredient.quantity);
+                  abvMax = Math.max(abvMax, stock.abv * ingredient.quantity);
                 }
               });
 
               element.costMin += costMin;
               element.costMax += costMax;
+              element.abvMin += abvMin;
+              element.abvMax += abvMax;
+              element.volume += ingredient.quantity;
             }
 
             if (!inStock) {
               element.inStock = false;
             }
           });
+
+          if (element.volume > 0) {
+            element.abvMin /= element.volume;
+            element.abvMax /= element.volume;
+          }
 
           return element;
         }).filter((element) => {

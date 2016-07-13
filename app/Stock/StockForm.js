@@ -34,13 +34,16 @@ module.exports = React.createClass({
           return console.error('BarStock API', status, err.toString());
         }
 
+        StockModel = StockModel.map((stockModel) => {
+          stockModel.stockModelId = stockModel.id;
+          return stockModel;
+        })
         BarStock.forEach((stock) => {
-          const model = StockModel.find((StockModel) => { return (StockModel.id === stock.stockModelId); });
+          const model = StockModel.find((stockModel) => { return (stockModel.id === stock.stockModelId); });
           if (model != null) {
             model.barStockId = stock.id;
           }
         });
-
         this.setState({ Stock: StockModel });
       });
     });
@@ -74,6 +77,7 @@ module.exports = React.createClass({
     const transaction = {
       type: 'restock',
       monetaryValue: object.monetaryValue,
+      abv: object.abv,
       barId: 0, // TODO barId
       barStockId: object.barStockId,
       name: object.name,
@@ -83,7 +87,7 @@ module.exports = React.createClass({
     };
     let url = '/api/Transaction';
     let type = 'POST';
-console.log(object)
+
     this.setState({ object: {} });
     NetworkRequest(type, url, transaction, (err, result) => {
 
@@ -104,19 +108,19 @@ console.log(object)
     const object = this.state.object;
     object.name = (e.target) ? e.target.value : e;
     const stock = this.state.Stock.find((stock) => { return (object.name === stock.name); });
-console.log(object.name, stock)
+
     if (stock == null) {
       delete this.state.object.barStockId;
       delete this.state.object.stockModelId;
     }
     else {
+      object.abv = stock.abv;
       object.barStockId = stock.barStockId;
       object.stockModelId = stock.stockModelId;
       object.stockTypeId = stock.stockTypeId;
       object.unitType = stock.unitType;
     }
     this.setState({ object: object });
-console.log(this.state.object)
   },
   handleStockTypeChange: function (event, index, value) {
     this.state.StockType = this.state.StockTypes[index];
@@ -163,6 +167,16 @@ console.log(this.state.object)
         >
           {StockTypeOptions}
         </SelectField>
+        <TextField
+          name="abv"
+          type="number"
+          floatingLabelText='ABV % (0-100)'
+          floatingLabelFixed={true}
+          step={0.5}
+          value={this.state.object.abv}
+          onChange={this.handleInputChange}
+          style={style.textInput}
+        />
         <br/>
         <TextField
           name="quantity"
@@ -185,10 +199,11 @@ console.log(this.state.object)
         <br/>
         <div>
           Shortcuts:
-          <FlatButton label="1.5L" onClick={this.handleVolumeShortcut} data-volume="1500" />
-          <FlatButton label="750ml" onClick={this.handleVolumeShortcut} data-volume="750" />
-          <FlatButton label="375ml" onClick={this.handleVolumeShortcut} data-volume="375" />
-          <FlatButton label="330ml (beer bottle)" onClick={this.handleVolumeShortcut} data-volume="330" />
+          <FlatButton label="1.75L (handle)" onClick={this.handleVolumeShortcut} data-volume="1750" />
+          <FlatButton label="750ml (fifth)" onClick={this.handleVolumeShortcut} data-volume="750" />
+          <FlatButton label="375ml (pint)" onClick={this.handleVolumeShortcut} data-volume="375" />
+          <FlatButton label="355ml (12oz beer bottle)" onClick={this.handleVolumeShortcut} data-volume="355" />
+          <FlatButton label="330ml (11.2oz beer bottle)" onClick={this.handleVolumeShortcut} data-volume="330" />
         </div>
         <TextField
           name="monetaryValue"

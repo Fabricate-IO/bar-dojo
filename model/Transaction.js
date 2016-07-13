@@ -25,7 +25,8 @@ exports.schema = {
   // Restock
   barStockId: BarStock.schema.id,
   stockModelId: StockModel.schema.id.description('Used for restock transactions where the BarStock does not already exist'),
-  name: Joi.string().description('Used for restock transactions where StockModel does not already exist'),
+  name: StockModel.schema.name.description('Used for restock transactions where StockModel does not already exist'),
+  abv: StockModel.schema.abv.description('Used for restock transactions where StockModel does not already exist'),
   stockTypeId: StockType.schema.id.description('Used for restock transactions where StockModel does not already exist'),
   unitsStocked: Joi.array(Joi.number().min(0)).description('For restocks, array of volumes added'),
 
@@ -128,7 +129,7 @@ exports.hooks = {
     else if (object.type === 'restock') {
 
       object.monetaryValue = object.monetaryValue * (1 + Config.taxRate); // add taxes
-console.log(object);
+
       if (object.barStockId != null) {
         return _updateBarStock(object, callback);
       }
@@ -177,6 +178,7 @@ function _createStockModel(object, callback) {
   Db.StockModel.createOne({
     name: object.name,
     stockTypeId: object.stockTypeId,
+    abv: object.abv,
   }, (err, result) => {
     object.stockModelId = result.id;
     return callback(err, object);
