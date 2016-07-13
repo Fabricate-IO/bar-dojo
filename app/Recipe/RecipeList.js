@@ -27,6 +27,25 @@ const RecipeExpanded = React.createClass({
       recipe: this.props.recipe,
     };
   },
+  calculateAbv: function (options) {
+
+    let abv = 0;
+    let volume = 0;
+
+    const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
+
+      const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
+
+      if (stock != null) {
+        abv += ingredient.quantity * stock.abv;
+        volume += ingredient.quantity;
+      }
+    });
+
+    abv /= volume;
+
+    return utils.formatAbv(abv, options);
+  },
   calculatePrice: function (options) {
 
     let price = 0;
@@ -36,7 +55,7 @@ const RecipeExpanded = React.createClass({
       const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
 
       if (stock != null) {
-        price += ingredient.quantity * stock.unitCost;
+        price += ingredient.quantity * stock.volumeCost;
       }
     });
 
@@ -53,10 +72,20 @@ const RecipeExpanded = React.createClass({
       this.setState({ Patrons: result });
     });
   },
-  handleBuy: function () {
+  handleOrder: function () {
 
-    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/charge',
-      { amount: this.calculatePrice({ unitless: true }) },
+    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/order',
+      {
+        abv: this.calculateAbv({ unitless: true }),
+        ingredients: this.state.recipe.ingredients.map((stock) => {
+          return {
+            quantity: stock.quantity,
+            barStockId: stock.stockId,
+          }
+        }),
+        monetaryValue: this.calculatePrice({ unitless: true }),
+        recipeId: this.state.recipe.id,
+      },
       (err, result) => {
 
       if (err) {
@@ -85,6 +114,7 @@ const RecipeExpanded = React.createClass({
   },
   render: function () {
 
+    const abv = this.calculateAbv();
     const price = this.calculatePrice();
 
     const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
@@ -96,11 +126,14 @@ const RecipeExpanded = React.createClass({
       if (stock != null) {
         options = ingredient.stock[0].name;
       }
+      if (stock == null || ingredient.stock[0].name.toLowerCase() !== ingredient.stockTypeId) {
+        options += ' ' + ingredient.stockTypeId;
+      }
 
       if (ingredient.stock.length > 1) {
         // generate select options
         options = ingredient.stock.map((stock) => {
-          const price = stock.unitCost * ingredient.quantity;
+          const price = stock.volumeCost * ingredient.quantity;
           const text = stock.name + ' - ' + utils.formatPrice(price);
           return <MenuItem key={stock.id} value={stock.id} primaryText={text} />;
         });
@@ -110,26 +143,30 @@ const RecipeExpanded = React.createClass({
         };
 
         // create full select field
-        options = <SelectField
-          name={ingredient.id}
-          value={ingredient.stockId}
-          onChange={handleStockSelect}
-          style={styles.textInput}
-        >
-          {options}
-        </SelectField>;
+        options = <span>
+          {ingredient.stockTypeId}: &nbsp;
+          <SelectField
+            name={ingredient.id}
+            value={ingredient.stockId}
+            onChange={handleStockSelect}
+            style={styles.textInput}
+            autoWidth={true}
+          >
+            {options}
+          </SelectField>
+        </span>;
       }
 
       return (
         <ListItem key={ingredient.stockTypeId} style={styles.inlineSelect} innerDivStyle={styles.inlineSelect}>
           <div style={ stock == null ? styles.outOfStock : null }>
-            {quantityText} {options} {ingredient.stockTypeId}
+            {quantityText} {options}
           </div>
         </ListItem>
       );
     });
 
-    const buyButtonText = 'Buy - ' + price;
+    const buyButtonText = 'Buy - ' + price + ' (' + abv + ')';
     let buyConfirmText = 'Please select a patron to charge';
     const buyConfirmDisabled = (this.state.patronId == null);
     if (buyConfirmDisabled === false) {
@@ -156,7 +193,7 @@ const RecipeExpanded = React.createClass({
             <FlatButton
               label={buyConfirmText}
               primary={true}
-              onTouchTap={this.handleBuy}
+              onTouchTap={this.handleOrder}
               disabled={buyConfirmDisabled}
             />
           ]}
@@ -208,9 +245,15 @@ const Recipe = React.createClass({
     if (this.props.recipe.inStock === false) {
       style = styles.outOfStock;
     }
+
     let priceRange = utils.formatPrice(this.props.recipe.costMin);
     if (this.props.recipe.costMin !== this.props.recipe.costMax) {
       priceRange += ' - ' + utils.formatPrice(this.props.recipe.costMax);
+    }
+
+    let abvRange = utils.formatAbv(this.props.recipe.abvMin);
+    if (this.props.recipe.abvMin !== this.props.recipe.abvMax) {
+      abvRange += ' - ' + utils.formatAbv(this.props.recipe.abvMax);
     }
 
     return (
@@ -225,7 +268,7 @@ const Recipe = React.createClass({
           }
         >
           <div>
-            {this.props.recipe.name} ({priceRange})
+            {this.props.recipe.name} ({priceRange}, {abvRange})
           </div>
         </ListItem>
         {expanded}
@@ -246,10 +289,10 @@ module.exports = React.createClass({
   },
   componentWillMount: function () {
 
-    NetworkRequest('GET', '/api/Stock?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/BarStock?orderBy=name', (err, result) => {
 
       if (err) {
-        return console.error('Stock API', status, err.toString());
+        return console.error('BarStock API', status, err.toString());
       }
 
       this.setState({ Stock: result });
@@ -266,7 +309,7 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Recipe?orderBy=unitCost', (err, result) => {
+    NetworkRequest('GET', '/api/Recipe?orderBy=volumeCost', (err, result) => {
 
       if (err) {
         return console.error('Recipe API', status, err.toString());

@@ -46,7 +46,7 @@ const AppLayout = React.createClass({
   },
   handleAdd: function () {
     ((path) => {
-      if (path.indexOf('drinks') !== -1) { return hashHistory.push('/drinks/add'); }
+      if (path.indexOf('mixed') !== -1) { return hashHistory.push('/mixed/add'); }
       if (path.indexOf('patrons') !== -1) { return hashHistory.push('/patrons/add'); }
       if (path.indexOf('inventory') !== -1) { return hashHistory.push('/inventory/add'); }
       console.log('TODO: add button not set up for this page yet');
@@ -62,7 +62,7 @@ const AppLayout = React.createClass({
   render: function () {
 
     const pageName = ((path) => {
-      if (path.indexOf('drinks') !== -1) { return 'Drinks'; }
+      if (path.indexOf('mixed') !== -1) { return 'Mixed Drinks'; }
       if (path.indexOf('patrons') !== -1) { return 'Patrons'; }
       if (path.indexOf('inventory') !== -1) { return 'Inventory'; }
       return 'TODO: set page name';
@@ -99,12 +99,15 @@ const AppLayout = React.createClass({
             onRequestChange={(open) => this.setState({open})}
           >
             <img src="/static/img/logo.png" style={styles.logo}/>
-            <Link to="/drinks" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Drinks</MenuItem></Link>
+            <Link to="/mixed" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Mixed Drinks</MenuItem></Link>
             <Link to="/patrons" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Patrons</MenuItem></Link>
             <Link to="/inventory" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Inventory</MenuItem></Link>
           </Drawer>
           <div style={styles.contentBox}>
-            {React.cloneElement(this.props.children, { search: this.state.search })}
+            {React.cloneElement(this.props.children, {
+              path: this.props.location.pathname,
+              search: this.state.search,
+            })}
           </div>
         </div>
       </MuiThemeProvider>
@@ -119,9 +122,9 @@ ReactDOM.render(
   <Router history={hashHistory}>
     <Route component={AppLayout}>
       <Route path="/">
-        <IndexRedirect to="/drinks" />
+        <IndexRedirect to="/mixed" />
       </Route>
-      <Route path="/drinks">
+      <Route path="/mixed">
         <IndexRoute component={RecipeList} />
         <Route path="add" component={RecipeForm} />
         <Route path="edit/:id" component={RecipeForm} />

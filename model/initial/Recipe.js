@@ -15,19 +15,15 @@ module.exports = [
     // http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=15561
 // NOTE: 1 lime juiced = 1 oz juice
 // TODO
-// Bloody Mary
 // Cosmopolitan
-// Gin and Tonic
 // Liquid Cocaine http://www.webtender.com/db/drink/1351?x74
 // Manhattan
 // Margarita
 // Martini
-// Mimosa
-// Negroni
 // Old Fashion
 // Orgasm
 // Pina Colada
-// Sazerac
+// Side Car
 // Tequilla Sunrise
 
 
@@ -37,7 +33,7 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'amaretto liqueur',
-        quantity: 1.5,
+        quantity: 44,
       },
       // 1/2 lemon, juiced
       // ice
@@ -49,14 +45,35 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'sour apple schnapps',
-        quantity: 1.5,
+        quantity: 44,
       },
       // optional: 0.5 oz sweet and sour mix
       // ice
+    ],
+  },
+  {
+    name: 'B-2',
+    ingredients: [
+      {
+        stockTypeId: 'coffee liqueur',
+        quantity: 59,
+      },
+      {
+        stockTypeId: 'cream liqueur',
+        quantity: 59,
+      },
+      {
+        stockTypeId: 'orange liqueur',
+        quantity: 59,
+      },
+      {
+        stockTypeId: 'dark rum',
+        quantity: 29.5,
+      },
     ],
   },
   {
@@ -65,16 +82,33 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'coffee liqueur',
-        quantity: 0.5,
+        quantity: 15,
       },
       {
-        stockTypeId: 'irish cream liqueur',
-        quantity: 0.5,
+        stockTypeId: 'cream liqueur',
+        quantity: 15,
       },
       {
         stockTypeId: 'orange liqueur',
-        quantity: 0.5,
+        quantity: 15,
       },
+    ],
+  },
+  // http://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=13815
+  {
+    name: 'Bloody Mary',
+    ingredients: [
+      {
+        stockTypeId: 'vodka',
+        quantity: 44,
+      },
+      {
+        stockTypeId: 'tomato juice',
+        quantity: 44,
+      },
+      // pinch of salt
+      // pinch of pepper
+      // ice
     ],
   },
   {
@@ -83,15 +117,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'chocolate liqueur',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'grenadine',
-        quantity: .75,
+        quantity: 22,
       },
     ],
   },
@@ -101,35 +135,35 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'gin',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'tequila',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'white rum',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'orange liqueur',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'grenadine',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'sweet and sour mix',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'club soda',
-        quantity: 3,
+        quantity: 89,
       },
     ],
   },
@@ -138,47 +172,67 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'dark rum',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'ginger beer',
-        quantity: 0.2,
+        quantity: 100,
       },
     ],
   },
+  // http://allrecipes.com/recipe/49355/gin-and-tonic/
+  {
+    name: 'Gin and Tonic',
+    ingredients: [
+      {
+        stockTypeId: 'gin',
+        quantity: 118,
+      },
+      {
+        stockTypeId: 'tonic water',
+        quantity: 118,
+      },
+      {
+        stockTypeId: 'lime juice',
+        quantity: 15,
+      },
+      // ice
+    ],
+  },
+  // http://allrecipes.com/recipe/228491/the-real-long-island-iced-tea/
   {
     name: 'Long Island Ice Tea',
     instructions: 'Add ingredients. Shake vigorously. Enjoy',
     ingredients: [
       {
-        stockTypeId: 'ice cube',
-        quantity: 4,
-      },
-      {
         stockTypeId: 'gin',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'tequila',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'white rum',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
-        stockTypeId: 'organe liqueur',
-        quantity: 0.5,
+        stockTypeId: 'orange liqueur',
+        quantity: 15,
       },
       {
         stockTypeId: 'cola',
-        quantity: 4,
+        quantity: 118,
       },
-      // sweet and sour mix
+      {
+        stockTypeId: 'sweet and sour mix',
+        quantity: 118,
+      },
+      // ice
     ],
   },
   {
@@ -186,25 +240,38 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'dark rum',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'coconut rum',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'pineapple juice',
-        quantity: 3,
+        quantity: 89,
       },
       {
         stockTypeId: 'orange juice',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'grenadine',
-        quantity: 0.1,
+        quantity: 3,
       },
       // ice
+    ],
+  },
+  {
+    name: 'Mimosa',
+    ingredients: [
+      {
+        stockTypeId: 'orange juice',
+        quantity: 59,
+      },
+      {
+        stockTypeId: 'sparkling wine',
+        quantity: 177.5,
+      },
     ],
   },
   {
@@ -214,15 +281,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'white rum',
-        quantity: 2,
+        quantity: 59,
       },
       {
         stockTypeId: 'lime juice',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'club soda',
-        quantity: 2,
+        quantity: 59,
       },
       // ice
     ],
@@ -232,15 +299,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'ginger beer',
-        quantity: 4,
+        quantity: 118,
       },
       {
         stockTypeId: 'lime juice',
-        quantity: 0.5,
+        quantity: 15,
       },
       // Ice
     ],
@@ -251,24 +318,43 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'ice cube',
-        quantity: 4,
+        quantity: 118,
       },
       {
-        stockTypeId: 'irish cream liqueur',
-        quantity: 1,
+        stockTypeId: 'cream liqueur',
+        quantity: 29.5,
       },
       {
-        stockTypeId: 'coffee liquor',
-        quantity: 1,
+        stockTypeId: 'coffee liqueur',
+        quantity: 29.5,
       },
       {
         stockTypeId: 'milk',
-        quantity: 1,
+        quantity: 29.5,
       },
       {
         stockTypeId: 'vodka',
-        quantity: 1,
+        quantity: 29.5,
       },
+    ],
+  },
+  // http://www.esquire.com/food-drink/drinks/recipes/a3683/negroni-drink-recipe/
+  {
+    name: 'Negroni',
+    ingredients: [
+      {
+        stockTypeId: 'gin',
+        quantity: 44,
+      },
+      {
+        stockTypeId: 'campari',
+        quantity: 22,
+      },
+      {
+        stockTypeId: 'vermout',
+        quantity: 22,
+      },
+      // ice
     ],
   },
   {
@@ -276,12 +362,38 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'dark rum',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'cola',
-        quantity: 5,
+        quantity: 148,
       },
+    ],
+  },
+  // http://www.chowhound.com/recipes/sazerac-cocktail-10330
+  {
+    name: 'Sazerac',
+    // instructions: '', // LOTS of instructions
+    ingredients: [
+      {
+        stockTypeId: 'whiskey', // rye whiskey
+        quantity: 44,
+      },
+      {
+        stockTypeId: 'absinthe',
+        quantity: 5, // 1 barspoon
+      },
+      {
+        stockTypeId: "peychaud's bitters",
+        quantity: 2, // 2 dashes
+      },
+      {
+        stockTypeId: 'angostura bitters',
+        quantity: 1, // 1 dash
+      },
+      // 1 sugar - cube
+      // ice
+      // lemon peel
     ],
   },
   {
@@ -290,11 +402,11 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'orange juice',
-        quantity: 6,
+        quantity: 177,
       },
     ],
   },
@@ -303,19 +415,19 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'peach schnapps',
-        quantity: 0.75,
+        quantity: 22,
       },
       {
         stockTypeId: 'cranberry juice',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'orange juice',
-        quantity: 1.5,
+        quantity: 44,
       },
     ],
   },
@@ -324,15 +436,15 @@ module.exports = [
     ingredients: [
       {
         stockTypeId: 'vodka',
-        quantity: 1.5,
+        quantity: 44,
       },
       {
         stockTypeId: 'coffee liqueur',
-        quantity: 0.5,
+        quantity: 15,
       },
       {
         stockTypeId: 'milk',
-        quantity: 0.5,
+        quantity: 15,
       },
     ],
   },

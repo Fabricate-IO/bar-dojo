@@ -8,7 +8,10 @@ import { // color options: http://www.material-ui.com/#/customization/colors
 } from 'material-ui/styles/colors';
 
 module.exports = {
+// page
   backgroundColor: grey50,
+
+// navigation
   logo: {
     maxHeight: 42,
     width: 'auto',
@@ -23,11 +26,16 @@ module.exports = {
     textDecoration: 'none',
   },
 
+// layout
   contentBox: {
     padding: '12px 24px',
   },
   expanded: {
     padding: '10px',
+  },
+  floatLeft: {
+    float: 'left',
+    marginRight: '12px',
   },
   inlineSelect: {
     lineHeight: '48px',
@@ -38,7 +46,11 @@ module.exports = {
     verticalAlign: 'bottom',
   },
 
+// color / highlight
   outOfStock: {
+    color: grey500,
+  },
+  faded: {
     color: grey500,
   },
 };

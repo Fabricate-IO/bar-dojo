@@ -16,12 +16,13 @@ const StockExpanded = React.createClass({
   render: function () {
 
     const stock = this.props.stock;
+    const volumeCost = utils.formatPrice(stock.volumeCost);
 
     return (
       <div style={styles.expanded}>
-        <h1>{stock.stockTypeId}</h1>
-        <div>{stock.remainingQuantity} {stock.stockType.unitType} remaining (out of {stock.initialQuantity} {stock.stockType.unitType})</div>
-        <div>${stock.unitCost} per {stock.stockType.unitType} (initial cost: ${stock.afterTaxCost})</div>
+        <div>{stock.abv}% ABV</div>
+        <div>{stock.volumeAvailable} {stock.unitType} (incl {stock.remainingUnits.length} full bottles) remaining</div>
+        <div>{volumeCost} per {stock.unitType}</div>
       </div>
     );
   },
@@ -37,9 +38,9 @@ const Stock = React.createClass({
   handleClick: function () {
     this.setState({ expanded: !this.state.expanded });
   },
-  handleEdit: function () {
-    hashHistory.push('/inventory/edit/' + this.props.stock.id);
-  },
+  // handleEdit: function () {
+  //   hashHistory.push('/inventory/edit/' + this.props.stock.id);
+  // },
   render: function () {
 
     let expanded = '';
@@ -56,14 +57,14 @@ const Stock = React.createClass({
         <ListItem
           onClick={this.handleClick}
           style={style}
-          rightIconButton={
-            <div>
-              <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
-            </div>
-          }
+          // rightIconButton={
+          //   <div>
+          //     <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
+          //   </div>
+          // }
         >
           <div>
-            {this.props.stock.name}
+            {this.props.stock.name} <span style={styles.faded}>({this.props.stock.stockTypeId})</span>
           </div>
         </ListItem>
         {expanded}
@@ -91,15 +92,22 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Stock?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/BarStock?orderBy=name&order=asc', (err, result) => {
 
       if (err) {
-        return console.error('Stock API', status, err.toString());
+        return console.error('BarStock API', status, err.toString());
       }
 
       const stock = result.map((stock) => {
         stock.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === stock.stockTypeId; });
         return stock;
+      // NOTE: only have to sort here b/c rethink doesn't currently support case-agnostic searching
+      }).sort((a, b) => { // ascending, by name, ignore case
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+        if (a < b) { return -1; }
+        if (b < a) { return 1; }
+        return 0;
       });
 
       this.setState({ data: stock });

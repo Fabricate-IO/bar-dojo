@@ -10,6 +10,7 @@ module.exports = [
       Setup.setup((err, result) => {
 
         if (err) {
+          console.log('Setup error', err);
           return reply(err);
         }
 

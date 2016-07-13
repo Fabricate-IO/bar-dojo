@@ -2,7 +2,9 @@ const Hoek = require('hoek');
 
 
 const defaults = {
-  mongoUrl: 'mongodb://localhost:27017/BarDojo',
+  rethink: {
+    db: 'BarDojo',
+  },
   server: {
     port: 8000,
   },

@@ -1,112 +1,201 @@
 module.exports = [
-  /* HARD ALCOHOL */
+  /* HARD ALCOHOL / SPIRITS */
+  {
+    id: 'absinthe',
+    category: 'spirit',
+  },
   {
     id: 'coconut rum',
-    unitType: 'oz',
+    category: 'spirit',
   },
   {
     id: 'dark rum',
-    unitType: 'oz',
+    category: 'spirit',
   },
   {
     id: 'gin',
-    unitType: 'oz',
+    category: 'spirit',
   },
   {
     id: 'tequila',
-    unitType: 'oz',
+    category: 'spirit',
   },
   {
     id: 'vodka',
-    unitType: 'oz',
+    category: 'spirit',
+  },
+  {
+    id: 'whiskey',
+    category: 'spirit',
   },
   {
     id: 'white rum',
-    unitType: 'oz',
+    category: 'spirit',
   },
 
-  /* LIQUORS */
-  {
-    id: 'amaretto liqueur',
-    unitType: 'oz',
-  },
+  /* LIQUEURS */
   {
     id: 'chocolate liqueur',
-    unitType: 'oz',
+    category: 'liqueur',
   },
   {
     id: 'coffee liqueur',
-    unitType: 'oz',
+    category: 'liqueur',
   },
   {
-    id: 'irish cream liqueur',
-    unitType: 'oz',
+    id: 'elderflower liqueur',
+    category: 'liqueur',
+  },
+  {
+    id: 'cream liqueur', // irish cream, orchata, etc
+    category: 'liqueur',
+  },
+  {
+    id: 'nut liqueur',
+    category: 'liqueur',
   },
   {
     id: 'orange liqueur',
-    unitType: 'oz',
+    category: 'liqueur',
   },
   {
     id: 'peach schnapps',
-    unitType: 'oz',
+    category: 'liqueur',
   },
   {
     id: 'sour apple schnapps',
-    unitType: 'oz',
+    category: 'liqueur',
   },
 
   /* WINE AND BEER */
   {
     id: 'beer',
-    unitType: 'bottle',
+    category: 'beer',
+  },
+  {
+    id: 'cider',
+    category: 'beer',
   },
   {
     id: 'ginger beer',
-    unitType: 'oz',
+    category: 'beer',
+  },
+  {
+    id: 'red wine',
+    category: 'wine',
+  },
+  {
+    id: 'sparkling wine',
+    category: 'wine',
+  },
+  {
+    id: 'vermouth',
+    category: 'wine',
+  },
+  {
+    id: 'white wine',
+    category: 'wine',
   },
 
-  /* FRUIT JUICES */
+  /* FRUIT JUICES / MIXERS */
   {
     id: 'cranberry juice',
-    unitType: 'oz',
+    category: 'juice',
+  },
+  {
+    id: 'grapefruit juice',
+    category: 'juice',
+  },
+  {
+    id: 'lemon juice',
+    category: 'juice',
   },
   {
     id: 'lime juice',
-    unitType: 'oz',
+    category: 'juice',
   },
   {
     id: 'orange juice',
-    unitType: 'oz',
+    category: 'juice',
   },
   {
     id: 'pineapple juice',
-    unitType: 'oz',
+    category: 'juice',
+  },
+  {
+    id: 'tomato juice',
+    category: 'juice',
   },
 
-  /* MIXERS AND SODAS */
+  /* MIXERS, SODAS, SYRUPS, DAIRY */
   {
     id: 'club soda',
-    unitType: 'oz',
+    category: 'mixer',
   },
   {
     id: 'cola',
-    unitType: 'oz',
+    category: 'mixer',
+  },
+  {
+    id: 'ginger ale',
+    category: 'mixer',
   },
   {
     id: 'grenadine',
-    unitType: 'oz',
+    category: 'mixer',
+  },
+  {
+    id: 'ice',
+    category: 'mixer',
   },
   {
     id: 'milk',
-    unitType: 'oz',
+    category: 'mixer',
   },
   {
     id: 'sweet and sour mix',
-    unitType: 'oz',
+    category: 'mixer',
+  },
+  {
+    id: 'tonic water',
+    category: 'mixer',
+  },
+  {
+    id: 'whipped cream',
+    category: 'mixer',
   },
 
-  /* GARNISHES AND SOLIDS */
+  /* BITTERS */
   {
-    id: 'ice cube',
+    id: 'angostura bitters',
+    category: 'bitters',
+  },
+  {
+    id: 'chocolate bitters',
+    category: 'bitters',
+  },
+  {
+    id: 'grapefruit bitters',
+    category: 'bitters',
+  },
+  {
+    id: 'mint bitters',
+    category: 'bitters',
+  },
+  {
+    id: 'old fashion aromatic bitters',
+    category: 'bitters',
+  },
+  {
+    id: 'orange bitters',
+    category: 'bitters',
+  },
+  {
+    id: 'peach bitters',
+    category: 'bitters',
+  },
+  {
+    id: "peychaud's bitters",
+    category: 'bitters',
   },
 ];

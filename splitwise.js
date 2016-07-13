@@ -31,7 +31,11 @@ exports.setup = function (callback) {
       splitwise.getOAuthRequestToken()
       .then(({ token, secret }) => {
 
-        Db.Patron.updateOne(0, { 'secret.splitwiseToken': token, 'secret.splitwiseSecret': secret }, (err, result) => {
+        result.secret = result.secret || {};
+        result.secret.splitwiseToken = token;
+        result.secret.splitwiseSecret = secret;
+
+        Db.Patron.updateOne(0, { secret: result.secret }, (err, result) => {
 
           if (err) {
             return callback(err);
@@ -47,6 +51,11 @@ exports.setup = function (callback) {
 // TODO exchange request code for access token? (splitwise.getOAuthAccessToken)
 
     else {
+
+      if (splitwise.getSplitwiseApi == null) {
+        return callback(new Error('Failed to initialize Splitwise API'));
+      }
+
       splitwise = splitwise.getSplitwiseApi(result.secret.splitwiseToken, result.secret.splitwiseSecret);
       splitwise.getCurrentUser()
         .then((data) => {

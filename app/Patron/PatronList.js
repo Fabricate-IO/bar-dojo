@@ -93,7 +93,7 @@ const Patron = React.createClass({
           open={this.state.open}
           onRequestClose={this.handleClose}
         >
-          <Avatar src={this.props.patron.image} size="80" />
+          <Avatar src={this.props.patron.image} size={80} style={styles.floatLeft} />
           <br/>
           <SelectField
             value={this.state.settlePlatform}

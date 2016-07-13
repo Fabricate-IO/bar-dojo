@@ -4,6 +4,7 @@
 
 'use strict';
 
+const Async = require('async');
 const Code = require('code');
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
@@ -50,7 +51,7 @@ describe('CRUD:', () => {
 
   it('readOne (empty)', (done) => {
 
-    Db.StockType.readOne({}, (err, result) => {
+    Db.StockType.readOne(0, (err, result) => {
 
       expect(err).to.be.null();
       expect(result).to.be.null();
@@ -60,7 +61,7 @@ describe('CRUD:', () => {
 
   it('createOne', (done) => {
 
-    Db.StockType.createOne({ id: 'test' }, (err) => {
+    Db.StockType.createOne({ id: 'test' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -72,14 +73,25 @@ describe('CRUD:', () => {
     Db.StockType.readOne('test', (err, result) => {
 
       expect(err).to.be.null();
+      expect(result).to.not.be.null();
       expect(result.id).to.equal('test');
+      done();
+    });
+  });
+
+  it('read', (done) => {
+
+    Db.StockType.read({}, (err, result) => {
+
+      expect(err).to.be.null();
+      expect(result.length).to.equal(1);
       done();
     });
   });
 
   it('updateOne', (done) => {
 
-    Db.StockType.updateOne('test', { unitType: 'oz' }, (err, result) => {
+    Db.StockType.updateOne('test', { unitType: 'cats' }, (err, result) => {
 
       expect(err).to.be.null();
 
@@ -87,7 +99,7 @@ describe('CRUD:', () => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
-        helpers.checkArrayEquality(result, [{ id: 'test', unitType: 'oz' }]);
+        helpers.checkArrayEquality(result, [{ id: 'test', unitType: 'cats' }]);
         done();
       });
     });
@@ -131,11 +143,11 @@ describe('CRUD:', () => {
 
   it('read (sorted)', (done) => {
 
-    Db.StockType.read({ orderBy: 'id', order: 'desc' }, (err, result) => {
+    Db.StockType.read({ orderBy: 'id', order: 'asc' }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
-      helpers.checkArrayEquality(result, [{ id: 'test3' }, { id: 'test2' }, { id: 'test' }]);
+      helpers.checkArrayEquality(result, [{ id: 'test' }, { id: 'test2' }, { id: 'test3' }]);
       done();
     });
   });
@@ -198,58 +210,6 @@ describe('CRUD:', () => {
         expect(result.id).to.equal('test5');
         expect(result.unitType).to.equal('bottle');
         done();
-      });
-    });
-  });
-
-  it('updateOne (is able to increment)', (done) => {
-
-    Db.Stock.createOne({ id: 99, initialQuantity: 1 }, (err, result) => {
-
-      expect(err).to.be.null();
-
-      Db.Stock.updateOne(99, { $inc: { initialQuantity: 2 } }, (err, result) => {
-
-        expect(err).to.be.null();
-
-        Db.Stock.readOne(99, (err, result) => {
-
-          expect(err).to.be.null();
-          expect(result.initialQuantity).to.equal(3);
-          done();
-        });
-      });
-    });
-  });
-
-  it('updateMany (is able to increment)', (done) => {
-
-    Db.Stock.createOne({ id: 100, initialQuantity: 2 }, (err, result) => {
-
-      expect(err).to.be.null();
-
-      Db.Stock.read({}, (err, result) => {
-
-        expect(err).to.be.null();
-        expect(result.length).to.equal(2);
-
-        Db.Stock.update({}, { $inc: { initialQuantity: 2 } }, (err, result) => {
-
-          expect(err).to.be.null();
-
-          Db.Stock.readOne(99, (err, result) => {
-
-            expect(err).to.be.null();
-            expect(result.initialQuantity).to.equal(5);
-
-            Db.Stock.readOne(100, (err, result) => {
-
-              expect(err).to.be.null();
-              expect(result.initialQuantity).to.equal(4);
-              done();
-            });
-          });
-        });
       });
     });
   });
@@ -325,6 +285,42 @@ describe('CRUD egde cases:', () => {
         expect(err).to.not.be.null();
 
         Db.StockType.read({}, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.length).to.equal(1);
+          done();
+        });
+      });
+    });
+  });
+
+  it('createOne (errors on duplicate compound id and does not create an object)', (done) => {
+
+    const fixtures = {
+      BarStock: [{
+        barId: 1,
+        stockModelId: 1,
+      }],
+      StockModel: [{
+        id: 1,
+        stockTypeId: 'dark rum',
+      }],
+      StockType: [{
+        id: 'dark rum',
+      }]
+    }
+
+    Async.eachOf(fixtures, (value, key, callback) => {
+      Db[key].create(value, callback);
+    }, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.BarStock.createOne({ barId: 1, stockModelId: 1 }, (err) => {
+
+        expect(err).to.not.be.null();
+
+        Db.BarStock.read({}, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(1);

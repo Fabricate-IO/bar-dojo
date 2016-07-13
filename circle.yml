@@ -4,13 +4,14 @@ machine:
 
 dependencies:
   pre:
-    - sudo apt-get purge mongodb-org*
-    - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-    - echo "deb http://repo.mongodb.org/apt/ubuntu precise/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
     - sudo apt-get update
-    - sudo apt-get install -y mongodb-org
-    - sudo service mongod restart
     - npm install -g codecov istanbul
+    - source /etc/lsb-release && echo "deb http://download.rethinkdb.com/apt $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+    - wget -qO- http://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
+    - sudo apt-get update
+    - sudo apt-get install rethinkdb=2.3.4~0precise
+    - sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance1.conf
+    - sudo /etc/init.d/rethinkdb restart
 
 test:
   override:

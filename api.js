@@ -4,11 +4,13 @@ const Boom = require('boom');
 const Joi = require('joi');
 
 const models = {
-  Recipe: require('./model/Recipe'),
-  Stock: require('./model/Stock'),
-  StockType: require('./model/StockType'),
-  Patron: require('./model/Patron'),
+  BarStock: require('./model/BarStock'),
   Friend: require('./model/Friend'),
+  Patron: require('./model/Patron'),
+  Recipe: require('./model/Recipe'),
+  StockModel: require('./model/StockModel'),
+  StockType: require('./model/StockType'),
+  Transaction: require('./model/Transaction'),
 };
 
 
@@ -59,7 +61,7 @@ module.exports = [
             return reply(Boom.badImplementation(err));
           }
 
-          request.server.app.db[modelName].prePublicObject(result, (err, result) => {
+          request.server.app.db[modelName].hooks.prePublicObject(result, (err, result) => {
 
             if (err) {
               return reply(Boom.badImplementation(err));
@@ -93,7 +95,7 @@ module.exports = [
             return reply(Boom.badImplementation(err));
           }
 
-          request.server.app.db[modelName].prePublicArray(result, (err, result) => {
+          request.server.app.db[modelName].hooks.prePublicArray(result, (err, result) => {
 
             if (err) {
               return reply(Boom.badImplementation(err));
@@ -170,20 +172,31 @@ module.exports = [
 /* ===== SPECIAL FUNCTIONS ===== */
   {
     method: 'POST',
-    path: '/api/Patron/{id}/charge',
+    path: '/api/Patron/{id}/order',
     config: {
       validate: {
         params: {
           id: models.Patron.schema.id,
         },
         payload: {
-          amount: Joi.number(),
+          abv: models.StockModel.schema.abv,
+          ingredients: models.Transaction.schema.ingredients,
+          monetaryValue: Joi.number(),
+          recipeId: models.Transaction.schema.recipeId,
         },
       },
     },
     handler: (request, reply) => {
 
-      request.server.app.db.Patron.updateOne(request.params.id, { $inc: { tab: request.payload.amount } }, (err, result) => {
+      const Db = request.server.app.db;
+
+      Db.Transaction.createOne({
+        patronId: request.params.id,
+        type: 'order',
+        monetaryValue: request.payload.monetaryValue,
+        recipeId: request.payload.recipeId,
+        ingredients: request.payload.ingredients,
+      }, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));
@@ -208,7 +221,9 @@ module.exports = [
     },
     handler: (request, reply) => {
 
-      request.server.app.db.Patron.settle(request.server.app.db, request.params.id, request.payload.platform, (err, result) => {
+      const Db = request.server.app.db;
+
+      Db.Patron.settle(request.params.id, request.payload.platform, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));

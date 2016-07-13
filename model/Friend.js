@@ -13,24 +13,28 @@ exports.schema = {
 };
 
 
-exports.readMany = function (Mongo, query, sort, callback) {
+exports.hooks = {
 
-  Splitwise.getFriends((err, result) => {
+// TODO does not currently support sorting / querying. Since it's pulling from an external API, need to implement in JS
+  read: function (Rethink, query, sort, limit, callback) {
 
-    if (err) {
-      return callback(err);
-    }
+    Splitwise.getFriends((err, result) => {
 
-    const friends = result.map((friend) => {
-      return {
-        id: friend.id,
-        image: friend.picture.large,
-        name: ([friend.first_name, friend.last_name]).filter((name) => { return (name != null); })
-            .join(' ')
-            .trim(),
-      };
+      if (err) {
+        return callback(err);
+      }
+
+      const friends = result.map((friend) => {
+        return {
+          id: friend.id,
+          image: friend.picture.large,
+          name: ([friend.first_name, friend.last_name]).filter((name) => { return (name != null); })
+              .join(' ')
+              .trim(),
+        };
+      });
+
+      return callback(null, friends.slice(0, limit));
     });
-
-    return callback(null, friends);
-  });
+  },
 };
