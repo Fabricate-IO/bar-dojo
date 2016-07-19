@@ -47,7 +47,7 @@ describe('Transaction (order):', () => {
         residualVolume: 1,
       },
     ],
-    Patron: [
+    User: [
       {
         id: 1,
         name: 'Tester',
@@ -96,7 +96,7 @@ describe('Transaction (order):', () => {
     Db.Transaction.createOne({
       type: 'order',
       barId: 0,
-      patronId: 1,
+      userId: 1,
       recipeId: 1,
       monetaryValue: 1,
       ingredients: [
@@ -117,7 +117,7 @@ describe('Transaction (order):', () => {
         expect(result.remainingUnits.length).to.equal(1);
         expect(result.volumeAvailable).to.equal(10);
 
-        Db.Patron.readOne(1, (err, result) => {
+        Db.User.readOne(1, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.tab).to.equal(1);
@@ -293,7 +293,7 @@ describe('Transaction (settle):', () => {
 
 
   const fixtures = {
-    Patron: [
+    User: [
       {
         id: 1,
         name: 'Tester',
@@ -314,11 +314,11 @@ describe('Transaction (settle):', () => {
 
   it('settles correctly using cash', (done) => {
 
-    Db.Patron.settle(1, 'cash', (err) => {
+    Db.User.settle(1, 'cash', (err) => {
 
       expect(err).to.be.null();
 
-      Db.Patron.readOne(1, (err, result) => {
+      Db.User.readOne(1, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.tab).to.equal(0);

@@ -5,11 +5,11 @@ const models = {
   Bar: require('./model/Bar'),
   BarStock: require('./model/BarStock'),
   Friend: require('./model/Friend'),
-  Patron: require('./model/Patron'),
   Recipe: require('./model/Recipe'),
   StockModel: require('./model/StockModel'),
   StockType: require('./model/StockType'),
   Transaction: require('./model/Transaction'),
+  User: require('./model/User'),
 };
 
 
@@ -171,11 +171,11 @@ module.exports = [
 /* ===== SPECIAL FUNCTIONS ===== */
   {
     method: 'POST',
-    path: '/api/Patron/{id}/order',
+    path: '/api/User/{id}/order',
     config: {
       validate: {
         params: {
-          id: models.Patron.schema.id,
+          id: models.User.schema.id,
         },
         payload: {
           abv: models.StockModel.schema.abv,
@@ -190,7 +190,7 @@ module.exports = [
       const Db = request.server.app.db;
 
       Db.Transaction.createOne({
-        patronId: request.params.id,
+        userId: request.params.id,
         type: 'order',
         monetaryValue: request.payload.monetaryValue,
         recipeId: request.payload.recipeId,
@@ -207,11 +207,11 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/api/Patron/{id}/settle',
+    path: '/api/User/{id}/settle',
     config: {
       validate: {
         params: {
-          id: models.Patron.schema.id,
+          id: models.User.schema.id,
         },
         payload: {
           platform: Joi.string().allow(['splitwise', 'cash', 'house']),
@@ -222,7 +222,7 @@ module.exports = [
 
       const Db = request.server.app.db;
 
-      Db.Patron.settle(request.params.id, request.payload.platform, (err, result) => {
+      Db.User.settle(request.params.id, request.payload.platform, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));

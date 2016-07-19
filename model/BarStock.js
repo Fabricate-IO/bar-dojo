@@ -10,7 +10,7 @@ const StockType = require('./StockType');
 
 exports.schema = {
   id: Joi.string(), // compound key: barId-stockModelId
-  barId: Bar.id,
+  barId: Bar.schema.id,
   stockModelId: StockModel.schema.id,
   remainingUnits: Joi.array().items(Joi.number().min(0)).description('Array of remaining full volumes / quantities'),
   residualVolume: Joi.number().min(0).description('How much volume is left in the current open bottle'),

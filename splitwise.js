@@ -19,7 +19,7 @@ exports.setup = function (callback) {
     splitwise = new Splitwise(Config.splitwise.consumerKey, Config.splitwise.consumerSecret);
   }
 
-  Db.Patron.readOne(0, (err, result) => {
+  Db.User.readOne(0, (err, result) => {
 
     if (err) {
       return callback(err);
@@ -35,7 +35,7 @@ exports.setup = function (callback) {
         result.secret.splitwiseToken = token;
         result.secret.splitwiseSecret = secret;
 
-        Db.Patron.updateOne(0, { secret: result.secret }, (err, result) => {
+        Db.User.updateOne(0, { secret: result.secret }, (err, result) => {
 
           if (err) {
             return callback(err);

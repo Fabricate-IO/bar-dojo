@@ -1,4 +1,4 @@
-// Patron: users
+// Users: bar owners and patrons
 
 const Joi = require('joi');
 
@@ -7,15 +7,15 @@ const Bar = require('./Bar');
 
 exports.schema = {
   id: Joi.number(),
-  barId: Bar.schema.id,
   name: Joi.string(),
-  image: Joi.string(), // optional; pulled from API they're created from when possible
-  tab: Joi.number(), // current amount owed (can be negative, ie gift card / credit)
-  tabDelta: Joi.number().description('Shortcut for charging patrons; positive value = increase tab'),
+  image: Joi.string().description('optional; pulled from API they were created from when possible'),
+  ownsBarId: Bar.schema.id.description('If they own a bar, what bar?'),
+  tab: Joi.number().description('current amount owed (can be negative, ie gift card / credit)'),
+  tabDelta: Joi.number().description('Shortcut for charging user; positive value = increase tab'),
   splitwiseId: Joi.number().description('splitwise user id, if their account is tied to splitwise'),
   secret: {
-    splitwiseToken: Joi.string(), // only for the user(s) making the splitwise transactions
-    splitwiseSecret: Joi.string(), // only for the user(s) making the splitwise transactions
+    splitwiseToken: Joi.string().description('API key for users making splitwise transactions'),
+    splitwiseSecret: Joi.string().description('API key for users making splitwise transactions'),
   },
 
   // Metadata
@@ -54,18 +54,9 @@ exports.hooks = {
 };
 
 
-exports.initialState = [
-  {
-    id: 0,
-    name: 'Owner',
-    tab: 0,
-  },
-];
-
-
 exports.settle = function (id, platform, callback) {
   Db.Transaction.createOne({
-    patronId: id,
+    userId: id,
     settlementPlatform: platform,
     type: 'settle',
   }, callback);

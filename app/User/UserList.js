@@ -16,11 +16,11 @@ import RaisedButton from 'material-ui/RaisedButton';
 import SelectField from 'material-ui/SelectField';
 
 
-const Patron = React.createClass({
+const User = React.createClass({
   getInitialState: function () {
     return {
       open: false,
-      settlePlatform: (this.props.patron.splitwiseId != null) ? 'splitwise' : 'cash',
+      settlePlatform: (this.props.user.splitwiseId != null) ? 'splitwise' : 'cash',
     };
   },
   handleOpen: function () {
@@ -30,19 +30,19 @@ const Patron = React.createClass({
     this.setState({ open: false });
   },
   handleEdit: function () {
-    hashHistory.push('/patrons/edit/' + this.props.patron.id);
+    hashHistory.push('/users/edit/' + this.props.user.id);
   },
   handleSettleSelect: function (event, index, value) {
     this.setState({ settlePlatform: value });
   },
   handleSettle: function () {
 
-    NetworkRequest('POST', '/api/Patron/' + this.props.patron.id + '/settle',
+    NetworkRequest('POST', '/api/User/' + this.props.user.id + '/settle',
       { platform: this.state.settlePlatform },
       (err, result) => {
 
       if (err) {
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
       this.setState({ open: false });
@@ -54,17 +54,17 @@ const Patron = React.createClass({
     let settleOptions = [
       <MenuItem key='0' value='cash' primaryText='Cash' />
     ];
-    if (this.props.patron.splitwiseId != null) {
+    if (this.props.user.splitwiseId != null) {
       settleOptions.push(<MenuItem key='1' value='splitwise' primaryText='Splitwise' />);
     }
-    const tab = '$' + this.props.patron.tab;
-    const modalTitle = 'Settle with ' + this.props.patron.name + ' - ' + tab;
+    const tab = '$' + this.props.user.tab;
+    const modalTitle = 'Settle with ' + this.props.user.name + ' - ' + tab;
 
     return (
       <div>
         <ListItem
           leftAvatar={
-            <Avatar src={this.props.patron.image} />
+            <Avatar src={this.props.user.image} />
           }
           rightIconButton={
             <div>
@@ -72,7 +72,7 @@ const Patron = React.createClass({
               <IconButton onClick={this.handleEdit}><IconEdit /></IconButton>
             </div>
           }
-          primaryText={this.props.patron.name}
+          primaryText={this.props.user.name}
           secondaryText={tab}
         />
         {expanded}
@@ -93,7 +93,7 @@ const Patron = React.createClass({
           open={this.state.open}
           onRequestClose={this.handleClose}
         >
-          <Avatar src={this.props.patron.image} size={80} style={styles.floatLeft} />
+          <Avatar src={this.props.user.image} size={80} style={styles.floatLeft} />
           <br/>
           <SelectField
             value={this.state.settlePlatform}
@@ -116,10 +116,10 @@ module.exports = React.createClass({
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Patron?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/User?orderBy=name', (err, result) => {
 
       if (err) {
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
       this.setState({ data: result });
@@ -131,13 +131,13 @@ module.exports = React.createClass({
       return utils.search(this.props.search, [element.name]);
     });
 
-    const patrons = searched.map((patron) => {
-      return <Patron key={patron.id} patron={patron}></Patron>;
+    const users = searched.map((user) => {
+      return <User key={user.id} user={user} />;
     });
 
     return (
       <List>
-        {patrons}
+        {users}
       </List>
     );
   },

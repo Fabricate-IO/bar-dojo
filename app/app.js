@@ -17,14 +17,14 @@ import IconAdd from 'material-ui/svg-icons/content/add';
 import IconBeer from './Icon/IconBeer';
 import IconInventory from './Icon/IconInventory';
 import IconMixed from './Icon/IconMixed';
-import IconPatrons from './Icon/IconPatrons';
+import IconUsers from './Icon/IconUsers';
 import IconSearch from 'material-ui/svg-icons/action/search';
 import IconShot from './Icon/IconShot';
 import IconWine from './Icon/IconWine';
 
 const DrinkList = require('./DrinkList');
-const PatronForm = require('./Patron/PatronForm');
-const PatronList = require('./Patron/PatronList');
+const UserForm = require('./User/UserForm');
+const UserList = require('./User/UserList');
 const RecipeForm = require('./Recipe/RecipeForm');
 const RecipeList = require('./Recipe/RecipeList');
 const StockForm = require('./Stock/StockForm');
@@ -54,7 +54,7 @@ const AppLayout = React.createClass({
   handleAdd: function () {
     ((path) => {
       if (path.indexOf('mixed') !== -1) { return hashHistory.push('/mixed/add'); }
-      if (path.indexOf('patrons') !== -1) { return hashHistory.push('/patrons/add'); }
+      if (path.indexOf('users') !== -1) { return hashHistory.push('/users/add'); }
       if (path.indexOf('inventory') !== -1) { return hashHistory.push('/inventory/add'); }
       console.log('TODO: add button not set up for this page yet');
     })(this.props.location.pathname);
@@ -73,7 +73,7 @@ const AppLayout = React.createClass({
       if (path.indexOf('beer') !== -1) { return 'Beer'; }
       if (path.indexOf('wine') !== -1) { return 'Wine'; }
       if (path.indexOf('shots') !== -1) { return 'Shots'; }
-      if (path.indexOf('patrons') !== -1) { return 'Patrons'; }
+      if (path.indexOf('users') !== -1) { return 'Users'; }
       if (path.indexOf('inventory') !== -1) { return 'Inventory'; }
       return 'TODO: set page name';
     })(this.props.location.pathname);
@@ -131,7 +131,7 @@ const AppLayout = React.createClass({
             <Link to="/beer" style={styles.navlink}><MenuItem leftIcon={<IconBeer />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate}>Beer</MenuItem></Link>
             <Link to="/wine" style={styles.navlink}><MenuItem leftIcon={<IconWine />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Wine' /></Link>
             <Link to="/shots" style={styles.navlink}><MenuItem leftIcon={<IconShot />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Straight Shots' /></Link>
-            <Link to="/patrons" style={styles.navlink}><MenuItem leftIcon={<IconPatrons />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Patrons' /></Link>
+            <Link to="/users" style={styles.navlink}><MenuItem leftIcon={<IconUsers />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Patrons' /></Link>
             <Link to="/inventory" style={styles.navlink}><MenuItem leftIcon={<IconInventory />}innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Inventory' /></Link>
           </Drawer>
           <div style={styles.contentBox}>
@@ -169,10 +169,10 @@ ReactDOM.render(
       <Route path="/shots">
         <IndexRoute component={DrinkList} />
       </Route>
-      <Route path="/patrons">
-        <IndexRoute component={PatronList} />
-        <Route path="add" component={PatronForm} />
-        <Route path="edit/:id" component={PatronForm} />
+      <Route path="/users">
+        <IndexRoute component={UserList} />
+        <Route path="add" component={UserForm} />
+        <Route path="edit/:id" component={UserForm} />
       </Route>
       <Route path="/inventory">
         <IndexRoute component={StockList} />

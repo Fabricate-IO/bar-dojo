@@ -20,7 +20,7 @@ const Drink = React.createClass({
   getInitialState: function () {
     return {
       modal: false,
-      patronId: null,
+      userId: null,
     };
   },
   handleModalOpen: function () {
@@ -31,7 +31,7 @@ const Drink = React.createClass({
   },
   handleOrder: function () {
 
-    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/order',
+    NetworkRequest('POST', '/api/User/' + this.state.userId + '/order',
       {
         abv: this.props.drink.abv,
         ingredients: [{
@@ -43,7 +43,7 @@ const Drink = React.createClass({
       (err, result) => {
 
       if (err) {
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
       this.setState({ modal: false });
@@ -53,18 +53,18 @@ const Drink = React.createClass({
   },
   handlePatronSelect: function (event, index, value) {
     event.preventDefault();
-    this.setState({ patronId: value });
+    this.setState({ userId: value });
   },
   render: function () {
 
     const buyButtonText = 'Buy - ' + this.props.drink.priceFormatted;
     let buyConfirmText = 'Please select a patron to charge';
-    const buyConfirmDisabled = (this.state.patronId == null);
+    const buyConfirmDisabled = (this.state.userId == null);
     if (buyConfirmDisabled === false) {
-      buyConfirmText = 'Charge ' + this.props.Patrons.find((patron) => { return (patron.id === this.state.patronId); }).name + ' ' + this.props.drink.priceFormatted;
+      buyConfirmText = 'Charge ' + this.props.Patrons.find((user) => { return (user.id === this.state.userId); }).name + ' ' + this.props.drink.priceFormatted;
     }
-    const patrons = this.props.Patrons.map((patron) => {
-      return <MenuItem key={patron.id} value={patron.id} primaryText={patron.name} />;
+    const users = this.props.Patrons.map((user) => {
+      return <MenuItem key={user.id} value={user.id} primaryText={user.name} />;
     });
 
     let unitType = 'bottle';
@@ -104,11 +104,11 @@ const Drink = React.createClass({
         >
           <SelectField
             maxHeight={300}
-            value={this.state.patronId}
+            value={this.state.userId}
             onChange={this.handlePatronSelect}
             floatingLabelText="Select Patron"
           >
-            {patrons}
+            {users}
           </SelectField>
         </Dialog>
       </div>

@@ -9,7 +9,7 @@ const Splitwise = require('../splitwise');
 
 const Bar = require('./Bar');
 const BarStock = require('./BarStock');
-const Patron = require('./Patron');
+const User = require('./User');
 const Recipe = require('./Recipe');
 const StockModel = require('./StockModel');
 const StockType = require('./StockType');
@@ -30,7 +30,7 @@ exports.schema = {
   unitsStocked: Joi.array(Joi.number().min(0)).description('For restocks, array of volumes added'),
 
   // order / settle
-  patronId: Patron.schema.id,
+  userId: User.schema.id,
   settlementPlatform: Joi.string().allow(['cash', 'splitwise']),
   recipeId: Recipe.schema.id.description('Recipe ordered'),
   ingredients: Joi.array(Joi.object().keys({
@@ -63,8 +63,8 @@ exports.hooks = {
         return callback(new Error('No ingredients defined'));
       }
 
-      if (object.patronId == null) {
-        return callback(new Error('No patron defined'));
+      if (object.userId == null) {
+        return callback(new Error('No user defined'));
       }
 
       Async.forEach(object.ingredients, (ingredient, callback) => {
@@ -83,42 +83,42 @@ exports.hooks = {
           return callback(err);
         }
 
-        Db.Patron.updateOne(object.patronId, { tabDelta: object.monetaryValue }, (err, result) => {
+        Db.User.updateOne(object.userId, { tabDelta: object.monetaryValue }, (err, result) => {
           return callback(err, object);
         });
       });
     }
     else if (object.type === 'settle') {
 
-      Db.Patron.readOne(object.patronId, (err, patron) => {
+      Db.User.readOne(object.userId, (err, user) => {
 
         if (err) {
           return callback(err);
         }
 
-        if (patron == null) {
-          return callback(new Error('Patron id ' + object.patronId + ' not found'));
+        if (user == null) {
+          return callback(new Error('User id ' + object.userId + ' not found'));
         }
 
-        object.monetaryValue = -patron.tab;
+        object.monetaryValue = -user.tab;
 
         if (object.settlementPlatform === 'splitwise') {
 
-          if (patron.splitwiseId == null) {
-            return callback(new Error(patron.name + ' is not connected to splitwise'));
+          if (user.splitwiseId == null) {
+            return callback(new Error(user.name + ' is not connected to splitwise'));
           }
 
-          Splitwise.createExpense(patron.tab, 'Bar Dojo', patron.splitwiseId, (err, result) => {
+          Splitwise.createExpense(user.tab, 'Bar Dojo', user.splitwiseId, (err, result) => {
 
             if (err) {
               return callback(err);
             }
 
-            return Db.Patron.updateOne(patron.id, { tab: 0 }, (err) => { return callback(err, object); });
+            return Db.User.updateOne(user.id, { tab: 0 }, (err) => { return callback(err, object); });
           });
         }
         else if (object.settlementPlatform === 'cash') {
-          return Db.Patron.updateOne(patron.id, { tab: 0 }, (err) => { return callback(err, object); });
+          return Db.User.updateOne(user.id, { tab: 0 }, (err) => { return callback(err, object); });
         }
         else {
           return callback(new Error('Settlement missing valid settlementPlatform value'));
