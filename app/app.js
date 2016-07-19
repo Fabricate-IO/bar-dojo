@@ -89,7 +89,12 @@ const AppLayout = React.createClass({
 
     return (
       <MuiThemeProvider muiTheme={theme}>
-        <div id="page">
+        <div
+          id="page"
+          style={{
+            marginTop: '64px',
+          }}
+        >
           <AppBar
             title={pageName}
             iconElementRight={
@@ -105,6 +110,10 @@ const AppLayout = React.createClass({
               </div>
             }
             onLeftIconButtonTouchTap={this.handleToggle}
+            style={{
+              position: 'fixed',
+              top: 0,
+            }}
           />
           <Drawer
             docked={false}
@@ -114,6 +123,7 @@ const AppLayout = React.createClass({
           >
             <div
               style={{borderBottom: '1px solid #d2d2d2'}}
+              onTouchTap={this.handleToggle}
             >
               <img src="/static/img/logo.png" style={styles.logo}/>
             </div>
