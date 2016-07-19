@@ -1,7 +1,5 @@
 // Friend: Use the splitwise API (not the DB) to fetch a list of friends
 
-'use strict';
-
 const Joi = require('joi');
 
 const Splitwise = require('../splitwise');

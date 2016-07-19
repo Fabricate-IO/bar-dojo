@@ -1,17 +1,16 @@
 // BarStock: the available inventory and price of a given StockModel in a given Bar
 
-'use strict';
-
 const Joi = require('joi');
 
 const Db = require('../db');
+const Bar = require('./Bar');
 const StockModel = require('./StockModel');
 const StockType = require('./StockType');
 
 
 exports.schema = {
   id: Joi.string(), // compound key: barId-stockModelId
-  barId: Joi.number(),
+  barId: Bar.id,
   stockModelId: StockModel.schema.id,
   remainingUnits: Joi.array().items(Joi.number().min(0)).description('Array of remaining full volumes / quantities'),
   residualVolume: Joi.number().min(0).description('How much volume is left in the current open bottle'),

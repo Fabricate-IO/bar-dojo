@@ -1,5 +1,3 @@
-'use strict';
-
 const Async = require('async');
 const Hapi = require('hapi');
 

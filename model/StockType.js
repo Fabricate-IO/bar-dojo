@@ -3,8 +3,6 @@
   // with the same name will result in a "key already exists" error
 // Not designed to be deleted or edited - global + once they're fully populated, these categories shouldn't really change
 
-'use strict';
-
 const Joi = require('joi');
 
 

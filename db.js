@@ -1,7 +1,5 @@
 // Wrapper around the DB
 
-'use strict';
-
 const Async = require('async');
 const Fs = require('fs');
 const Hoek = require('hoek');
@@ -12,6 +10,7 @@ let Rethink = null;
 let Config = null;
 
 const modelNames = [ // in requirement order
+  'Bar',
   'StockType',
   'StockModel',
   'BarStock',

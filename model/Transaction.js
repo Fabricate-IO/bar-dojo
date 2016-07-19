@@ -1,7 +1,5 @@
 // Transaction: a log of transactions made
 
-'use strict';
-
 const Async = require('async');
 const Joi = require('joi');
 
@@ -9,6 +7,7 @@ const Config = require('../config');
 const Db = require('../db');
 const Splitwise = require('../splitwise');
 
+const Bar = require('./Bar');
 const BarStock = require('./BarStock');
 const Patron = require('./Patron');
 const Recipe = require('./Recipe');
@@ -19,7 +18,7 @@ const StockType = require('./StockType');
 exports.schema = {
   id: Joi.number(),
   type: Joi.string().allow(['order', 'settle', 'restock']),
-  barId: Joi.number(),
+  barId: Bar.schema.id,
   monetaryValue: Joi.number().description('The cost of the drink when ordered / settlement payment amount / cost of item restocked'),
 
   // Restock

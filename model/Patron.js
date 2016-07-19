@@ -1,15 +1,13 @@
 // Patron: users
 
-
-'use strict';
-
 const Joi = require('joi');
 
 const Db = require('../db');
-
+const Bar = require('./Bar');
 
 exports.schema = {
   id: Joi.number(),
+  barId: Bar.schema.id,
   name: Joi.string(),
   image: Joi.string(), // optional; pulled from API they're created from when possible
   tab: Joi.number(), // current amount owed (can be negative, ie gift card / credit)

@@ -1,3 +1,4 @@
 module.exports = [].concat(
     require('./api'),
-    require('./ui'));
+    require('./ui')
+);

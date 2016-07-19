@@ -1,7 +1,5 @@
 // Recipe: a named combination of quantities of stock types
 
-'use strict';
-
 const Joi = require('joi');
 
 const Db = require('../db');

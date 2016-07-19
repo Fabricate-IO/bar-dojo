@@ -1,9 +1,8 @@
-'use strict';
-
 const Boom = require('boom');
 const Joi = require('joi');
 
 const models = {
+  Bar: require('./model/Bar'),
   BarStock: require('./model/BarStock'),
   Friend: require('./model/Friend'),
   Patron: require('./model/Patron'),

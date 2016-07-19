@@ -1,4 +1,5 @@
 config-secret.js
+rethinkdb_data
 
 # Logs
 logs

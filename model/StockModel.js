@@ -1,7 +1,5 @@
 // StockModel: A specific named / branded item, ie 1800 Silver Tequila
 
-'use strict';
-
 const Joi = require('joi');
 
 const StockType = require('./StockType');
