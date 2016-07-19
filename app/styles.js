@@ -15,8 +15,9 @@ module.exports = {
   logo: {
     maxHeight: 42,
     width: 'auto',
-    paddingTop: 12,
-    paddingLeft: 12,
+    paddingTop: 10,
+    paddingLeft: 14,
+    paddingBottom: 10,
   },
   appbar: {
     backgroundColor: cyan500,

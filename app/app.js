@@ -14,7 +14,13 @@ import AppBar from 'material-ui/AppBar';
 import TextField from 'material-ui/TextField';
 import IconButton from 'material-ui/IconButton';
 import IconAdd from 'material-ui/svg-icons/content/add';
+import IconBeer from './Icon/IconBeer';
+import IconInventory from './Icon/IconInventory';
+import IconMixed from './Icon/IconMixed';
+import IconPatrons from './Icon/IconPatrons';
 import IconSearch from 'material-ui/svg-icons/action/search';
+import IconShot from './Icon/IconShot';
+import IconWine from './Icon/IconWine';
 
 const DrinkList = require('./DrinkList');
 const PatronForm = require('./Patron/PatronForm');
@@ -77,6 +83,10 @@ const AppLayout = React.createClass({
       searchbarStyle.display = 'none';
     }
 
+    const menuItemInnerStyle = {
+      paddingLeft: '48px'
+    };
+
     return (
       <MuiThemeProvider muiTheme={theme}>
         <div id="page">
@@ -102,13 +112,17 @@ const AppLayout = React.createClass({
             open={this.state.open}
             onRequestChange={(open) => this.setState({open})}
           >
-            <img src="/static/img/logo.png" style={styles.logo}/>
-            <Link to="/mixed" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Mixed Drinks</MenuItem></Link>
-            <Link to="/beer" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Beer</MenuItem></Link>
-            <Link to="/wine" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Wine</MenuItem></Link>
-            <Link to="/shots" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Straight Shots</MenuItem></Link>
-            <Link to="/patrons" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Patrons</MenuItem></Link>
-            <Link to="/inventory" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Inventory</MenuItem></Link>
+            <div
+              style={{borderBottom: '1px solid #d2d2d2'}}
+            >
+              <img src="/static/img/logo.png" style={styles.logo}/>
+            </div>
+            <Link to="/mixed" style={styles.navlink}><MenuItem leftIcon={<IconMixed />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Mixed Drinks' /></Link>
+            <Link to="/beer" style={styles.navlink}><MenuItem leftIcon={<IconBeer />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate}>Beer</MenuItem></Link>
+            <Link to="/wine" style={styles.navlink}><MenuItem leftIcon={<IconWine />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Wine' /></Link>
+            <Link to="/shots" style={styles.navlink}><MenuItem leftIcon={<IconShot />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Straight Shots' /></Link>
+            <Link to="/patrons" style={styles.navlink}><MenuItem leftIcon={<IconPatrons />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Patrons' /></Link>
+            <Link to="/inventory" style={styles.navlink}><MenuItem leftIcon={<IconInventory />}innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Inventory' /></Link>
           </Drawer>
           <div style={styles.contentBox}>
             {React.cloneElement(this.props.children, {

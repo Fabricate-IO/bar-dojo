@@ -32,8 +32,22 @@ exports.init = function (config, callback) {
     Rethink.dbDrop(Config.rethink.db);
   }
 
-  // fetch and initialize all models
+  // initialize DB and models
   Async.series([
+    (callback) => {
+      Rethink.dbList().run((err, dbs) => {
+
+        if (err) {
+          return callback(err);
+        }
+
+        if (dbs.indexOf(Config.rethink.db) !== -1) {
+          return callback();
+        }
+
+        return Rethink.dbCreate(Config.rethink.db).run(callback);
+      });
+    },
     (cb) => { Async.each(modelNames, _requireModels, cb); },
     (cb) => { Async.each(modelNames, _setModelInitialState, cb); }, // must be done before other db tasks that might create the table
     (cb) => { Async.each(modelNames, _initializeIndexes, cb); },
