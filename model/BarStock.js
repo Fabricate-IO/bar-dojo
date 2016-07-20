@@ -67,6 +67,7 @@ exports.hooks = {
 
     // implementation note: joining before order by insures output is ordered
     Rethink.table('BarStock')
+      .filter({ barId: auth.barId })
       .eqJoin('stockModelId', Rethink.table('StockModel'))
       .without({ right: { 'id': true, 'archived': true }})
       .zip()

@@ -340,3 +340,76 @@ describe('Transaction (settle):', () => {
     });
   });
 });
+
+
+describe('Transaction (auth):', () => {
+
+  before((done) => {
+
+    Db.init(Config, (err) => {
+
+      expect(err).to.be.null();
+
+      Db.nuke((err) => {
+
+        expect(err).to.be.null();
+        done();
+      });
+    });
+  });
+
+  after(Db.exit);
+
+
+  const fixtures = {
+    User: [
+      {
+        id: 1,
+        name: 'Tester',
+        tab: 10,
+      },
+    ],
+  };
+
+  it('create fixtures', (done) => {
+
+    Async.eachOf(fixtures, (value, key, callback) => {
+      Db[key].create(auth, value, callback);
+    }, (err) => {
+      expect(err).to.be.null();
+      done();
+    });
+  });
+
+  it('transactions only visible to the bar created on', (done) => {
+
+    Db.User.settle(auth, 1, 'cash', (err) => {
+
+      expect(err).to.be.null();
+
+      Db.User.readOne(auth, 1, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.tab).to.equal(0);
+
+        Db.Transaction.read(auth, {}, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.length).to.equal(1);
+
+          auth.barId = 1;
+
+          Db.Transaction.read(auth, {}, (err, result) => {
+
+            expect(err).to.be.null();
+            expect(result.length).to.equal(0);
+
+            auth.barId = 0;
+
+            done();
+          });
+        });
+      });
+    });
+  });
+});

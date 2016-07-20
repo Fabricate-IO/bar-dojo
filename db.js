@@ -201,7 +201,7 @@ function _requireModels (modelName, callback) {
         return callback(null, object);
       }
 
-      Rethink.table(modelName).max('id').default({ id: 0 }).run((err, result) => {
+      Rethink.table(modelName).max('id').default({ id: -1 }).run((err, result) => {
 
         if (err) {
           return callback(err);

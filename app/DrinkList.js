@@ -6,14 +6,12 @@ import styles from './styles';
 import utils from './utils';
 
 import Dialog from 'material-ui/Dialog';
-import Divider from 'material-ui/Divider';
 import FlatButton from 'material-ui/FlatButton';
 import { List, ListItem } from 'material-ui/List';
 import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 import SelectField from 'material-ui/SelectField';
 import Snackbar from 'material-ui/Snackbar';
-import Subheader from 'material-ui/Subheader';
 
 
 const Drink = React.createClass({

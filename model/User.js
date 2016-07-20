@@ -10,7 +10,7 @@ exports.schema = {
   name: Joi.string(),
   image: Joi.string().description('optional; pulled from API they were created from when possible'),
   ownsBarId: Bar.schema.id.description('If they own a bar, what bar?'),
-  twitterId: Joi.number().description('For auth; if account created via Twitter API'),
+  twitterId: Joi.string().description('For auth; if account created via Twitter API'),
   splitwiseId: Joi.number().description('splitwise user id, if bar is tied to splitwise'),
   tab: Joi.number().description('current amount owed (can be negative, ie gift card / credit)'),
   tabDelta: Joi.number().description('Shortcut for charging user; positive value = increase tab'),

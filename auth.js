@@ -38,8 +38,8 @@ module.exports = [
           request.cookieAuth.set({
             id: result[0].id,
             barId: result[0].ownsBarId,
-            token: request.auth.credentials.token,
-            secret: request.auth.credentials.secret,
+            token: auth.token,
+            secret: auth.secret,
           });
 
           return reply.redirect('/');
@@ -56,8 +56,8 @@ module.exports = [
 
             Db.User.createOne(auth, {
               twitterId: id,
-              name: request.auth.credentials.profile.displayName,
-              image: request.auth.credentials.profile.raw.profile_image_url,
+              name: auth.profile.displayName,
+              image: auth.profile.raw.profile_image_url,
               tab: 0,
               ownsBarId: bar.id,
             }, (err, user) => {
@@ -69,8 +69,8 @@ module.exports = [
               request.cookieAuth.set({
                 id: user.id,
                 barId: bar.id,
-                token: request.auth.credentials.token,
-                secret: request.auth.credentials.secret,
+                token: auth.token,
+                secret: auth.secret,
               });
 
               return reply.redirect('/');
@@ -78,6 +78,15 @@ module.exports = [
           });
         }
       });
+    },
+  },
+  {
+    method: 'GET',
+    path: '/auth/logout',
+    handler: (request, reply) => {
+
+      request.cookieAuth.clear();
+      return reply.redirect('/');
     },
   },
 ];

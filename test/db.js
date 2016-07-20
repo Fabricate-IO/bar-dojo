@@ -304,11 +304,11 @@ describe('CRUD egde cases:', () => {
 
     const fixtures = {
       BarStock: [{
-        barId: 1,
-        stockModelId: 1,
+        barId: 0,
+        stockModelId: 0,
       }],
       StockModel: [{
-        id: 1,
+        id: 0,
         stockTypeId: 'dark rum',
       }],
       StockType: [{
@@ -322,7 +322,7 @@ describe('CRUD egde cases:', () => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.createOne(auth, { barId: 1, stockModelId: 1 }, (err) => {
+      Db.BarStock.createOne(auth, { barId: 0, stockModelId: 0 }, (err) => {
 
         expect(err).to.not.be.null();
 

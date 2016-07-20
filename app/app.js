@@ -8,18 +8,21 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 // import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 import styles from './styles';
 
+import Divider from 'material-ui/Divider';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import AppBar from 'material-ui/AppBar';
 import TextField from 'material-ui/TextField';
 import IconButton from 'material-ui/IconButton';
 import IconAdd from 'material-ui/svg-icons/content/add';
+import IconAnalytics from './Icon/IconAnalytics';
 import IconBeer from './Icon/IconBeer';
 import IconInventory from './Icon/IconInventory';
 import IconMixed from './Icon/IconMixed';
 import IconUsers from './Icon/IconUsers';
 import IconSearch from 'material-ui/svg-icons/action/search';
 import IconShot from './Icon/IconShot';
+import IconTimeline from './Icon/IconTimeline';
 import IconWine from './Icon/IconWine';
 
 const DrinkList = require('./DrinkList');
@@ -29,6 +32,7 @@ const RecipeForm = require('./Recipe/RecipeForm');
 const RecipeList = require('./Recipe/RecipeList');
 const StockForm = require('./Stock/StockForm');
 const StockList = require('./Stock/StockList');
+const TimelineList = require('./TimelineList');
 
 injectTapEventPlugin();
 const theme = getMuiTheme();
@@ -56,7 +60,7 @@ const AppLayout = React.createClass({
       if (path.indexOf('mixed') !== -1) { return hashHistory.push('/mixed/add'); }
       if (path.indexOf('users') !== -1) { return hashHistory.push('/users/add'); }
       if (path.indexOf('inventory') !== -1) { return hashHistory.push('/inventory/add'); }
-      console.log('TODO: add button not set up for this page yet');
+      alert('TODO: add button not set up for this page yet');
     })(this.props.location.pathname);
   },
   handleToggle: function () { this.setState({open: !this.state.open}); },
@@ -75,12 +79,14 @@ const AppLayout = React.createClass({
       fill: 'white',
     };
     const pageName = ((path) => {
-      if (path.indexOf('mixed') !== -1) { return <div><IconMixed style={titleIconStyles} />Mixed Drinks</div>; }
+      if (path.indexOf('analytics') !== -1) { return <div><IconAnalytics style={titleIconStyles} />Analytics</div>; }
       if (path.indexOf('beer') !== -1) { return <div><IconBeer style={titleIconStyles} />Beer</div>; }
-      if (path.indexOf('wine') !== -1) { return <div><IconWine style={titleIconStyles} />Wine</div>; }
-      if (path.indexOf('shots') !== -1) { return <div><IconShot style={titleIconStyles} />Shots</div>; }
-      if (path.indexOf('users') !== -1) { return <div><IconUsers style={titleIconStyles} />Patrons</div>; }
       if (path.indexOf('inventory') !== -1) { return <div><IconInventory style={titleIconStyles} />Inventory</div>; }
+      if (path.indexOf('mixed') !== -1) { return <div><IconMixed style={titleIconStyles} />Mixed Drinks</div>; }
+      if (path.indexOf('shots') !== -1) { return <div><IconShot style={titleIconStyles} />Shots</div>; }
+      if (path.indexOf('timeline') !== -1) { return <div><IconTimeline style={titleIconStyles} />Timeline</div>; }
+      if (path.indexOf('users') !== -1) { return <div><IconUsers style={titleIconStyles} />Patrons</div>; }
+      if (path.indexOf('wine') !== -1) { return <div><IconWine style={titleIconStyles} />Wine</div>; }
       return 'TODO: set page name';
     })(this.props.location.pathname);
 
@@ -138,7 +144,11 @@ const AppLayout = React.createClass({
             <Link to="/wine" style={styles.navlink}><MenuItem leftIcon={<IconWine />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Wine' /></Link>
             <Link to="/shots" style={styles.navlink}><MenuItem leftIcon={<IconShot />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Straight Shots' /></Link>
             <Link to="/users" style={styles.navlink}><MenuItem leftIcon={<IconUsers />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Patrons' /></Link>
-            <Link to="/inventory" style={styles.navlink}><MenuItem leftIcon={<IconInventory />}innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Inventory' /></Link>
+            <Link to="/inventory" style={styles.navlink}><MenuItem leftIcon={<IconInventory />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Inventory' /></Link>
+            <Link to="/timeline" style={styles.navlink}><MenuItem leftIcon={<IconTimeline />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Timeline' /></Link>
+            <Link to="/analytics" style={styles.navlink}><MenuItem leftIcon={<IconAnalytics />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Analytics' /></Link>
+            <Divider/>
+            <a href="/auth/logout" style={styles.navlink}><MenuItem primaryText='Log out' /></a>
           </Drawer>
           <div style={styles.contentBox}>
             {React.cloneElement(this.props.children, {
@@ -150,11 +160,11 @@ const AppLayout = React.createClass({
       </MuiThemeProvider>
     );
     // <Link to="/shopping" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Shopping List</MenuItem></Link>
-    // <Link to="/history" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>History</MenuItem></Link>
   }
 });
 
 
+// TODO anlaytics route
 ReactDOM.render(
   <Router history={hashHistory}>
     <Route component={AppLayout}>
@@ -184,6 +194,9 @@ ReactDOM.render(
         <IndexRoute component={StockList} />
         <Route path="add" component={StockForm} />
         <Route path="edit/:id" component={StockForm} />
+      </Route>
+      <Route path="/timeline">
+        <IndexRoute component={TimelineList} />
       </Route>
     </Route>
   </Router>,

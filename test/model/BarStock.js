@@ -199,6 +199,36 @@ describe('BarStock:', () => {
       });
     });
   });
+
+  it('filters by barId', (done) => {
+
+    Db.BarStock.createOne(auth, {
+      barId: 1,
+      stockModelId: 0,
+      residualVolume: 100,
+    }, (err, result) => {
+
+      expect(err).to.be.null();
+
+      Db.BarStock.read(auth, {}, (err, result) => {
+
+        expect(err).to.be.null();
+        expect(result.length).to.equal(fixtures.BarStock.length);
+
+        auth.barId = 1;
+
+        Db.BarStock.read(auth, {}, (err, result) => {
+
+          expect(err).to.be.null();
+          expect(result.length).to.equal(1);
+
+          auth.barId = 0;
+
+          done();
+        });
+      });
+    });
+  });
 });
 
 

@@ -58,6 +58,8 @@ exports.hooks = {
 
   preSave: function (Rethink, auth, object, callback) {
 
+    object.barId = auth.barId;
+
     if (object.type === 'order') {
       if (object.ingredients == null || object.ingredients.length === 0) {
         return callback(new Error('No ingredients defined'));
@@ -153,6 +155,11 @@ exports.hooks = {
       return callback(new Error('Transaction object missing type'));
     }
   },
+  read: function (Rethink, auth, query, sort, limit, callback) {
+
+    query.barId = auth.barId;
+    Rethink.table('Transaction').filter(query).orderBy(sort).limit(limit).run(callback);
+  },
 };
 
 
@@ -161,7 +168,7 @@ function _createBarStock(auth, object, callback) {
   const volumeAvailable = object.unitsStocked.reduce((a, b) => { return a + b; }, 0);
 
   Db.BarStock.createOne(auth, {
-    barId: object.barId,
+    barId: auth.barId,
     stockModelId: object.stockModelId,
     remainingUnits: object.unitsStocked,
     volumeCost: object.monetaryValue / volumeAvailable,

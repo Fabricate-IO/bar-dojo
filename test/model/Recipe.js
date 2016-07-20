@@ -95,6 +95,12 @@ describe('Recipe:', () => {
         residualVolume: 10,
         archived: true,
       },
+      {
+        barId: 1,
+        stockModelId: 8,
+        volumeCost: 999,
+        residualVolume: 10,
+      },
     ],
     Recipe: [
       {
@@ -157,6 +163,11 @@ describe('Recipe:', () => {
         id: 7,
         stockTypeId: 'gin',
         name: 'Archived BarStock',
+      },
+      {
+        id: 8,
+        stockTypeId: 'gin',
+        name: 'Different barId',
       },
     ],
     StockType: [
@@ -228,6 +239,25 @@ describe('Recipe:', () => {
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
       expect(result[0].id).to.equal(1);
+      done();
+    });
+  });
+
+  it('based on current bar stock only', (done) => {
+
+    auth.barId = 1;
+
+    Db.Recipe.read(auth, {}, (err, result) => {
+
+      expect(err).to.be.null();
+      expect(result.length).to.equal(fixtures.Recipe.length);
+
+      const recipes = helpers.objectArrayToDict(result);
+      expect(recipes[0].inStock).to.equal(false);
+      expect(recipes[1].inStock).to.equal(false);
+
+      auth.barId = 0;
+
       done();
     });
   });
