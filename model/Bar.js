@@ -6,6 +6,9 @@ const Joi = require('joi');
 exports.schema = {
   id: Joi.number(),
   name: Joi.string(),
+  settings: {
+    unitSystem: Joi.string().allow(['common', 'imperial', 'metric']).description('How units should be displayed at this bar'),
+  },
   secret: {
     splitwiseToken: Joi.string().description('API key for making splitwise transactions'),
     splitwiseSecret: Joi.string().description('API key for making splitwise transactions'),

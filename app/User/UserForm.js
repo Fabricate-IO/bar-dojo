@@ -2,7 +2,7 @@ import React from 'react';
 import { hashHistory } from 'react-router';
 
 import NetworkRequest from '../networkRequest';
-import style from '../styles';
+import styles from '../styles';
 
 import Avatar from 'material-ui/Avatar';
 import MenuItem from 'material-ui/MenuItem';
@@ -126,7 +126,7 @@ module.exports = React.createClass({
           value={this.state.object.splitwiseId}
           onChange={this.handleSplitwiseFriendChange}
           floatingLabelText="Splitwise Friend"
-          style={style.textInput}
+          style={styles.textInput}
           disabled={editing}
         >
           {friends}

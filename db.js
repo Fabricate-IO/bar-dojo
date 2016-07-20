@@ -212,9 +212,11 @@ function _requireModels (modelName, callback) {
       });
     }),
     preSave: hooks.preSave || ((Rethink, auth, object, callback) => { callback(null, object); }),
-    prePublicObject: hooks.prePublic || ((object, callback) => { callback(null, object); }),
-    prePublicArray: ((objectOrObjects, callback) => {
-      Async.map([].concat(objectOrObjects), Models[modelName].hooks.prePublicObject, callback);
+    prePublicObject: hooks.prePublic || ((auth, object, callback) => { callback(null, object); }),
+    prePublicArray: ((auth, objectOrObjects, callback) => {
+      Async.map([].concat(objectOrObjects),
+        (object, callback) => { Models[modelName].hooks.prePublicObject(auth, object, callback); },
+        callback);
     }),
     read: hooks.read || ((Rethink, auth, query, sort, limit, callback) => {
       Rethink.table(modelName).filter(query).orderBy(sort).limit(limit).run(callback);

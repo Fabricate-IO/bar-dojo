@@ -68,7 +68,7 @@ module.exports = [
             return reply(Boom.badImplementation(err));
           }
 
-          request.server.app.db[modelName].hooks.prePublicObject(result, (err, result) => {
+          request.server.app.db[modelName].hooks.prePublicObject(auth, result, (err, result) => {
 
             if (err) {
               return reply(Boom.badImplementation(err));
@@ -106,7 +106,7 @@ module.exports = [
             return reply(Boom.badImplementation(err));
           }
 
-          request.server.app.db[modelName].hooks.prePublicArray(result, (err, result) => {
+          request.server.app.db[modelName].hooks.prePublicArray(auth, result, (err, result) => {
 
             if (err) {
               return reply(Boom.badImplementation(err));

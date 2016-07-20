@@ -21,6 +21,7 @@ import IconInventory from './Icon/IconInventory';
 import IconMixed from './Icon/IconMixed';
 import IconUsers from './Icon/IconUsers';
 import IconSearch from 'material-ui/svg-icons/action/search';
+import IconSettings from './Icon/IconSettings';
 import IconShot from './Icon/IconShot';
 import IconTimeline from './Icon/IconTimeline';
 import IconWine from './Icon/IconWine';
@@ -33,6 +34,8 @@ const RecipeList = require('./Recipe/RecipeList');
 const StockForm = require('./Stock/StockForm');
 const StockList = require('./Stock/StockList');
 const TimelineList = require('./TimelineList');
+const Analytics = require('./Analytics');
+const Settings = require('./Settings');
 
 injectTapEventPlugin();
 const theme = getMuiTheme();
@@ -41,6 +44,7 @@ const theme = getMuiTheme();
 const AppLayout = React.createClass({
   getInitialState: function () {
     return {
+      search: '',
       searchbarVisible: (document.body.getBoundingClientRect().width >= 425),
     };
   },
@@ -67,7 +71,7 @@ const AppLayout = React.createClass({
   handleNavigate: function () {
     this.setState({
       open: false,
-      search: null,
+      search: '',
     });
   },
   render: function () {
@@ -83,6 +87,7 @@ const AppLayout = React.createClass({
       if (path.indexOf('beer') !== -1) { return <div><IconBeer style={titleIconStyles} />Beer</div>; }
       if (path.indexOf('inventory') !== -1) { return <div><IconInventory style={titleIconStyles} />Inventory</div>; }
       if (path.indexOf('mixed') !== -1) { return <div><IconMixed style={titleIconStyles} />Mixed Drinks</div>; }
+      if (path.indexOf('settings') !== -1) { return <div><IconSettings style={titleIconStyles} />Settings</div>; }
       if (path.indexOf('shots') !== -1) { return <div><IconShot style={titleIconStyles} />Shots</div>; }
       if (path.indexOf('timeline') !== -1) { return <div><IconTimeline style={titleIconStyles} />Timeline</div>; }
       if (path.indexOf('users') !== -1) { return <div><IconUsers style={titleIconStyles} />Patrons</div>; }
@@ -146,8 +151,9 @@ const AppLayout = React.createClass({
             <Link to="/users" style={styles.navlink}><MenuItem leftIcon={<IconUsers />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Patrons' /></Link>
             <Link to="/inventory" style={styles.navlink}><MenuItem leftIcon={<IconInventory />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Inventory' /></Link>
             <Link to="/timeline" style={styles.navlink}><MenuItem leftIcon={<IconTimeline />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Timeline' /></Link>
-            <Link to="/analytics" style={styles.navlink}><MenuItem leftIcon={<IconAnalytics />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Analytics' /></Link>
+
             <Divider/>
+
             <a href="/auth/logout" style={styles.navlink}><MenuItem primaryText='Log out' /></a>
           </Drawer>
           <div style={styles.contentBox}>
@@ -159,6 +165,8 @@ const AppLayout = React.createClass({
         </div>
       </MuiThemeProvider>
     );
+    // <Link to="/analytics" style={styles.navlink}><MenuItem leftIcon={<IconAnalytics />} innerDivStyle={menuItemInnerStyle} onTouchTap={this.handleNavigate} primaryText='Analytics' /></Link>
+    // <Link to="/settings" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate} primaryText='Settings' /></Link>
     // <Link to="/shopping" style={styles.navlink}><MenuItem onTouchTap={this.handleNavigate}>Shopping List</MenuItem></Link>
   }
 });
@@ -197,6 +205,12 @@ ReactDOM.render(
       </Route>
       <Route path="/timeline">
         <IndexRoute component={TimelineList} />
+      </Route>
+      <Route path="/analytics">
+        <IndexRoute component={Analytics} />
+      </Route>
+      <Route path="/settings">
+        <IndexRoute component={Settings} />
       </Route>
     </Route>
   </Router>,
