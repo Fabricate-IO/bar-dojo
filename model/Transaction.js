@@ -56,7 +56,7 @@ exports.indexes = [
 
 exports.hooks = {
 
-  preSave: function (Rethink, object, callback) {
+  preSave: function (Rethink, auth, object, callback) {
 
     if (object.type === 'order') {
       if (object.ingredients == null || object.ingredients.length === 0) {
@@ -70,7 +70,7 @@ exports.hooks = {
       Async.forEach(object.ingredients, (ingredient, callback) => {
 
         if (ingredient.barStockId != null) {
-          return Db.BarStock.updateOne(ingredient.barStockId, {
+          return Db.BarStock.updateOne(auth, ingredient.barStockId, {
             residualVolumeDelta: -ingredient.quantity,
           }, callback);
         }
@@ -83,14 +83,14 @@ exports.hooks = {
           return callback(err);
         }
 
-        Db.User.updateOne(object.userId, { tabDelta: object.monetaryValue }, (err, result) => {
+        Db.User.updateOne(auth, object.userId, { tabDelta: object.monetaryValue }, (err, result) => {
           return callback(err, object);
         });
       });
     }
     else if (object.type === 'settle') {
 
-      Db.User.readOne(object.userId, (err, user) => {
+      Db.User.readOne(auth, object.userId, (err, user) => {
 
         if (err) {
           return callback(err);
@@ -108,17 +108,17 @@ exports.hooks = {
             return callback(new Error(user.name + ' is not connected to splitwise'));
           }
 
-          Splitwise.createExpense(user.tab, 'Bar Dojo', user.splitwiseId, (err, result) => {
+          Splitwise.createExpense(auth, user.tab, 'Bar Dojo', user.splitwiseId, (err, result) => {
 
             if (err) {
               return callback(err);
             }
 
-            return Db.User.updateOne(user.id, { tab: 0 }, (err) => { return callback(err, object); });
+            return Db.User.updateOne(auth, user.id, { tab: 0 }, (err) => { return callback(err, object); });
           });
         }
         else if (object.settlementPlatform === 'cash') {
-          return Db.User.updateOne(user.id, { tab: 0 }, (err) => { return callback(err, object); });
+          return Db.User.updateOne(auth, user.id, { tab: 0 }, (err) => { return callback(err, object); });
         }
         else {
           return callback(new Error('Settlement missing valid settlementPlatform value'));
@@ -130,7 +130,7 @@ exports.hooks = {
       object.monetaryValue = object.monetaryValue * (1 + Config.taxRate); // add taxes
 
       if (object.barStockId != null) {
-        return _updateBarStock(object, callback);
+        return _updateBarStock(auth, object, callback);
       }
       else {
 
@@ -140,12 +140,12 @@ exports.hooks = {
             return callback(new Error('Cannot restock - missing barStockId, stockModelId, stockTypeId and name. Cannot create required object(s).'));
           }
 
-          _createStockModel(object, (err, object) => {
-            return _createBarStock(object, callback);
+          _createStockModel(auth, object, (err, object) => {
+            return _createBarStock(auth, object, callback);
           });
         }
         else {
-          return _createBarStock(object, callback);
+          return _createBarStock(auth, object, callback);
         }
       }
     }
@@ -156,11 +156,11 @@ exports.hooks = {
 };
 
 
-function _createBarStock(object, callback) {
+function _createBarStock(auth, object, callback) {
 
   const volumeAvailable = object.unitsStocked.reduce((a, b) => { return a + b; }, 0);
 
-  Db.BarStock.createOne({
+  Db.BarStock.createOne(auth, {
     barId: object.barId,
     stockModelId: object.stockModelId,
     remainingUnits: object.unitsStocked,
@@ -172,9 +172,9 @@ function _createBarStock(object, callback) {
 }
 
 
-function _createStockModel(object, callback) {
+function _createStockModel(auth, object, callback) {
 
-  Db.StockModel.createOne({
+  Db.StockModel.createOne(auth, {
     name: object.name,
     stockTypeId: object.stockTypeId,
     abv: object.abv,
@@ -185,9 +185,9 @@ function _createStockModel(object, callback) {
 }
 
 
-function _updateBarStock(object, callback) {
+function _updateBarStock(auth, object, callback) {
 
-  Db.BarStock.readOne(object.barStockId, (err, result) => {
+  Db.BarStock.readOne(auth, object.barStockId, (err, result) => {
 
     if (err) {
       return callback(err);
@@ -203,7 +203,7 @@ function _updateBarStock(object, callback) {
     update.volumeAvailable = result.residualVolume + update.remainingUnits.reduce((a, b) => { return a + b; }, 0);
     update.volumeCost = ((result.volumeCost * result.volumeAvailable) + object.monetaryValue) / update.volumeAvailable;
 
-    Db.BarStock.updateOne(object.barStockId, update, (err, result) => {
+    Db.BarStock.updateOne(auth, object.barStockId, update, (err, result) => {
       return callback(err, object);
     });
   });

@@ -17,13 +17,15 @@
     "url": "https://github.com/toddmedema/bar-ninja/issues"
   },
   "engines": {
-    "node" : ">=4.2.4"
+    "node": ">=6.2.2"
   },
   "homepage": "https://github.com/toddmedema/bar-ninja#readme",
   "dependencies": {
     "async": "^2.0.0-rc.5",
+    "bell": "^7.9.0",
     "boom": "^3.2.1",
     "hapi": "^13.4.1",
+    "hapi-auth-cookie": "^6.1.1",
     "hoek": "^4.0.1",
     "inert": "^4.0.0",
     "joi": "^8.4.0",

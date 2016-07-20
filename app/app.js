@@ -68,13 +68,19 @@ const AppLayout = React.createClass({
   },
   render: function () {
 
+    const titleIconStyles = {
+      transform: 'translate(0, 4px)',
+      paddingRight: '6px',
+      color: 'white',
+      fill: 'white',
+    };
     const pageName = ((path) => {
-      if (path.indexOf('mixed') !== -1) { return 'Mixed Drinks'; }
-      if (path.indexOf('beer') !== -1) { return 'Beer'; }
-      if (path.indexOf('wine') !== -1) { return 'Wine'; }
-      if (path.indexOf('shots') !== -1) { return 'Shots'; }
-      if (path.indexOf('users') !== -1) { return 'Users'; }
-      if (path.indexOf('inventory') !== -1) { return 'Inventory'; }
+      if (path.indexOf('mixed') !== -1) { return <div><IconMixed style={titleIconStyles} />Mixed Drinks</div>; }
+      if (path.indexOf('beer') !== -1) { return <div><IconBeer style={titleIconStyles} />Beer</div>; }
+      if (path.indexOf('wine') !== -1) { return <div><IconWine style={titleIconStyles} />Wine</div>; }
+      if (path.indexOf('shots') !== -1) { return <div><IconShot style={titleIconStyles} />Shots</div>; }
+      if (path.indexOf('users') !== -1) { return <div><IconUsers style={titleIconStyles} />Patrons</div>; }
+      if (path.indexOf('inventory') !== -1) { return <div><IconInventory style={titleIconStyles} />Inventory</div>; }
       return 'TODO: set page name';
     })(this.props.location.pathname);
 

@@ -18,6 +18,12 @@ const after = lab.after;
 const expect = Code.expect;
 
 
+const auth = {
+  id: 0,
+  barId: 0,
+};
+
+
 describe('Recipe:', () => {
 
   before((done) => {
@@ -167,7 +173,7 @@ describe('Recipe:', () => {
   it('create fixtures', (done) => {
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
       expect(err).to.be.null();
       done();
@@ -176,7 +182,7 @@ describe('Recipe:', () => {
 
   it('minCost, maxCost based on non-archived, in stock options of sufficient quantity', (done) => {
 
-    Db.Recipe.read({}, (err, result) => {
+    Db.Recipe.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
@@ -191,7 +197,7 @@ describe('Recipe:', () => {
 
   it('sets inStock correctly', (done) => {
 
-    Db.Recipe.read({}, (err, result) => {
+    Db.Recipe.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
@@ -206,7 +212,7 @@ describe('Recipe:', () => {
 
   it('searches for inStock correctly', (done) => {
 
-    Db.Recipe.read({ inStock: true }, (err, result) => {
+    Db.Recipe.read(auth, { inStock: true }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
@@ -217,7 +223,7 @@ describe('Recipe:', () => {
 
   it('searches for outOfStock correctly', (done) => {
 
-    Db.Recipe.read({ inStock: false }, (err, result) => {
+    Db.Recipe.read(auth, { inStock: false }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);

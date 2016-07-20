@@ -34,13 +34,13 @@ exports.indexes = [];
 
 exports.hooks = {
 
-  assignId: function (Rethink, object, callback) {
+  assignId: function (Rethink, auth, object, callback) {
 
     object.id = object.barId + '-' + object.stockModelId;
     return callback(null, object);
   },
 
-  preSave: function (Rethink, object, callback) {
+  preSave: function (Rethink, auth, object, callback) {
 
     object.remainingUnits = object.remainingUnits || [];
     object.residualVolume = object.residualVolume || 0;
@@ -60,7 +60,7 @@ exports.hooks = {
     return callback(null, object);
   },
 
-  read: function (Rethink, query, sort, limit, callback) {
+  read: function (Rethink, auth, query, sort, limit, callback) {
 
     const queryInStock = query.inStock;
     delete query.inStock;

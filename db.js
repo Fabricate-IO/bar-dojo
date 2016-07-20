@@ -67,7 +67,7 @@ exports.exit = function (callback) {
 // DELETES ALL COLLECTIONS - USE WITH CAUTION
 exports.nuke = function (callback) {
   Async.each(modelNames, (modelName, callback) => {
-    exports[modelName].nuke({}, callback);
+    exports[modelName].nuke({}, {}, callback);
   }, callback);
 };
 
@@ -77,11 +77,11 @@ exports.nuke = function (callback) {
 // even if overridden, it will still go through the same parameter pre-processing for consistency
 
 
-function create (modelName, objects, callback) {
-  Async.eachSeries(objects, (object, cb) => { createOne(modelName, object, cb); }, callback);
+function create (modelName, auth, objects, callback) {
+  Async.eachSeries(objects, (object, cb) => { createOne(modelName, auth, object, cb); }, callback);
 }
 
-function createOne (modelName, object, callback) {
+function createOne (modelName, auth, object, callback) {
 
   Joi.validate(object, Models[modelName].schema, (err, object) => {
 
@@ -89,13 +89,13 @@ function createOne (modelName, object, callback) {
       return callback(err);
     }
 
-    Models[modelName].hooks.assignId(Rethink, object, (err, object) => {
+    Models[modelName].hooks.assignId(Rethink, auth, object, (err, object) => {
 
       if (err) {
         return callback(err);
       }
 
-      Models[modelName].hooks.preSave(Rethink, object, (err, object) => {
+      Models[modelName].hooks.preSave(Rethink, auth, object, (err, object) => {
 
         if (err) {
           return callback(err);
@@ -112,7 +112,7 @@ function createOne (modelName, object, callback) {
 }
 
 // skips archived items unless otherwise specified, defaults to sorting by id (neweset to oldest)
-function read (modelName, query, callback) {
+function read (modelName, auth, query, callback) {
 
   query.archived = query.archived || false;
   query.orderBy = query.orderBy || 'id';
@@ -125,29 +125,29 @@ function read (modelName, query, callback) {
   let limit = query.limit || 1000;
   delete query.limit;
 
-  return Models[modelName].hooks.read(Rethink, query, sort, limit, callback);
+  return Models[modelName].hooks.read(Rethink, auth, query, sort, limit, callback);
 }
 
 // read one, based on id. Uses read to reduce code redundancy
-function readOne (modelName, id, callback) {
+function readOne (modelName, auth, id, callback) {
 
-  return read(modelName, { id: id, limit: 1 }, (err, result) => {
+  return read(modelName, auth, { id: id, limit: 1 }, (err, result) => {
     return callback(err, result[0] || null);
   });
 }
 
 // bulk edit via query
 // NOTE: does not currently trigger preSave handlers, but that might be a good idea....
-function update (modelName, query, delta, callback) {
+function update (modelName, auth, query, delta, callback) {
   return Rethink.table(modelName).filter(query).update(delta).run((err, result) => {
     return callback(err || result.first_error || null, result);
   });
 }
 
 // update a single ID - triggers preSave handlers
-function updateOne (modelName, id, delta, callback) {
+function updateOne (modelName, auth, id, delta, callback) {
 
-  readOne(modelName, id, (err, object) => {
+  readOne(modelName, auth, id, (err, object) => {
 
     if (err) {
       return callback(err);
@@ -155,12 +155,12 @@ function updateOne (modelName, id, delta, callback) {
 
     if (object == null) {
       delta.id = id;
-      return createOne(modelName, delta, callback);
+      return createOne(modelName, auth, delta, callback);
     }
 
     Hoek.merge(object, delta);
 
-    Models[modelName].hooks.preSave(Rethink, object, (err, delta) => {
+    Models[modelName].hooks.preSave(Rethink, auth, object, (err, delta) => {
 
       if (err) {
         return callback(err);
@@ -175,12 +175,12 @@ function updateOne (modelName, id, delta, callback) {
   });
 }
 
-function archive (modelName, query, callback) {
-  return update(modelName, query, { archived: true }, callback);
+function archive (modelName, auth, query, callback) {
+  return update(modelName, auth, query, { archived: true }, callback);
 }
 
-function archiveOne (modelName, id, callback) {
-  return updateOne(modelName, id, { archived: true }, callback);
+function archiveOne (modelName, auth, id, callback) {
+  return updateOne(modelName, auth, id, { archived: true }, callback);
 }
 
 
@@ -195,7 +195,7 @@ function _requireModels (modelName, callback) {
   Models[modelName] = require('./model/' + modelName + '.js');
   const hooks = Models[modelName].hooks || {};
   Models[modelName].hooks = {
-    assignId: hooks.assignId || ((Rethink, object, callback) => {
+    assignId: hooks.assignId || ((Rethink, auth, object, callback) => {
 
       if (object.id != null) {
         return callback(null, object);
@@ -211,12 +211,12 @@ function _requireModels (modelName, callback) {
         return callback(null, object);
       });
     }),
-    preSave: hooks.preSave || ((Rethink, object, callback) => { callback(null, object); }),
+    preSave: hooks.preSave || ((Rethink, auth, object, callback) => { callback(null, object); }),
     prePublicObject: hooks.prePublic || ((object, callback) => { callback(null, object); }),
     prePublicArray: ((objectOrObjects, callback) => {
       Async.map([].concat(objectOrObjects), Models[modelName].hooks.prePublicObject, callback);
     }),
-    read: hooks.read || ((Rethink, query, sort, limit, callback) => {
+    read: hooks.read || ((Rethink, auth, query, sort, limit, callback) => {
       Rethink.table(modelName).filter(query).orderBy(sort).limit(limit).run(callback);
     }),
   };
@@ -275,17 +275,17 @@ function _assignModelCrudFunctions (modelName, callback) {
 
   const model = Models[modelName];
 
-  model.create = (objects, callback) => { create(modelName, objects, callback); };
-  model.createOne = (object, callback) => { createOne(modelName, object, callback); };
-  model.read = (query, callback) => { read(modelName, query, callback); };
-  model.readOne = (id, callback) => { readOne(modelName, id, callback); };
-  model.update = (query, delta, callback) => { update(modelName, query, delta, callback); };
-  model.updateOne = (id, delta, callback) => { updateOne(modelName, id, delta, callback); };
-  model.delete = (query, callback) => { archive(modelName, query, callback); };
-  model.deleteOne = (id, callback) => { archiveOne(modelName, id, callback); };
+  model.create = (auth, objects, callback) => { create(modelName, auth, objects, callback); };
+  model.createOne = (auth, object, callback) => { createOne(modelName, auth, object, callback); };
+  model.read = (auth, query, callback) => { read(modelName, auth, query, callback); };
+  model.readOne = (auth, id, callback) => { readOne(modelName, auth, id, callback); };
+  model.update = (auth, query, delta, callback) => { update(modelName, auth, query, delta, callback); };
+  model.updateOne = (auth, id, delta, callback) => { updateOne(modelName, auth, id, delta, callback); };
+  model.delete = (auth, query, callback) => { archive(modelName, auth, query, callback); };
+  model.deleteOne = (auth, id, callback) => { archiveOne(modelName, auth, id, callback); };
 
   // the actual delete function - USE WITH CAUTION
-  model.nuke = (query, callback) => {
+  model.nuke = (auth, query, callback) => {
     Rethink.table(modelName).filter(query).delete().run(callback);
   };
 

@@ -18,6 +18,12 @@ const after = lab.after;
 const expect = Code.expect;
 
 
+const auth = {
+  id: 0,
+  barId: 0,
+};
+
+
 describe('BarStock:', () => {
 
   before((done) => {
@@ -85,7 +91,7 @@ describe('BarStock:', () => {
   it('create fixtures', (done) => {
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
       expect(err).to.be.null();
       done();
@@ -94,7 +100,7 @@ describe('BarStock:', () => {
 
   it('assigns inStock and volumeAvailable correctly', (done) => {
 
-    Db.BarStock.read({}, (err, result) => {
+    Db.BarStock.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.BarStock.length);
@@ -113,7 +119,7 @@ describe('BarStock:', () => {
 
   it('filtering on inStock: true returns expected results', (done) => {
 
-    Db.BarStock.read({ inStock: true }, (err, result) => {
+    Db.BarStock.read(auth, { inStock: true }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(2);
@@ -125,7 +131,7 @@ describe('BarStock:', () => {
 
   it('filtering on inStock: false returns expected results', (done) => {
 
-    Db.BarStock.read({ inStock: false }, (err, result) => {
+    Db.BarStock.read(auth, { inStock: false }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
@@ -137,7 +143,7 @@ describe('BarStock:', () => {
 
   it('read returns object with joined properties', (done) => {
 
-    Db.BarStock.read({ barId: 0, stockModelId: 0 }, (err, result) => {
+    Db.BarStock.read(auth, { barId: 0, stockModelId: 0 }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
@@ -150,11 +156,11 @@ describe('BarStock:', () => {
 
   it('subtracts negative residualVolumeDelta from residualVolume', (done) => {
 
-    Db.BarStock.updateOne('0-2', { residualVolumeDelta: -10 }, (err, result) => {
+    Db.BarStock.updateOne(auth, '0-2', { residualVolumeDelta: -10 }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.readOne('0-2', (err, result) => {
+      Db.BarStock.readOne(auth, '0-2', (err, result) => {
 
         expect(err).to.be.null();
         expect(result.residualVolume).to.equal(90);
@@ -165,11 +171,11 @@ describe('BarStock:', () => {
 
   it('pulls from remainingUnits when residualVolume goes below zero', (done) => {
 
-    Db.BarStock.updateOne('0-1', { residualVolumeDelta: -5 }, (err, result) => {
+    Db.BarStock.updateOne(auth, '0-1', { residualVolumeDelta: -5 }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.readOne('0-1', (err, result) => {
+      Db.BarStock.readOne(auth, '0-1', (err, result) => {
 
         expect(err).to.be.null();
         expect(result.residualVolume).to.equal(5);
@@ -181,11 +187,11 @@ describe('BarStock:', () => {
 
   it('residualVolume cannot go below zero', (done) => {
 
-    Db.BarStock.updateOne('0-0', { residualVolumeDelta: -5 }, (err, result) => {
+    Db.BarStock.updateOne(auth, '0-0', { residualVolumeDelta: -5 }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.readOne('0-0', (err, result) => {
+      Db.BarStock.readOne(auth, '0-0', (err, result) => {
 
         expect(err).to.be.null();
         expect(result.residualVolume).to.equal(0);
@@ -256,7 +262,7 @@ describe('BarStock category search:', () => {
   it('create fixtures', (done) => {
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
       expect(err).to.be.null();
       done();
@@ -265,7 +271,7 @@ describe('BarStock category search:', () => {
 
   it('filtering on category returns expected results', (done) => {
 
-    Db.BarStock.read({ category: 'beer' }, (err, result) => {
+    Db.BarStock.read(auth, { category: 'beer' }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);

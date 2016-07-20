@@ -47,12 +47,12 @@ exports.indexes = [
 exports.hooks = {
 
   // attaches metadata
-  read: function (Rethink, query, sort, limit, callback) {
+  read: function (Rethink, auth, query, sort, limit, callback) {
 
     const queryInStock = query.inStock;
     delete query.inStock;
 
-    Db.BarStock.read({ inStock: true }, (err, result) => {
+    Db.BarStock.read(auth, { inStock: true }, (err, result) => {
 
       if (err) {
         return callback(err);

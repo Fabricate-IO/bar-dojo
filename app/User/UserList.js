@@ -57,7 +57,8 @@ const User = React.createClass({
     if (this.props.user.splitwiseId != null) {
       settleOptions.push(<MenuItem key='1' value='splitwise' primaryText='Splitwise' />);
     }
-    const tab = '$' + this.props.user.tab;
+
+    const tab = utils.formatPrice(this.props.user.tab);
     const modalTitle = 'Settle with ' + this.props.user.name + ' - ' + tab;
 
     return (

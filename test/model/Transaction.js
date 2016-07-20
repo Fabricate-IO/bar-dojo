@@ -18,6 +18,12 @@ const after = lab.after;
 const expect = Code.expect;
 
 
+const auth = {
+  id: 0,
+  barId: 0,
+};
+
+
 describe('Transaction (order):', () => {
 
   before((done) => {
@@ -84,7 +90,7 @@ describe('Transaction (order):', () => {
   it('create fixtures', (done) => {
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
       expect(err).to.be.null();
       done();
@@ -93,7 +99,7 @@ describe('Transaction (order):', () => {
 
   it('order', (done) => {
 
-    Db.Transaction.createOne({
+    Db.Transaction.createOne(auth, {
       type: 'order',
       barId: 0,
       userId: 1,
@@ -110,14 +116,14 @@ describe('Transaction (order):', () => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.readOne('0-0', (err, result) => {
+      Db.BarStock.readOne(auth, '0-0', (err, result) => {
 
         expect(err).to.be.null();
         expect(result).to.not.be.null();
         expect(result.remainingUnits.length).to.equal(1);
         expect(result.volumeAvailable).to.equal(10);
 
-        Db.User.readOne(1, (err, result) => {
+        Db.User.readOne(auth, 1, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.tab).to.equal(1);
@@ -182,7 +188,7 @@ describe('Transaction (restock):', () => {
   it('create fixtures', (done) => {
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
       expect(err).to.be.null();
       done();
@@ -191,7 +197,7 @@ describe('Transaction (restock):', () => {
 
   it('known barStockId', (done) => {
 
-    Db.Transaction.createOne({
+    Db.Transaction.createOne(auth, {
       type: 'restock',
       barId: 0,
       barStockId: '0-0',
@@ -201,7 +207,7 @@ describe('Transaction (restock):', () => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.readOne('0-0', (err, result) => {
+      Db.BarStock.readOne(auth, '0-0', (err, result) => {
 
         expect(err).to.be.null();
         expect(result).to.not.be.null();
@@ -215,7 +221,7 @@ describe('Transaction (restock):', () => {
 
   it('creates a new BarStock', (done) => {
 
-    Db.Transaction.createOne({
+    Db.Transaction.createOne(auth, {
       type: 'restock',
       barId: 0,
       stockModelId: 1,
@@ -225,7 +231,7 @@ describe('Transaction (restock):', () => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.readOne('0-1', (err, result) => {
+      Db.BarStock.readOne(auth, '0-1', (err, result) => {
 
         expect(err).to.be.null();
         expect(result).to.not.be.null();
@@ -239,7 +245,7 @@ describe('Transaction (restock):', () => {
 
   it('creates a new StockModel and BarStock', (done) => {
 
-    Db.Transaction.createOne({
+    Db.Transaction.createOne(auth, {
       type: 'restock',
       barId: 0,
       stockTypeId: 'rum',
@@ -251,14 +257,14 @@ describe('Transaction (restock):', () => {
 
       expect(err).to.be.null();
 
-      Db.StockModel.readOne(2, (err, result) => {
+      Db.StockModel.readOne(auth, 2, (err, result) => {
 
         expect(err).to.be.null();
         expect(result).to.not.be.null();
         expect(result.abv).to.equal(50);
         expect(result.name).to.equal('Test rum 2');
 
-        Db.BarStock.readOne('0-2', (err, result) => {
+        Db.BarStock.readOne(auth, '0-2', (err, result) => {
 
           expect(err).to.be.null();
           expect(result).to.not.be.null();
@@ -305,7 +311,7 @@ describe('Transaction (settle):', () => {
   it('create fixtures', (done) => {
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
       expect(err).to.be.null();
       done();
@@ -314,16 +320,16 @@ describe('Transaction (settle):', () => {
 
   it('settles correctly using cash', (done) => {
 
-    Db.User.settle(1, 'cash', (err) => {
+    Db.User.settle(auth, 1, 'cash', (err) => {
 
       expect(err).to.be.null();
 
-      Db.User.readOne(1, (err, result) => {
+      Db.User.readOne(auth, 1, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.tab).to.equal(0);
 
-        Db.Transaction.read({}, (err, result) => {
+        Db.Transaction.read(auth, {}, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(1);

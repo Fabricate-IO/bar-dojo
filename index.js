@@ -11,23 +11,35 @@ exports.init = function (callback) {
   const server = new Hapi.Server();
   server.connection(Config.server);
 
-  Db.init(Config, (err, db) => {
+  server.register([require('hapi-auth-cookie'), require('bell')], (err) => {
 
     if (err) {
       return callback(err);
     }
 
-    server.app.db = db;
+    // http://mph-web.de/social-signup-with-twitter-using-hapi-js/
+    server.auth.strategy('session', 'cookie', Config.sessionCookie);
 
-    server.register(require('inert'), (err) => {
+    server.auth.strategy('twitter', 'bell', Config.twitterAuth);
+
+    Db.init(Config, (err, db) => {
 
       if (err) {
         return callback(err);
       }
 
-      server.route(require('./routes'));
+      server.app.db = db;
 
-      return server.start(callback);
+      server.register(require('inert'), (err) => {
+
+        if (err) {
+          return callback(err);
+        }
+
+        server.route(require('./routes'));
+
+        return server.start(callback);
+      });
     });
   });
 };

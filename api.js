@@ -18,8 +18,12 @@ module.exports = [
   {
     method: 'DELETE',
     path: '/api/{modelName}/{id}',
+    config: {
+      auth: 'session',
+    },
     handler: (request, reply) => {
 
+      const auth = request.auth.credentials;
       const modelName = request.params.modelName;
       delete request.params.modelName;
 
@@ -29,7 +33,7 @@ module.exports = [
           return reply(Boom.badRequest(err));
         }
 
-        request.server.app.db[modelName].deleteOne(params.id, (err, result) => {
+        request.server.app.db[modelName].deleteOne(auth, params.id, (err, result) => {
 
           if (err) {
             return reply(Boom.badImplementation(err));
@@ -43,8 +47,12 @@ module.exports = [
   {
     method: 'GET',
     path: '/api/{modelName}/{id}',
+    config: {
+      auth: 'session',
+    },
     handler: (request, reply) => {
 
+      const auth = request.auth.credentials;
       const modelName = request.params.modelName;
       delete request.params.modelName;
 
@@ -54,7 +62,7 @@ module.exports = [
           return reply(Boom.badRequest(err));
         }
 
-        request.server.app.db[modelName].readOne(params.id, (err, result) => {
+        request.server.app.db[modelName].readOne(auth, params.id, (err, result) => {
 
           if (err) {
             return reply(Boom.badImplementation(err));
@@ -75,8 +83,12 @@ module.exports = [
   {
     method: 'GET',
     path: '/api/{modelName}',
+    config: {
+      auth: 'session',
+    },
     handler: (request, reply) => {
 
+      const auth = request.auth.credentials;
       const modelName = request.params.modelName;
       delete request.params.modelName;
 
@@ -88,7 +100,7 @@ module.exports = [
           return reply(Boom.badRequest(err));
         }
 
-        request.server.app.db[modelName].read(query, (err, result) => {
+        request.server.app.db[modelName].read(auth, query, (err, result) => {
 
           if (err) {
             return reply(Boom.badImplementation(err));
@@ -109,8 +121,12 @@ module.exports = [
   {
     method: 'PUT',
     path: '/api/{modelName}/{id}',
+    config: {
+      auth: 'session',
+    },
     handler: (request, reply) => {
 
+      const auth = request.auth.credentials;
       const modelName = request.params.modelName;
       delete request.params.modelName;
 
@@ -130,7 +146,7 @@ module.exports = [
             return reply(Boom.badRequest("IDs in param and payload do not match"));
           }
 
-          request.server.app.db[modelName].updateOne(params.id, payload, (err, result) => {
+          request.server.app.db[modelName].updateOne(auth, params.id, payload, (err, result) => {
 
             if (err) {
               return reply(Boom.badImplementation(err));
@@ -145,8 +161,12 @@ module.exports = [
   {
     method: 'POST',
     path: '/api/{modelName}',
+    config: {
+      auth: 'session',
+    },
     handler: (request, reply) => {
 
+      const auth = request.auth.credentials;
       const modelName = request.params.modelName;
       delete request.params.modelName;
 
@@ -156,7 +176,7 @@ module.exports = [
           return reply(Boom.badRequest(err));
         }
 
-        request.server.app.db[modelName].createOne(payload, (err, result) => {
+        request.server.app.db[modelName].createOne(auth, payload, (err, result) => {
 
           if (err) {
             return reply(Boom.badImplementation(err));
@@ -173,6 +193,7 @@ module.exports = [
     method: 'POST',
     path: '/api/User/{id}/order',
     config: {
+      auth: 'session',
       validate: {
         params: {
           id: models.User.schema.id,
@@ -187,9 +208,10 @@ module.exports = [
     },
     handler: (request, reply) => {
 
+      const auth = request.auth.credentials;
       const Db = request.server.app.db;
 
-      Db.Transaction.createOne({
+      Db.Transaction.createOne(auth, {
         userId: request.params.id,
         type: 'order',
         monetaryValue: request.payload.monetaryValue,
@@ -209,6 +231,7 @@ module.exports = [
     method: 'POST',
     path: '/api/User/{id}/settle',
     config: {
+      auth: 'session',
       validate: {
         params: {
           id: models.User.schema.id,
@@ -220,9 +243,10 @@ module.exports = [
     },
     handler: (request, reply) => {
 
+      const auth = request.auth.credentials;
       const Db = request.server.app.db;
 
-      Db.User.settle(request.params.id, request.payload.platform, (err, result) => {
+      Db.User.settle(auth, request.params.id, request.payload.platform, (err, result) => {
 
         if (err) {
           return reply(Boom.badImplementation(err));

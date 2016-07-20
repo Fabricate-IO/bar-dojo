@@ -5,9 +5,12 @@ module.exports = [
   {
     method: 'GET',
     path: '/',
+    config: {
+      auth: 'session',
+    },
     handler: (request, reply) => {
 
-      Setup.setup((err, result) => {
+      Setup.setup(request.auth.credentials, (err, result) => {
 
         if (err) {
           console.log('Setup error', err);
@@ -20,15 +23,6 @@ module.exports = [
 
         return reply.file('./app/app.html');
       });
-    },
-  },
-  {
-    method: 'GET',
-    path: '/app/{filename*}',
-    handler: {
-      directory: {
-        path: 'app',
-      },
     },
   },
   {
