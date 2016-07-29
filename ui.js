@@ -41,4 +41,11 @@ module.exports = [
       },
     },
   },
+  {
+    method: 'GET',
+    path: '/favicon.ico',
+    handler: (request, reply) => {
+      return reply.file('./static/img/favicon.ico');
+    },
+  },
 ];
