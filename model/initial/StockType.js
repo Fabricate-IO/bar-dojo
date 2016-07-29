@@ -153,6 +153,10 @@ module.exports = [
     category: 'mixer',
   },
   {
+    id: 'simple syrup',
+    category: 'mixer',
+  },
+  {
     id: 'sweet and sour mix',
     category: 'mixer',
   },
