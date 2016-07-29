@@ -51,5 +51,5 @@ exports.init((err) => {
     throw err;
   }
 
-  console.log('Bar Dojo ready to go');
+  console.log('Tavern Manager ready to go');
 });

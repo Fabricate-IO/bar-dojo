@@ -1,6 +1,6 @@
 # FabricateIO License
 
-Bar Dojo (c) by FabricateIO
+Tavern Manager (c) by FabricateIO
 
 Licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
 

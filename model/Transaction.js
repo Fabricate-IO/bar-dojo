@@ -110,7 +110,7 @@ exports.hooks = {
             return callback(new Error(user.name + ' is not connected to splitwise'));
           }
 
-          Splitwise.createExpense(auth, user.tab, 'Bar Dojo', user.splitwiseId, (err, result) => {
+          Splitwise.createExpense(auth, user.tab, 'Tavern Manager', user.splitwiseId, (err, result) => {
 
             if (err) {
               return callback(err);
