@@ -22,8 +22,8 @@ const RecipeExpanded = React.createClass({
   getInitialState: function () {
     return {
       modal: false,
-      Patrons: [],
-      patronId: null,
+      Users: [],
+      userId: null,
       recipe: this.props.recipe,
     };
   },
@@ -63,18 +63,18 @@ const RecipeExpanded = React.createClass({
   },
   componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/Patron?orderBy=name', (err, result) => {
+    NetworkRequest('GET', '/api/User?orderBy=name', (err, result) => {
 
       if (err) {
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
-      this.setState({ Patrons: result });
+      this.setState({ Users: result });
     });
   },
   handleOrder: function () {
 
-    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/order',
+    NetworkRequest('POST', '/api/User/' + this.state.userId + '/order',
       {
         abv: this.calculateAbv({ unitless: true }),
         ingredients: this.state.recipe.ingredients.map((stock) => {
@@ -89,7 +89,7 @@ const RecipeExpanded = React.createClass({
       (err, result) => {
 
       if (err) {
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
       this.setState({ modal: false });
@@ -108,9 +108,9 @@ const RecipeExpanded = React.createClass({
     this.state.recipe.ingredients[ingredientIndex].stockId = value;
     this.setState({ ingredients: this.state.recipe.ingredients });
   },
-  handlePatronSelect: function (event, index, value) {
+  handleUserSelect: function (event, index, value) {
     event.preventDefault();
-    this.setState({ patronId: value });
+    this.setState({ userId: value });
   },
   render: function () {
 
@@ -168,12 +168,12 @@ const RecipeExpanded = React.createClass({
 
     const buyButtonText = 'Buy - ' + price + ' (' + abv + ')';
     let buyConfirmText = 'Please select a patron to charge';
-    const buyConfirmDisabled = (this.state.patronId == null);
+    const buyConfirmDisabled = (this.state.userId == null);
     if (buyConfirmDisabled === false) {
-      buyConfirmText = 'Charge ' + this.state.Patrons.find((patron) => { return (patron.id === this.state.patronId); }).name + ' ' + price;
+      buyConfirmText = 'Charge ' + this.state.Users.find((user) => { return (user.id === this.state.userId); }).name + ' ' + price;
     }
-    const patrons = this.state.Patrons.map((patron) => {
-      return <MenuItem key={patron.id} value={patron.id} primaryText={patron.name} />;
+    const users = this.state.Users.map((user) => {
+      return <MenuItem key={user.id} value={user.id} primaryText={user.name} />;
     });
 
     return (
@@ -203,11 +203,11 @@ const RecipeExpanded = React.createClass({
         >
           <SelectField
             maxHeight={300}
-            value={this.state.patronId}
-            onChange={this.handlePatronSelect}
+            value={this.state.userId}
+            onChange={this.handleUserSelect}
             floatingLabelText="Select Patron"
           >
-            {patrons}
+            {users}
           </SelectField>
         </Dialog>
       </div>

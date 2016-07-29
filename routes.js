@@ -1,4 +1,5 @@
 module.exports = [].concat(
-    require('./api'),
-    require('./ui')
+  require('./api'),
+  require('./auth'),
+  require('./ui')
 );

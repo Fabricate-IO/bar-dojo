@@ -1,18 +1,14 @@
-'use strict';
-
 const babelify = require('babelify');
 const browserify = require('browserify');
 const gulp = require('gulp');
 const source = require('vinyl-source-stream');
 const watchify = require('watchify');
-// const reactify = require('reactify');
 
 
 gulp.task('browserify', () => {
 
   const bundler = browserify({
     entries: ['./app/app.js'], // Only need initial file, browserify finds the deps
-    // transform: [reactify], // We want to convert JSX to normal javascript
     debug: true, // Gives us sourcemapping
     cache: {}, packageCache: {}, fullPaths: true // Requirement of watchify
   })
@@ -30,7 +26,7 @@ gulp.task('browserify', () => {
         })
         .pipe(source('app.js'))
 // This is where you add uglifying etc.
-// TODO this is a duplicate of the bundle, source, etc below.
+// TODO this is a duplicate of the bundle, source, etc below - streamline / unify
         .pipe(gulp.dest('./static/js/'));
     })
     .bundle() // Create the initial bundle when starting the task

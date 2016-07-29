@@ -10,7 +10,7 @@ const StockType = require('./StockType');
 
 exports.schema = {
   id: Joi.string(), // compound key: barId-stockModelId
-  barId: Bar.id,
+  barId: Bar.schema.id,
   stockModelId: StockModel.schema.id,
   remainingUnits: Joi.array().items(Joi.number().min(0)).description('Array of remaining full volumes / quantities'),
   residualVolume: Joi.number().min(0).description('How much volume is left in the current open bottle'),
@@ -34,13 +34,13 @@ exports.indexes = [];
 
 exports.hooks = {
 
-  assignId: function (Rethink, object, callback) {
+  assignId: function (Rethink, auth, object, callback) {
 
     object.id = object.barId + '-' + object.stockModelId;
     return callback(null, object);
   },
 
-  preSave: function (Rethink, object, callback) {
+  preSave: function (Rethink, auth, object, callback) {
 
     object.remainingUnits = object.remainingUnits || [];
     object.residualVolume = object.residualVolume || 0;
@@ -60,13 +60,14 @@ exports.hooks = {
     return callback(null, object);
   },
 
-  read: function (Rethink, query, sort, limit, callback) {
+  read: function (Rethink, auth, query, sort, limit, callback) {
 
     const queryInStock = query.inStock;
     delete query.inStock;
 
     // implementation note: joining before order by insures output is ordered
     Rethink.table('BarStock')
+      .filter({ barId: auth.barId })
       .eqJoin('stockModelId', Rethink.table('StockModel'))
       .without({ right: { 'id': true, 'archived': true }})
       .zip()

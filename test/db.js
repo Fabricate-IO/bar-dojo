@@ -20,6 +20,12 @@ const after = lab.after;
 const expect = Code.expect;
 
 
+const auth = {
+  id: 0,
+  barId: 0,
+};
+
+
 describe('CRUD:', () => {
 
   before((done) => {
@@ -41,7 +47,7 @@ describe('CRUD:', () => {
 
   it('read (empty)', (done) => {
 
-    Db.StockType.read({}, (err, result) => {
+    Db.StockType.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(0);
@@ -51,7 +57,7 @@ describe('CRUD:', () => {
 
   it('readOne (empty)', (done) => {
 
-    Db.StockType.readOne(0, (err, result) => {
+    Db.StockType.readOne(auth, 0, (err, result) => {
 
       expect(err).to.be.null();
       expect(result).to.be.null();
@@ -61,7 +67,7 @@ describe('CRUD:', () => {
 
   it('createOne', (done) => {
 
-    Db.StockType.createOne({ id: 'test' }, (err, result) => {
+    Db.StockType.createOne(auth, { id: 'test' }, (err, result) => {
 
       expect(err).to.be.null();
       done();
@@ -70,7 +76,7 @@ describe('CRUD:', () => {
 
   it('readOne', (done) => {
 
-    Db.StockType.readOne('test', (err, result) => {
+    Db.StockType.readOne(auth, 'test', (err, result) => {
 
       expect(err).to.be.null();
       expect(result).to.not.be.null();
@@ -81,7 +87,7 @@ describe('CRUD:', () => {
 
   it('read', (done) => {
 
-    Db.StockType.read({}, (err, result) => {
+    Db.StockType.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
@@ -91,11 +97,11 @@ describe('CRUD:', () => {
 
   it('updateOne', (done) => {
 
-    Db.StockType.updateOne('test', { unitType: 'cats' }, (err, result) => {
+    Db.StockType.updateOne(auth, 'test', { unitType: 'cats' }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.read({}, (err, result) => {
+      Db.StockType.read(auth, {}, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
@@ -107,11 +113,11 @@ describe('CRUD:', () => {
 
   it('update', (done) => {
 
-    Db.StockType.update({}, { unitType: 'bottle' }, (err, result) => {
+    Db.StockType.update(auth, {}, { unitType: 'bottle' }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.read({}, (err, result) => {
+      Db.StockType.read(auth, {}, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
@@ -123,7 +129,7 @@ describe('CRUD:', () => {
 
   it('create', (done) => {
 
-    Db.StockType.create([{ id: 'test2' }, { id: 'test3' }], (err) => {
+    Db.StockType.create(auth, [{ id: 'test2' }, { id: 'test3' }], (err) => {
 
       expect(err).to.be.null();
       done();
@@ -132,7 +138,7 @@ describe('CRUD:', () => {
 
   it('read', (done) => {
 
-    Db.StockType.read({}, (err, result) => {
+    Db.StockType.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
@@ -143,7 +149,7 @@ describe('CRUD:', () => {
 
   it('read (sorted)', (done) => {
 
-    Db.StockType.read({ orderBy: 'id', order: 'asc' }, (err, result) => {
+    Db.StockType.read(auth, { orderBy: 'id', order: 'asc' }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(3);
@@ -154,17 +160,17 @@ describe('CRUD:', () => {
 
   it('delete', (done) => {
 
-    Db.StockType.delete({ id: 'test3' }, (err) => {
+    Db.StockType.delete(auth, { id: 'test3' }, (err) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.read({}, (err, result) => {
+      Db.StockType.read(auth, {}, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(2);
         helpers.checkArrayEquality(result, [{ id: 'test2' }, { id: 'test' }]);
 
-        Db.StockType.read({ archived: true }, (err, result) => {
+        Db.StockType.read(auth, { archived: true }, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(1);
@@ -177,17 +183,17 @@ describe('CRUD:', () => {
 
   it('deleteOne', (done) => {
 
-    Db.StockType.deleteOne('test2', (err) => {
+    Db.StockType.deleteOne(auth, 'test2', (err) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.read({}, (err, result) => {
+      Db.StockType.read(auth, {}, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(1);
         helpers.checkArrayEquality(result, [{ id: 'test' }]);
 
-        Db.StockType.read({ archived: true }, (err, result) => {
+        Db.StockType.read(auth, { archived: true }, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(2);
@@ -200,11 +206,11 @@ describe('CRUD:', () => {
 
   it('updateOne (upsert if it does not exist)', (done) => {
 
-    Db.StockType.updateOne('test5', { unitType: 'bottle' }, (err, result) => {
+    Db.StockType.updateOne(auth, 'test5', { unitType: 'bottle' }, (err, result) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.readOne('test5', (err, result) => {
+      Db.StockType.readOne(auth, 'test5', (err, result) => {
 
         expect(err).to.be.null();
         expect(result.id).to.equal('test5');
@@ -216,11 +222,11 @@ describe('CRUD:', () => {
 
   it('createOne (id specified)', (done) => {
 
-    Db.StockType.createOne({ id: 'test6' }, (err) => {
+    Db.StockType.createOne(auth, { id: 'test6' }, (err) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.readOne('test6', (err, result) => {
+      Db.StockType.readOne(auth, 'test6', (err, result) => {
 
         expect(err).to.be.null();
         expect(result.id).to.equal('test6');
@@ -252,7 +258,7 @@ describe('CRUD egde cases:', () => {
 
   it('createOne (errors on validation)', (done) => {
 
-    Db.StockType.createOne({ id: 123 }, (err) => {
+    Db.StockType.createOne(auth, { id: 123 }, (err) => {
 
       expect(err).to.not.be.null();
       done();
@@ -261,11 +267,11 @@ describe('CRUD egde cases:', () => {
 
   it('create (errors on validation and does not create an object)', (done) => {
 
-    Db.StockType.create([{ id: 1 }, { id: 2 }], (err) => {
+    Db.StockType.create(auth, [{ id: 1 }, { id: 2 }], (err) => {
 
       expect(err).to.not.be.null();
 
-      Db.StockType.read({}, (err, result) => {
+      Db.StockType.read(auth, {}, (err, result) => {
 
         expect(err).to.be.null();
         expect(result.length).to.equal(0);
@@ -276,15 +282,15 @@ describe('CRUD egde cases:', () => {
 
   it('createOne (errors on duplicate id and does not create an object)', (done) => {
 
-    Db.StockType.createOne({ id: 'test' }, (err) => {
+    Db.StockType.createOne(auth, { id: 'test' }, (err) => {
 
       expect(err).to.be.null();
 
-      Db.StockType.createOne({ id: 'test' }, (err) => {
+      Db.StockType.createOne(auth, { id: 'test' }, (err) => {
 
         expect(err).to.not.be.null();
 
-        Db.StockType.read({}, (err, result) => {
+        Db.StockType.read(auth, {}, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(1);
@@ -298,11 +304,11 @@ describe('CRUD egde cases:', () => {
 
     const fixtures = {
       BarStock: [{
-        barId: 1,
-        stockModelId: 1,
+        barId: 0,
+        stockModelId: 0,
       }],
       StockModel: [{
-        id: 1,
+        id: 0,
         stockTypeId: 'dark rum',
       }],
       StockType: [{
@@ -311,16 +317,16 @@ describe('CRUD egde cases:', () => {
     }
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
 
       expect(err).to.be.null();
 
-      Db.BarStock.createOne({ barId: 1, stockModelId: 1 }, (err) => {
+      Db.BarStock.createOne(auth, { barId: 0, stockModelId: 0 }, (err) => {
 
         expect(err).to.not.be.null();
 
-        Db.BarStock.read({}, (err, result) => {
+        Db.BarStock.read(auth, {}, (err, result) => {
 
           expect(err).to.be.null();
           expect(result.length).to.equal(1);

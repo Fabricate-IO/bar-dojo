@@ -4,7 +4,7 @@ We welcome contributions from the community and are pleased to have them.  Pleas
 
 ## Logging Issues
 
-All issues should be created using the [new issue form](https://github.com/Fabricate-IO/bar-dojo/issues/new).  Clearly describe the issue including steps to reproduce if there are any.  Also, make sure to indicate what device / browser you are running the app on.
+All issues should be created using the [new issue form](https://github.com/Fabricate-IO/tavern-manager/issues/new).  Clearly describe the issue including steps to reproduce if there are any.  Also, make sure to indicate what device / browser you are running the app on.
 
 ## Patching Code
 
@@ -12,7 +12,7 @@ Code changes are welcome and should follow the guidelines below.
 
 * Fork the repository on GitHub.
 * Fix the issue, making sure that you follow the style guide (below).
-* [Pull requests](http://help.github.com/send-pull-requests/) should be made to the [master branch](https://github.com/Fabricate-IO/bar-dojo/tree/master).
+* [Pull requests](http://help.github.com/send-pull-requests/) should be made to the [master branch](https://github.com/Fabricate-IO/tavern-manager/tree/master).
 
 ## Style Guide
 

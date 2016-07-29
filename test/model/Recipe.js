@@ -18,6 +18,12 @@ const after = lab.after;
 const expect = Code.expect;
 
 
+const auth = {
+  id: 0,
+  barId: 0,
+};
+
+
 describe('Recipe:', () => {
 
   before((done) => {
@@ -89,6 +95,12 @@ describe('Recipe:', () => {
         residualVolume: 10,
         archived: true,
       },
+      {
+        barId: 1,
+        stockModelId: 8,
+        volumeCost: 999,
+        residualVolume: 10,
+      },
     ],
     Recipe: [
       {
@@ -152,6 +164,11 @@ describe('Recipe:', () => {
         stockTypeId: 'gin',
         name: 'Archived BarStock',
       },
+      {
+        id: 8,
+        stockTypeId: 'gin',
+        name: 'Different barId',
+      },
     ],
     StockType: [
       {
@@ -167,7 +184,7 @@ describe('Recipe:', () => {
   it('create fixtures', (done) => {
 
     Async.eachOf(fixtures, (value, key, callback) => {
-      Db[key].create(value, callback);
+      Db[key].create(auth, value, callback);
     }, (err) => {
       expect(err).to.be.null();
       done();
@@ -176,7 +193,7 @@ describe('Recipe:', () => {
 
   it('minCost, maxCost based on non-archived, in stock options of sufficient quantity', (done) => {
 
-    Db.Recipe.read({}, (err, result) => {
+    Db.Recipe.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
@@ -191,7 +208,7 @@ describe('Recipe:', () => {
 
   it('sets inStock correctly', (done) => {
 
-    Db.Recipe.read({}, (err, result) => {
+    Db.Recipe.read(auth, {}, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(fixtures.Recipe.length);
@@ -206,7 +223,7 @@ describe('Recipe:', () => {
 
   it('searches for inStock correctly', (done) => {
 
-    Db.Recipe.read({ inStock: true }, (err, result) => {
+    Db.Recipe.read(auth, { inStock: true }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
@@ -217,11 +234,30 @@ describe('Recipe:', () => {
 
   it('searches for outOfStock correctly', (done) => {
 
-    Db.Recipe.read({ inStock: false }, (err, result) => {
+    Db.Recipe.read(auth, { inStock: false }, (err, result) => {
 
       expect(err).to.be.null();
       expect(result.length).to.equal(1);
       expect(result[0].id).to.equal(1);
+      done();
+    });
+  });
+
+  it('based on current bar stock only', (done) => {
+
+    auth.barId = 1;
+
+    Db.Recipe.read(auth, {}, (err, result) => {
+
+      expect(err).to.be.null();
+      expect(result.length).to.equal(fixtures.Recipe.length);
+
+      const recipes = helpers.objectArrayToDict(result);
+      expect(recipes[0].inStock).to.equal(false);
+      expect(recipes[1].inStock).to.equal(false);
+
+      auth.barId = 0;
+
       done();
     });
   });

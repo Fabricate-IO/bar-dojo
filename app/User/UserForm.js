@@ -2,7 +2,7 @@ import React from 'react';
 import { hashHistory } from 'react-router';
 
 import NetworkRequest from '../networkRequest';
-import style from '../styles';
+import styles from '../styles';
 
 import Avatar from 'material-ui/Avatar';
 import MenuItem from 'material-ui/MenuItem';
@@ -25,10 +25,10 @@ module.exports = React.createClass({
 
     if (this.state.creating === false) {
 
-      NetworkRequest('GET', '/api/Patron/' + this.props.params.id, (err, result) => {
+      NetworkRequest('GET', '/api/User/' + this.props.params.id, (err, result) => {
 
         if (err) {
-          return console.error('Patron API', status, err.toString());
+          return console.error('User API', status, err.toString());
         }
 
         this.setState({ object: result });
@@ -53,30 +53,30 @@ module.exports = React.createClass({
       return;
     }
 
-    const patron = {
+    const user = {
       id: this.props.params.id,
       name: object.name.trim(),
       image: object.image,
       splitwiseId: object.splitwiseId,
       tab: object.tab,
     };
-    let url = '/api/Patron';
+    let url = '/api/User';
     let type = 'POST';
 
     if (!this.state.creating) { // if we were passed an ID, we're saving instead of creating
-      url += '/' + patron.id;
+      url += '/' + user.id;
       type = 'PUT';
     }
 
     this.setState({ object: {} });
-    NetworkRequest(type, url, patron, (err, result) => {
+    NetworkRequest(type, url, user, (err, result) => {
 
       if (err) {
         this.setState({ object: object });
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
-      hashHistory.push('/patrons');
+      hashHistory.push('/users');
     });
   },
   handleInputChange: function (e) {
@@ -92,19 +92,19 @@ module.exports = React.createClass({
     this.setState({ object: this.state.object });
   },
   handleCancel: function () {
-    hashHistory.push('/patrons');
+    hashHistory.push('/users');
   },
   handleDelete: function (e) {
 
     if (window.confirm("Are you sure you want to delete " + this.state.object.name + '?')) {
 
-      NetworkRequest('DELETE', '/api/Patron/' + this.props.params.id, (err, result) => {
+      NetworkRequest('DELETE', '/api/User/' + this.props.params.id, (err, result) => {
 
         if (err) {
-          return console.error('Patron API', status, err.toString());
+          return console.error('User API', status, err.toString());
         }
 
-        hashHistory.push('/patrons');
+        hashHistory.push('/users');
       });
     }
   },
@@ -126,7 +126,7 @@ module.exports = React.createClass({
           value={this.state.object.splitwiseId}
           onChange={this.handleSplitwiseFriendChange}
           floatingLabelText="Splitwise Friend"
-          style={style.textInput}
+          style={styles.textInput}
           disabled={editing}
         >
           {friends}

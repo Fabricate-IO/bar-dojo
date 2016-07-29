@@ -4,7 +4,7 @@ import React from 'react';
 import pure from 'recompose/pure';
 import SvgIcon from 'material-ui/SvgIcon';
 
-let IconPatrons = (props) => (
+let IconUsers = (props) => (
   <SvgIcon {...props}>
     <g>
       <path d="M13.5,12.8c0.4-0.4,0.7-1,0.8-1.3c0.1-0.2,0.1-0.4,0.1-0.6c0.2-0.1,0.3-0.2,0.4-0.4c0.1-0.3,0.2-0.8,0.2-0.8
@@ -28,8 +28,8 @@ let IconPatrons = (props) => (
     </g>
   </SvgIcon>
 );
-IconPatrons = pure(IconPatrons);
-IconPatrons.displayName = 'IconPatrons';
-IconPatrons.muiName = 'SvgIcon';
+IconUsers = pure(IconUsers);
+IconUsers.displayName = 'IconUsers';
+IconUsers.muiName = 'SvgIcon';
 
-export default IconPatrons;
+export default IconUsers;

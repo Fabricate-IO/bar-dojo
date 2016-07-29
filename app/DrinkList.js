@@ -6,21 +6,19 @@ import styles from './styles';
 import utils from './utils';
 
 import Dialog from 'material-ui/Dialog';
-import Divider from 'material-ui/Divider';
 import FlatButton from 'material-ui/FlatButton';
 import { List, ListItem } from 'material-ui/List';
 import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 import SelectField from 'material-ui/SelectField';
 import Snackbar from 'material-ui/Snackbar';
-import Subheader from 'material-ui/Subheader';
 
 
 const Drink = React.createClass({
   getInitialState: function () {
     return {
       modal: false,
-      patronId: null,
+      userId: null,
     };
   },
   handleModalOpen: function () {
@@ -31,7 +29,7 @@ const Drink = React.createClass({
   },
   handleOrder: function () {
 
-    NetworkRequest('POST', '/api/Patron/' + this.state.patronId + '/order',
+    NetworkRequest('POST', '/api/User/' + this.state.userId + '/order',
       {
         abv: this.props.drink.abv,
         ingredients: [{
@@ -43,28 +41,28 @@ const Drink = React.createClass({
       (err, result) => {
 
       if (err) {
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
       this.setState({ modal: false });
-      this.props.handleModalClose();
+      this.handleModalClose();
       this.props.openSnackbar(this.props.drink.name + ' purchased for ' + this.props.drink.priceFormatted);
     });
   },
-  handlePatronSelect: function (event, index, value) {
+  handleUserSelect: function (event, index, value) {
     event.preventDefault();
-    this.setState({ patronId: value });
+    this.setState({ userId: value });
   },
   render: function () {
 
     const buyButtonText = 'Buy - ' + this.props.drink.priceFormatted;
     let buyConfirmText = 'Please select a patron to charge';
-    const buyConfirmDisabled = (this.state.patronId == null);
+    const buyConfirmDisabled = (this.state.userId == null);
     if (buyConfirmDisabled === false) {
-      buyConfirmText = 'Charge ' + this.props.Patrons.find((patron) => { return (patron.id === this.state.patronId); }).name + ' ' + this.props.drink.priceFormatted;
+      buyConfirmText = 'Charge ' + this.props.Users.find((user) => { return (user.id === this.state.userId); }).name + ' ' + this.props.drink.priceFormatted;
     }
-    const patrons = this.props.Patrons.map((patron) => {
-      return <MenuItem key={patron.id} value={patron.id} primaryText={patron.name} />;
+    const users = this.props.Users.map((user) => {
+      return <MenuItem key={user.id} value={user.id} primaryText={user.name} />;
     });
 
     let unitType = 'bottle';
@@ -104,11 +102,11 @@ const Drink = React.createClass({
         >
           <SelectField
             maxHeight={300}
-            value={this.state.patronId}
-            onChange={this.handlePatronSelect}
+            value={this.state.userId}
+            onChange={this.handleUserSelect}
             floatingLabelText="Select Patron"
           >
-            {patrons}
+            {users}
           </SelectField>
         </Dialog>
       </div>
@@ -121,7 +119,7 @@ module.exports = React.createClass({
     return {
       category: '',
       data: [],
-      Patrons: [],
+      Users: [],
       snackbar: {
         open: false,
         message: null,
@@ -132,13 +130,13 @@ module.exports = React.createClass({
 
     this.fetchData(this.props);
 
-    NetworkRequest('GET', '/api/Patron?orderBy=name&order=asc', (err, result) => {
+    NetworkRequest('GET', '/api/User?orderBy=name&order=asc', (err, result) => {
 
       if (err) {
-        return console.error('Patron API', status, err.toString());
+        return console.error('User API', status, err.toString());
       }
 
-      this.setState({ Patrons: result });
+      this.setState({ Users: result });
     });
   },
   componentWillReceiveProps: function (nextProps) {
@@ -202,7 +200,7 @@ module.exports = React.createClass({
         key={drink.id}
         category={this.state.category}
         drink={drink}
-        Patrons={this.state.Patrons}
+        Users={this.state.Users}
         openSnackbar={this.handleSnackbarOpen}>
       </Drink>;
     });

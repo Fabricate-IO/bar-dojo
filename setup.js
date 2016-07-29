@@ -1,29 +1,37 @@
+const Db = require('./db');
 const Splitwise = require('./splitwise');
 
 
 // returns true if all setup steps are complete
 // otherwise works through setup tasks one at a time, returning redirect URLs
-exports.setup = function (callback) {
+exports.setup = function (auth, callback) {
 
-  Splitwise.isSetup((err, splitwiseIsSetup) => {
+  Db.Bar.readOne(auth, auth.barId, (err, bar) => {
 
     if (err) {
       return callback(err);
     }
 
-    if (splitwiseIsSetup === false) {
+    Splitwise.isSetup(auth, bar, (err, splitwiseIsSetup) => {
 
-      Splitwise.setup((err, result) => {
+      if (err) {
+        return callback(err);
+      }
 
-        if (err) {
-          return callback(err);
-        }
+      if (splitwiseIsSetup === false) {
 
-        return callback(null, result);
-      });
-    }
-    else {
-      return callback(null, true);
-    }
+        Splitwise.setup(auth, bar, (err, result) => {
+
+          if (err) {
+            return callback(err);
+          }
+
+          return callback(null, result);
+        });
+      }
+      else {
+        return callback(null, true);
+      }
+    });
   });
 };

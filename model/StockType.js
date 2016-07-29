@@ -18,7 +18,7 @@ exports.schema = {
 
 exports.hooks = {
 
-  read: function (Rethink, query, sort, limit, callback) {
+  read: function (Rethink, auth, query, sort, limit, callback) {
 
     Rethink.table('StockType').filter(query).orderBy(sort).limit(limit).run((err, result) => {
 
