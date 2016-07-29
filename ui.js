@@ -4,6 +4,13 @@ const Setup = require('./setup');
 module.exports = [
   {
     method: 'GET',
+    path: '/healthcheck',
+    handler: (request, reply) => {
+      return reply('');
+    },
+  },
+  {
+    method: 'GET',
     path: '/',
     config: {
       auth: 'session',
