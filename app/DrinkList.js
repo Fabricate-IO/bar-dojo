@@ -37,6 +37,11 @@ const Drink = React.createClass({
     if (this.props.category === 'wine') { unitType = 'glass'; }
     if (this.props.category === 'shot') { unitType = 'shot'; }
 
+    const ingredients = [{
+      quantity: this.props.drink.remainingUnits[0],
+      barStockId: this.props.drink.id,
+    }];
+
     return (
       <div>
         <ListItem
@@ -53,6 +58,7 @@ const Drink = React.createClass({
           category={this.props.category}
           drink={this.props.drink}
           Users={this.props.Users}
+          ingredients={ingredients}
           handleDialogOpen={this.handleDialogOpen}
           handleDialogClose={this.handleDialogClose}
           openSnackbar={this.openSnackbar}
@@ -142,12 +148,14 @@ module.exports = React.createClass({
       return utils.search(this.props.search, [element.name]);
     });
 
-    let inStock = <div>No {this.state.category} available</div>;
+    let inStock = searched.filter((element) => {
+      return (element.inStock === true);
+    })
 
-    if (searched.length > 0) {
-      inStock = searched.filter((element) => {
-        return (element.inStock === true);
-      }).map((drink) => {
+    if (searched.length === 0) {
+      inStock = <div>No {this.state.category} available</div>;
+    } else {
+      inStock = instock.map((drink) => {
         return <Drink
           key={drink.id}
           category={this.state.category}

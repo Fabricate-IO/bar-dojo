@@ -11,10 +11,6 @@ import MenuItem from 'material-ui/MenuItem';
 import SelectField from 'material-ui/SelectField';
 
 
-// Taken from DrinkList
-
-// TOOD make compatible with recipe ordering as well
-
 module.exports = React.createClass({
   getInitialState: function () {
     return {
@@ -23,16 +19,17 @@ module.exports = React.createClass({
   },
   handleOrder: function () {
 
-    NetworkRequest('POST', '/api/User/' + this.state.userId + '/order',
-      {
-        abv: this.props.drink.abv,
-        ingredients: [{
-          quantity: this.props.drink.remainingUnits[0],
-          barStockId: this.props.drink.id,
-        }],
-        monetaryValue: this.props.drink.price,
-      },
-      (err, result) => {
+    const data = {
+      abv: this.props.drink.abv,
+      ingredients: this.props.ingredients,
+      monetaryValue: this.props.drink.price,
+    };
+
+    if (this.props.category === 'mixed') {
+      data.recipeId = this.props.drink.id;
+    }
+
+    NetworkRequest('POST', '/api/User/' + this.state.userId + '/order', data, (err, result) => {
 
       if (err) {
         return console.error('User API', status, err.toString());
@@ -55,14 +52,8 @@ module.exports = React.createClass({
       buyConfirmText = 'Charge ' + this.props.Users.find((user) => { return (user.id === this.state.userId); }).name + ' ' + this.props.drink.priceFormatted;
     }
     const users = this.props.Users.map((user) => {
-console.log(user)
       return <MenuItem key={user.id} value={user.id} primaryText={user.name} />;
     });
-
-    let unitType = 'bottle';
-    if (this.props.category === 'beer') { unitType = 'bottle'; }
-    if (this.props.category === 'wine') { unitType = 'glass'; }
-    if (this.props.category === 'shot') { unitType = 'shot'; }
 
     return (
       <Dialog

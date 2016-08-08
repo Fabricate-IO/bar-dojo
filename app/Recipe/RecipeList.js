@@ -5,9 +5,7 @@ import NetworkRequest from '../networkRequest';
 import styles from '../styles';
 import utils from '../utils';
 
-import Dialog from 'material-ui/Dialog';
 import Divider from 'material-ui/Divider';
-import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
 import IconEdit from 'material-ui/svg-icons/editor/mode-edit';
 import { List, ListItem } from 'material-ui/List';
@@ -17,13 +15,13 @@ import SelectField from 'material-ui/SelectField';
 import Snackbar from 'material-ui/Snackbar';
 import Subheader from 'material-ui/Subheader';
 
+import DrinkBuyDialog from '../DrinkBuyDialog';
+
 
 const RecipeExpanded = React.createClass({
   getInitialState: function () {
     return {
-      modal: false,
-      Users: [],
-      userId: null,
+      buyDialog: false,
       recipe: this.props.recipe,
     };
   },
@@ -61,63 +59,27 @@ const RecipeExpanded = React.createClass({
 
     return utils.formatPrice(price, options);
   },
-  componentDidMount: function () {
-
-    NetworkRequest('GET', '/api/User?orderBy=name', (err, result) => {
-
-      if (err) {
-        return console.error('User API', status, err.toString());
-      }
-
-      this.setState({ Users: result });
-    });
+  handleDialogOpen: function () {
+    this.setState({ buyDialog: true });
   },
-  handleOrder: function () {
-
-    NetworkRequest('POST', '/api/User/' + this.state.userId + '/order',
-      {
-        abv: this.calculateAbv({ unitless: true }),
-        ingredients: this.state.recipe.ingredients.map((stock) => {
-          return {
-            quantity: stock.quantity,
-            barStockId: stock.stockId,
-          }
-        }),
-        monetaryValue: this.calculatePrice({ unitless: true }),
-        recipeId: this.state.recipe.id,
-      },
-      (err, result) => {
-
-      if (err) {
-        return console.error('User API', status, err.toString());
-      }
-
-      this.setState({ modal: false });
-      this.props.handleClose();
-      this.props.openSnackbar(this.state.recipe.name + ' purchased for ' + this.calculatePrice());
-    });
-  },
-  handleModalOpen: function () {
-    this.setState({ modal: true });
-  },
-  handleModalClose: function () {
-    this.setState({ modal: false });
+  handleDialogClose: function () {
+    this.setState({ buyDialog: false });
   },
   handleStockSelect: function (event, index, value, ingredientIndex) {
     event.preventDefault();
     this.state.recipe.ingredients[ingredientIndex].stockId = value;
     this.setState({ ingredients: this.state.recipe.ingredients });
   },
-  handleUserSelect: function (event, index, value) {
-    event.preventDefault();
-    this.setState({ userId: value });
-  },
   render: function () {
 
-    const abv = this.calculateAbv();
-    const price = this.calculatePrice();
+    const recipe = this.state.recipe;
 
-    const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
+    recipe.abv = this.calculateAbv({ unitless: true });
+    recipe.abvFormatted = utils.formatAbv(recipe.abv);
+    recipe.price = this.calculatePrice({ unitless: true });
+    recipe.priceFormatted = utils.formatPrice(recipe.price);
+
+    const ingredientsList = recipe.ingredients.map((ingredient, ingredientIndex) => {
 
       const quantityText = ingredient.quantity + ingredient.stockType.unitType;
       const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
@@ -166,50 +128,30 @@ const RecipeExpanded = React.createClass({
       );
     });
 
-    const buyButtonText = 'Buy - ' + price + ' (' + abv + ')';
-    let buyConfirmText = 'Please select a patron to charge';
-    const buyConfirmDisabled = (this.state.userId == null);
-    if (buyConfirmDisabled === false) {
-      buyConfirmText = 'Charge ' + this.state.Users.find((user) => { return (user.id === this.state.userId); }).name + ' ' + price;
-    }
-    const users = this.state.Users.map((user) => {
-      return <MenuItem key={user.id} value={user.id} primaryText={user.name} />;
+    const buyButtonText = 'Buy - ' + recipe.priceFormatted + ' (' + recipe.abvFormatted + ')';
+    const ingredients = recipe.ingredients.map((stock) => {
+      return {
+        quantity: stock.quantity,
+        barStockId: stock.stockId,
+      };
     });
 
     return (
       <div style={styles.expanded}>
-        <RaisedButton label={buyButtonText} onClick={this.handleModalOpen} />
+        <RaisedButton label={buyButtonText} onClick={this.handleDialogOpen} />
         <List>
-          {ingredients}
+          {ingredientsList}
         </List>
-
-        <Dialog
-          title={this.state.recipe.name}
-          actions={[
-            <FlatButton
-              label="Cancel"
-              onTouchTap={this.handleModalClose}
-            />,
-            <FlatButton
-              label={buyConfirmText}
-              primary={true}
-              onTouchTap={this.handleOrder}
-              disabled={buyConfirmDisabled}
-            />
-          ]}
-          modal={false}
-          open={this.state.modal}
-          onRequestClose={this.handleModalClose}
-        >
-          <SelectField
-            maxHeight={300}
-            value={this.state.userId}
-            onChange={this.handleUserSelect}
-            floatingLabelText="Select Patron"
-          >
-            {users}
-          </SelectField>
-        </Dialog>
+        <DrinkBuyDialog
+          category='mixed'
+          drink={recipe}
+          ingredients={ingredients}
+          Users={this.props.Users}
+          handleDialogOpen={this.handleDialogOpen}
+          handleDialogClose={this.handleDialogClose}
+          openSnackbar={this.openSnackbar}
+          visible={this.state.buyDialog}
+        />
       </div>
     );
   },
@@ -239,6 +181,7 @@ const Recipe = React.createClass({
           recipe={this.props.recipe}
           handleClose={this.handleClose}
           openSnackbar={this.props.openSnackbar}
+          Users={this.props.Users}
       />;
     }
     let style = {};
@@ -277,10 +220,14 @@ const Recipe = React.createClass({
   },
 });
 
+
 module.exports = React.createClass({
   getInitialState: function () {
     return {
       data: [],
+      Users: [],
+      Stock: [],
+      StockTypes: [],
       snackbar: {
         open: false,
         message: null,
@@ -331,6 +278,15 @@ module.exports = React.createClass({
 
       this.setState({ data: recipes });
     });
+
+    NetworkRequest('GET', '/api/User?orderBy=name', (err, result) => {
+
+      if (err) {
+        return console.error('User API', status, err.toString());
+      }
+
+      this.setState({ Users: result });
+    });
   },
   handleSnackbarClose: function () {
     this.state.snackbar.open = false;
@@ -350,12 +306,12 @@ module.exports = React.createClass({
     const recipesInStock = searched.filter((element) => {
       return (element.inStock === true);
     }).map((recipe) => {
-      return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen}></Recipe>;
+      return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen} Users={this.state.Users} />;
     });
     const recipesOutOfStock = searched.filter((element) => {
       return (element.inStock === false);
     }).map((recipe) => {
-      return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen}></Recipe>;
+      return <Recipe key={recipe.id} recipe={recipe} openSnackbar={this.handleSnackbarOpen} Users={this.state.Users} />;
     });
 
     return (

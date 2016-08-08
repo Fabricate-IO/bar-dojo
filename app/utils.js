@@ -6,14 +6,14 @@ module.exports = {
     options.unit = options.unit || '%';
     options.decimals = options.decimals || (abv >= 10 ? 0 : 1);
 
-    return abv.toFixed(options.decimals) + (options.unitless ? '' : options.unit);
+    return Number(abv).toFixed(options.decimals) + (options.unitless ? '' : options.unit);
   },
   formatPrice: (price, options) => {
 
     options = options || {};
     options.currency = options.currency || '$';
 
-    price = Number(price.toFixed(1)).toFixed(2); // example rounding, rounds to the nearest 10c
+    price = Number(Number(price).toFixed(1)).toFixed(2); // example rounding, rounds to the nearest 10c
 
     return (options.unitless ? '' : options.currency) + price;
   },
