@@ -44,7 +44,12 @@ exports.init = function (config, callback) {
           return callback();
         }
 
-        return Rethink.dbCreate(Config.rethink.db).run(callback);
+        Rethink.dbCreate(Config.rethink.db).run().then((result) => {
+          return callback();
+        })
+        .catch((err) => {
+          return callback(err);
+        });
       });
     },
     (cb) => { Async.each(modelNames, _requireModels, cb); },
@@ -263,7 +268,7 @@ function _setModelInitialState (modelName, callback) {
           return callback();
         }
 
-        return create(modelName, Models[modelName].initialState, callback);
+        return create(modelName, {}, Models[modelName].initialState, callback); // initial state objects created without auth / as root
       });
     }
     else {
