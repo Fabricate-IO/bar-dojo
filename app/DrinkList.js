@@ -13,57 +13,24 @@ import RaisedButton from 'material-ui/RaisedButton';
 import SelectField from 'material-ui/SelectField';
 import Snackbar from 'material-ui/Snackbar';
 
+import DrinkBuyDialog from './DrinkBuyDialog';
+
 
 const Drink = React.createClass({
   getInitialState: function () {
     return {
-      modal: false,
-      userId: null,
+      buyDialog: false,
     };
   },
-  handleModalOpen: function () {
-    this.setState({ modal: true });
+  handleDialogOpen: function () {
+    this.setState({ buyDialog: true });
   },
-  handleModalClose: function () {
-    this.setState({ modal: false });
-  },
-  handleOrder: function () {
-
-    NetworkRequest('POST', '/api/User/' + this.state.userId + '/order',
-      {
-        abv: this.props.drink.abv,
-        ingredients: [{
-          quantity: this.props.drink.remainingUnits[0],
-          barStockId: this.props.drink.id,
-        }],
-        monetaryValue: this.props.drink.price,
-      },
-      (err, result) => {
-
-      if (err) {
-        return console.error('User API', status, err.toString());
-      }
-
-      this.setState({ modal: false });
-      this.handleModalClose();
-      this.props.openSnackbar(this.props.drink.name + ' purchased for ' + this.props.drink.priceFormatted);
-    });
-  },
-  handleUserSelect: function (event, index, value) {
-    event.preventDefault();
-    this.setState({ userId: value });
+  handleDialogClose: function () {
+    this.setState({ buyDialog: false });
   },
   render: function () {
 
     const buyButtonText = 'Buy - ' + this.props.drink.priceFormatted;
-    let buyConfirmText = 'Please select a patron to charge';
-    const buyConfirmDisabled = (this.state.userId == null);
-    if (buyConfirmDisabled === false) {
-      buyConfirmText = 'Charge ' + this.props.Users.find((user) => { return (user.id === this.state.userId); }).name + ' ' + this.props.drink.priceFormatted;
-    }
-    const users = this.props.Users.map((user) => {
-      return <MenuItem key={user.id} value={user.id} primaryText={user.name} />;
-    });
 
     let unitType = 'bottle';
     if (this.props.category === 'beer') { unitType = 'bottle'; }
@@ -75,40 +42,22 @@ const Drink = React.createClass({
         <ListItem
           onClick={this.handleClick}
           rightIconButton={
-            <RaisedButton label={buyButtonText} onClick={this.handleModalOpen} />
+            <RaisedButton label={buyButtonText} onClick={this.handleDialogOpen} />
           }
         >
           <div>
             {this.props.drink.name} <span style={styles.faded}>({this.props.drink.abvFormatted} - {this.props.drink.priceFormatted}/{unitType})</span>
           </div>
         </ListItem>
-        <Dialog
-          title={this.props.drink.name}
-          actions={[
-            <FlatButton
-              label="Cancel"
-              onTouchTap={this.handleModalClose}
-            />,
-            <FlatButton
-              label={buyConfirmText}
-              primary={true}
-              onTouchTap={this.handleOrder}
-              disabled={buyConfirmDisabled}
-            />
-          ]}
-          modal={false}
-          open={this.state.modal}
-          onRequestClose={this.handleModalClose}
-        >
-          <SelectField
-            maxHeight={300}
-            value={this.state.userId}
-            onChange={this.handleUserSelect}
-            floatingLabelText="Select Patron"
-          >
-            {users}
-          </SelectField>
-        </Dialog>
+        <DrinkBuyDialog
+          category={this.props.category}
+          drink={this.props.drink}
+          Users={this.props.Users}
+          handleDialogOpen={this.handleDialogOpen}
+          handleDialogClose={this.handleDialogClose}
+          openSnackbar={this.openSnackbar}
+          visible={this.state.buyDialog}
+        />
       </div>
     );
   },
@@ -193,17 +142,21 @@ module.exports = React.createClass({
       return utils.search(this.props.search, [element.name]);
     });
 
-    const inStock = searched.filter((element) => {
-      return (element.inStock === true);
-    }).map((drink) => {
-      return <Drink
-        key={drink.id}
-        category={this.state.category}
-        drink={drink}
-        Users={this.state.Users}
-        openSnackbar={this.handleSnackbarOpen}>
-      </Drink>;
-    });
+    let inStock = <div>No {this.state.category} available</div>;
+
+    if (searched.length > 0) {
+      inStock = searched.filter((element) => {
+        return (element.inStock === true);
+      }).map((drink) => {
+        return <Drink
+          key={drink.id}
+          category={this.state.category}
+          drink={drink}
+          Users={this.state.Users}
+          openSnackbar={this.handleSnackbarOpen}>
+        </Drink>;
+      });
+    }
 
     return (
       <div>

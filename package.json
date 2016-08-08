@@ -1,6 +1,6 @@
 {
-  "name": "bar-ninja",
-  "version": "0.0.1",
+  "name": "tavern-manager",
+  "version": "0.1.0",
   "description": "A handy web app for managing a bar",
   "main": "index.js",
   "scripts": {
@@ -9,17 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/toddmedema/bar-ninja.git"
+    "url": "git+https://github.com/toddmedema/tavern-manager.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/toddmedema/bar-ninja/issues"
+    "url": "https://github.com/toddmedema/tavern-manager/issues"
   },
   "engines": {
     "node": ">=6.2.2"
   },
-  "homepage": "https://github.com/toddmedema/bar-ninja#readme",
+  "homepage": "https://github.com/toddmedema/tavern-manager#readme",
   "dependencies": {
     "async": "^2.0.0-rc.5",
     "bell": "^7.9.0",
@@ -29,7 +29,7 @@
     "hoek": "^4.0.1",
     "inert": "^4.0.0",
     "joi": "^8.4.0",
-    "material-ui": "^0.15.0",
+    "material-ui": "^0.15.3",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-router": "^2.4.1",
