@@ -10,14 +10,22 @@ import FlatButton from 'material-ui/FlatButton';
 import MenuItem from 'material-ui/MenuItem';
 import SelectField from 'material-ui/SelectField';
 
+import UserAdd from './User/UserAdd';
+
 
 module.exports = React.createClass({
   getInitialState: function () {
     return {
       userId: null,
+      newUser: false,
+      doSubmitUser: false,
     };
   },
   handleOrder: function () {
+
+    if (this.state.newUser && !this.state.doSubmitUser) {
+      return this.setState({ doSubmitUser: true });
+    }
 
     const data = {
       abv: this.props.drink.abv,
@@ -42,16 +50,34 @@ module.exports = React.createClass({
   },
   handleUserSelect: function (event, index, value) {
     event.preventDefault();
-    this.setState({ userId: value });
+    this.setState({
+      newUser: (value === -1),
+      userId: value,
+    });
+  },
+  handleUserAdded: function (err, result) {
+
+    if (err) {
+      return console.log(err);
+    }
+
+    this.setState({ newUser: result, userId: result.id });
+    this.handleOrder();
   },
   render: function () {
 
     let buyConfirmText = 'Please select a patron to charge';
     const buyConfirmDisabled = (this.state.userId == null);
     if (buyConfirmDisabled === false) {
-      buyConfirmText = 'Charge ' + this.props.Users.find((user) => { return (user.id === this.state.userId); }).name + ' ' + this.props.drink.priceFormatted;
+      const name = (this.state.newUser) ? 'New User' : this.props.Users.find((user) => { return (user.id === this.state.userId); }).name;
+      buyConfirmText = 'Charge ' + name + ' ' + this.props.drink.priceFormatted;
     }
-    const users = this.props.Users.map((user) => {
+    let users = this.props.Users;
+    users.push({
+      id: -1,
+      name: '+ Add New User',
+    });
+    users = users.map((user) => {
       return <MenuItem key={user.id} value={user.id} primaryText={user.name} />;
     });
 
@@ -82,6 +108,7 @@ module.exports = React.createClass({
         >
           {users}
         </SelectField>
+        { this.state.newUser ? <UserAdd doSubmit={this.state.doSubmitUser} callback={this.handleUserAdded} /> : null }
       </Dialog>
     );
   },

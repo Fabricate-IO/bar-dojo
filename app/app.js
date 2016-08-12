@@ -27,7 +27,8 @@ import IconTimeline from './Icon/IconTimeline';
 import IconWine from './Icon/IconWine';
 
 const DrinkList = require('./DrinkList');
-const UserForm = require('./User/UserForm');
+const UserAdd = require('./User/UserAdd');
+const UserEdit = require('./User/UserEdit');
 const UserList = require('./User/UserList');
 const RecipeForm = require('./Recipe/RecipeForm');
 const RecipeList = require('./Recipe/RecipeList');
@@ -195,8 +196,8 @@ ReactDOM.render(
       </Route>
       <Route path="/users">
         <IndexRoute component={UserList} />
-        <Route path="add" component={UserForm} />
-        <Route path="edit/:id" component={UserForm} />
+        <Route path="add" component={UserAdd} />
+        <Route path="edit/:id" component={UserEdit} />
       </Route>
       <Route path="/inventory">
         <IndexRoute component={StockList} />
