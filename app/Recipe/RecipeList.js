@@ -25,40 +25,7 @@ const RecipeExpanded = React.createClass({
       recipe: this.props.recipe,
     };
   },
-  calculateAbv: function (options) {
 
-    let abv = 0;
-    let volume = 0;
-
-    const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
-
-      const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
-
-      if (stock != null) {
-        abv += ingredient.quantity * stock.abv;
-        volume += ingredient.quantity;
-      }
-    });
-
-    abv /= volume;
-
-    return utils.formatAbv(abv, options);
-  },
-  calculatePrice: function (options) {
-
-    let price = 0;
-
-    const ingredients = this.state.recipe.ingredients.map((ingredient, ingredientIndex) => {
-
-      const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
-
-      if (stock != null) {
-        price += ingredient.quantity * stock.volumeCost;
-      }
-    });
-
-    return utils.formatPrice(price, options);
-  },
   handleDialogOpen: function () {
     this.setState({ buyDialog: true });
   },
@@ -74,9 +41,9 @@ const RecipeExpanded = React.createClass({
 
     const recipe = this.state.recipe;
 
-    recipe.abv = this.calculateAbv({ unitless: true });
+    recipe.abv = utils.calculateAbv(this.state.recipe.ingredients, { unitless: true });
     recipe.abvFormatted = utils.formatAbv(recipe.abv);
-    recipe.price = this.calculatePrice({ unitless: true });
+    recipe.price = utils.calculatePrice(this.state.recipe.ingredients, { unitless: true });
     recipe.priceFormatted = utils.formatPrice(recipe.price);
 
     const ingredientsList = recipe.ingredients.map((ingredient, ingredientIndex) => {
@@ -325,12 +292,14 @@ module.exports = React.createClass({
           {recipesOutOfStock}
         </List>
 
-        <Snackbar
-          open={this.state.snackbar.open}
-          message={this.state.snackbar.message}
-          autoHideDuration={4000}
-          onRequestClose={this.handleSnackbarClose}
-        />
+        { this.state.snackbar.message == null ? null :
+          <Snackbar
+            open={this.state.snackbar.open}
+            message={this.state.snackbar.message}
+            autoHideDuration={4000}
+            onRequestClose={this.handleSnackbarClose}
+          />
+        }
       </div>
     );
   },

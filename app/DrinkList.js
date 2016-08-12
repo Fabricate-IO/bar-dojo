@@ -5,7 +5,6 @@ import NetworkRequest from './networkRequest';
 import styles from './styles';
 import utils from './utils';
 
-import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { List, ListItem } from 'material-ui/List';
 import MenuItem from 'material-ui/MenuItem';
@@ -155,7 +154,7 @@ module.exports = React.createClass({
     if (searched.length === 0) {
       inStock = <div>No {this.state.category} available</div>;
     } else {
-      inStock = instock.map((drink) => {
+      inStock = inStock.map((drink) => {
         return <Drink
           key={drink.id}
           category={this.state.category}

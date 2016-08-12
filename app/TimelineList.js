@@ -1,4 +1,5 @@
 import React from 'react';
+import Async from 'async';
 import { hashHistory } from 'react-router';
 
 import NetworkRequest from './networkRequest';
@@ -14,13 +15,16 @@ import SelectField from 'material-ui/SelectField';
 const OrderTransaction = React.createClass({
   getInitialState: function () {
     return {
-      Recipe: {},
+      ingredients: [],
+      Recipe: null,
       User: {},
     };
   },
   componentWillMount: function () {
 
-    NetworkRequest('GET', '/api/User/' + this.props.transaction.userId, (err, result) => {
+    const transaction = this.props.transaction;
+
+    NetworkRequest('GET', '/api/User/' + transaction.userId, (err, result) => {
 
       if (err) {
         return console.error('User API', status, err.toString());
@@ -29,18 +33,49 @@ const OrderTransaction = React.createClass({
       this.setState({ User: result });
     });
 
-    NetworkRequest('GET', '/api/Recipe/' + this.props.transaction.recipeId, (err, result) => {
+    if (transaction.recipeId != null) {
 
-      if (err) {
-        return console.error('Recipe API', status, err.toString());
-      }
+      NetworkRequest('GET', '/api/Recipe/' + transaction.recipeId, (err, result) => {
 
-      this.setState({ Recipe: result });
-    });
+        if (err) {
+          return console.error('Recipe API', status, err.toString());
+        }
+
+        this.setState({ Recipe: result });
+      });
+    }
+    else {
+
+      Async.map(transaction.ingredients, (ingredient, callback) => {
+        NetworkRequest('GET', '/api/BarStock/' + ingredient.barStockId, callback);
+      }, (err, result) => {
+
+        if (err) {
+          return console.error('BarStock API', status, err.toString());
+        }
+
+        this.setState({ ingredients: result });
+      })
+    }
   },
   render: function () {
+
     const transaction = this.props.transaction;
-    const primaryText = this.state.User.name + ' ordered a ' + this.state.Recipe.name;
+    let name;
+    if (this.state.Recipe != null) {
+      name = this.state.Recipe.name;
+    }
+    else if ([1, 2].indexOf(transaction.ingredients.length) !== -1) {
+      name = (this.state.ingredients[0] || {}).name;
+      if (transaction.ingredients.length === 2) {
+        name += ' & ' + (this.state.ingredients[1] || {}).name;
+      }
+    }
+    else {
+      name = 'custom drink';
+    }
+    const primaryText = this.state.User.name + ' ordered a ' + name;
+
     return (
       <ListItem
         primaryText={primaryText}

@@ -58,7 +58,7 @@ module.exports = React.createClass({
   handleUserAdded: function (err, result) {
 
     if (err) {
-      return console.log(err);
+      return console.error(err);
     }
 
     this.setState({ newUser: result, userId: result.id });

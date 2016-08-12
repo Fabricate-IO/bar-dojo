@@ -41,7 +41,7 @@ exports.schema = {
   archived: Joi.boolean().default(false),
 
   // Metadata
-  created: Joi.date().timestamp(),
+  created: Joi.date().timestamp().default(Date.now()),
 };
 
 
