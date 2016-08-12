@@ -218,6 +218,7 @@ module.exports = React.createClass({
         <br/>
         <RaisedButton label="Add Inventory" primary={true} type="submit" />
         <br/>
+        <br/>
         <RaisedButton label="Cancel" onClick={this.handleCancel} />
       </form>
     );

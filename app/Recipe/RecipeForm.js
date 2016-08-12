@@ -213,9 +213,12 @@ module.exports = React.createClass({
         {ingredients}
         <RaisedButton label="Add Ingredient" onClick={this.addIngredient} />
         <br/>
+        <br/>
         <RaisedButton label="Save" primary={true} type="submit" />
         <br/>
+        <br/>
         <RaisedButton label="Cancel" onClick={this.handleCancel} />
+        <br/>
         <br/>
         { this.state.creating ? null : <RaisedButton label="Delete" secondary={true} onClick={this.handleDelete} /> }
       </form>
