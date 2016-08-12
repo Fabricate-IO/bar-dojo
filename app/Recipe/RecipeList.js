@@ -81,7 +81,8 @@ const RecipeExpanded = React.createClass({
 
     const ingredientsList = recipe.ingredients.map((ingredient, ingredientIndex) => {
 
-      const quantityText = ingredient.quantity + ingredient.stockType.unitType;
+      let quantityText = ingredient.quantity + ingredient.stockType.unitType;
+      quantityText = Qty(quantityText).to('floz').toPrec('1 floz').toString().replace('fl', ''); // convert to fluid ounces, but just label as oz
       const stock = ingredient.stock.find((stock) => { return stock.id === ingredient.stockId; });
       let options = '';
 
