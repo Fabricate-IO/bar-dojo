@@ -77,6 +77,7 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       data: [],
+      StockTypes: [],
     };
   },
   componentWillMount: function () {
@@ -88,29 +89,27 @@ module.exports = React.createClass({
       }
 
       this.setState({ StockTypes: result });
-    });
-  },
-  componentDidMount: function () {
 
-    NetworkRequest('GET', '/api/BarStock?orderBy=name&order=asc', (err, result) => {
+      NetworkRequest('GET', '/api/BarStock?orderBy=name&order=asc', (err, result) => {
 
-      if (err) {
-        return console.error('BarStock API', status, err.toString());
-      }
+        if (err) {
+          return console.error('BarStock API', status, err.toString());
+        }
 
-      const stock = result.map((stock) => {
-        stock.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === stock.stockTypeId; });
-        return stock;
-      // NOTE: only have to sort here b/c rethink doesn't currently support case-agnostic searching
-      }).sort((a, b) => { // ascending, by name, ignore case
-        a = a.name.toLowerCase();
-        b = b.name.toLowerCase();
-        if (a < b) { return -1; }
-        if (b < a) { return 1; }
-        return 0;
+        const stock = result.map((stock) => {
+          stock.stockType = this.state.StockTypes.find((StockType) => { return StockType.id === stock.stockTypeId; });
+          return stock;
+        // NOTE: sorting here b/c rethink doesn't currently support case-agnostic sort / search
+        }).sort((a, b) => { // ascending, by name, ignore case
+          a = a.name.toLowerCase();
+          b = b.name.toLowerCase();
+          if (a < b) { return -1; }
+          if (b < a) { return 1; }
+          return 0;
+        });
+
+        this.setState({ data: stock });
       });
-
-      this.setState({ data: stock });
     });
   },
   render: function () {

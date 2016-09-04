@@ -6,7 +6,7 @@ const Config = require('./config');
 
 exports.isSetup = function (auth, bar, callback) {
 
-  if (bar.secret == null || bar.secret.splitwiseToken == null || bar.secret.splitwiseSecret == null) {
+  if (bar == null || bar.secret == null || bar.secret.splitwiseToken == null || bar.secret.splitwiseSecret == null) {
     return callback(null, false);
   }
 
